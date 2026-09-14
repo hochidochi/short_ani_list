@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>추가 후보군 파이프라인</title>
+<style>
+:root{
+  color-scheme:light;
+  --surface-1:#fcfcfb; --plane:#f9f9f7; --band:#f2f1ed;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --f7:#0d366b; --f6:#184f95; --f5:#256abf; --f4:#5598e7; --f3:#9ec5f4; --fit-ink:#fff;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+  font:13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1560px;margin:0 auto;padding:20px 18px 70px}
+h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:12px;margin-top:3px}
+.ver{margin-top:4px;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.ver b{font-weight:700;color:var(--ink-2);background:var(--band);border:1px solid var(--grid);border-radius:4px;padding:0 5px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:var(--surface-1);border:1px solid var(--ring);border-radius:10px;padding:10px 12px}
+.kpi .k{font-size:10.5px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.kpi .v{font-size:21px;font-weight:700;margin-top:2px;letter-spacing:-.02em}
+.kpi .v small{font-size:11px;font-weight:400;color:var(--muted);margin-left:3px}
+
+/* 필터 */
+.bar{position:sticky;top:0;z-index:30;background:var(--plane);
+  padding:9px 0 9px;margin-bottom:2px;border-bottom:1px solid var(--grid);
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--band);border-radius:8px;padding:2px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:12px;font-weight:600;
+  padding:5px 12px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--surface-1);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.07)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{border:1px solid var(--axis);background:var(--surface-1);color:var(--ink-2);font:inherit;font-size:11.5px;
+  padding:4px 10px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--surface-1);border-color:var(--ink)}
+input[type=search],select.ctl{border:1px solid var(--axis);background:var(--surface-1);color:var(--ink);
+  font:inherit;font-size:12px;padding:5px 9px;border-radius:7px;min-width:0}
+input[type=search]{width:150px}
+label.tg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.spacer{flex:1}
+.btn{border:1px solid var(--axis);background:var(--surface-1);color:var(--ink);font:inherit;font-size:12px;
+  font-weight:600;padding:5px 11px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--band)}
+.btn.on{border-color:var(--s1);box-shadow:inset 0 0 0 1px var(--s1)}
+
+/* 리스트 */
+.cols{display:grid;gap:16px;margin-top:10px}
+.cols.two{grid-template-columns:1fr 1fr}
+@media(max-width:1180px){.cols.two{grid-template-columns:1fr}}
+.colh{display:flex;align-items:baseline;gap:8px;padding:0 2px 6px;border-bottom:2px solid var(--axis);margin-bottom:2px}
+.colh b{font-size:13px}
+.colh span{font-size:11.5px;color:var(--muted)}
+
+.row{display:grid;grid-template-columns:30px 86px 1fr 152px 64px 64px 34px 24px;
+  gap:9px;align-items:center;padding:5px 6px;border-bottom:1px solid var(--grid);
+  background:var(--surface-1);cursor:default}
+.row:hover{background:var(--band)}
+.rhead{position:sticky;top:47px;z-index:20;background:var(--plane);color:var(--muted);
+  font-size:10px;font-weight:600;letter-spacing:.02em;border-bottom:1px solid var(--axis);padding:5px 6px;cursor:default}
+.rhead:hover{background:var(--plane)}
+.rk{font-size:11px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+/* 선정 컷 강조 */
+.row.cut{background:color-mix(in srgb,var(--s1) 5%,var(--surface-1));
+  box-shadow:inset 3px 0 0 var(--s1)}
+.row.cut:hover{background:color-mix(in srgb,var(--s1) 10%,var(--surface-1))}
+.row.cut .nm a{font-weight:700}
+.rk .cn{color:var(--s1);font-weight:800;font-size:12px}
+.row.out{opacity:.62}
+.row.out:hover{opacity:1}
+.row.flag.cut{box-shadow:none}
+.cutline{display:flex;align-items:center;gap:8px;margin:3px 0 2px;color:var(--s1);
+  font-size:10px;font-weight:700;letter-spacing:.03em;white-space:nowrap}
+.cutline:before,.cutline:after{content:"";flex:1;height:0;border-top:2px dashed color-mix(in srgb,var(--s1) 55%,transparent)}
+.cutline span{padding:0 2px}
+
+
+.nm{min-width:0}
+.nm a{color:var(--ink);font-weight:600;font-size:13px;text-decoration:none;
+  display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.nm a:hover{text-decoration:underline;text-decoration-color:var(--axis)}
+.meta{font-size:10.5px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gp{display:inline-block;font-size:10px;font-weight:600;color:var(--ink-2);background:var(--band);
+  border:1px solid var(--grid);padding:0 6px;border-radius:999px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+.gp.off{border-color:var(--s1);color:var(--s1);background:color-mix(in srgb,var(--s1) 10%,transparent)}
+.row.flag .gp{color:var(--muted)!important;border-color:var(--grid)!important;background:var(--band)!important}
+.gem{display:inline-block;font-size:9.5px;font-weight:800;color:#fff;background:var(--s3);
+  padding:1px 5px;border-radius:999px;margin-left:6px;vertical-align:1px;letter-spacing:-.02em}
+.row.flag .gem{background:var(--axis)}
+.b19{display:inline-block;background:var(--crit);color:#fff;font-size:9px;font-weight:800;
+  padding:1px 4px;border-radius:3px;margin-left:5px;vertical-align:1px;letter-spacing:-.02em}
+.bsearch{font-size:9.5px;color:var(--muted);border:1px solid var(--grid);border-radius:3px;padding:0 3px;margin-left:4px}
+
+/* 4축 */
+.ax{display:flex;gap:3px}
+.ax i{flex:1;height:28px;border-radius:3px;position:relative;background:var(--band);
+  display:flex;align-items:flex-end;font-style:normal;overflow:hidden}
+.ax i b{display:block;width:100%;font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:1.5}
+.ax.na{color:var(--muted);font-size:10px;align-items:center;justify-content:center;height:28px}
+
+.axh{display:flex;gap:3px}
+.axh i{flex:1;font-style:normal;text-align:center;font-size:8.5px;line-height:1.25;color:var(--muted);font-weight:600}
+.axh i em{display:block;height:3px;border-radius:2px;margin-bottom:2px}
+.axh i b{display:block;font-weight:600;font-size:8px;color:var(--muted)}
+.num{font-size:12px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.num small{display:block;font-size:9.5px;color:var(--muted)}
+.fit{font-size:15px;font-weight:700;text-align:center;border-radius:5px;padding:3px 0;color:var(--fit-ink);
+  font-variant-numeric:tabular-nums}
+.fit.na{background:var(--band)!important;color:var(--muted);font-size:11px;font-weight:600}
+.iss{border:1px solid var(--grid);background:transparent;color:var(--muted);border-radius:5px;
+  width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer;padding:0}
+.iss:hover{border-color:var(--crit);color:var(--crit)}
+.row.flag .iss{border-color:var(--crit);background:color-mix(in srgb,var(--crit) 14%,transparent);color:var(--crit)}
+.row.flag{background:var(--band)}
+.row.flag .nm a,.row.flag .num,.row.flag .rk,.row.flag .meta{color:var(--muted)!important}
+.row.flag .nm a{text-decoration:line-through;text-decoration-color:var(--axis)}
+.row.flag .ax,.row.flag .fit{filter:grayscale(1);opacity:.45}
+.row.flag .b19{background:var(--axis)}
+
+.cm{grid-column:2/7;font-size:11px;color:var(--ink-2);line-height:1.5;cursor:pointer;padding-bottom:2px}
+.cm.clip{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;color:var(--muted)}
+.row{row-gap:1px}
+.rsn{border:1px solid var(--crit);background:var(--surface-1);color:var(--crit);font:inherit;font-size:10.5px;
+  padding:1px 4px;border-radius:5px;margin-left:6px;font-weight:600;vertical-align:1px}
+.fit{cursor:help}
+#tip{position:fixed;z-index:100;max-width:420px;background:var(--ink);color:#fff;border-radius:8px;
+  padding:10px 12px;font-size:11.5px;line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.22);
+  pointer-events:none;opacity:0;transition:opacity .09s;display:none}
+#tip.on{opacity:1;display:block}
+#tip .tt{font-size:12.5px;font-weight:700;margin-bottom:5px}
+#tip .tx{display:flex;gap:10px;margin-bottom:6px;font-size:10.5px;color:#e8e7e2}
+#tip .tx s{text-decoration:none;display:flex;align-items:center;gap:4px}
+#tip .tx s i{width:7px;height:7px;border-radius:2px;display:inline-block}
+#tip .tc{color:#e8e7e2;border-top:1px solid rgba(255,255,255,.18);padding-top:6px;margin-top:2px}
+.ow{min-width:0}
+.osel{width:100%;font:inherit;font-size:10.5px;font-weight:600;color:var(--ink-2);
+  border:1px solid var(--grid);background:var(--surface-1);border-radius:999px;
+  padding:2px 4px;cursor:pointer;appearance:none;text-align:center;text-align-last:center}
+.osel:hover{border-color:var(--axis);background:var(--band)}
+.osel.set{border-color:var(--s3);color:var(--ink);background:color-mix(in srgb,var(--s3) 10%,transparent)}
+.row.flag .osel{color:var(--muted)!important;border-color:var(--grid)!important;background:transparent!important}
+.vr{width:1px;height:18px;background:var(--grid)}
+.issh{font-size:9.5px;color:var(--muted);text-align:center;font-weight:600}
+.btn.prim{background:var(--s1);border-color:var(--s1);color:#fff}
+.btn.prim:hover{background:var(--f5)}
+.mwrap{position:fixed;inset:0;z-index:200;background:rgba(11,11,11,.36);display:flex;
+  align-items:center;justify-content:center;padding:20px}
+.mwrap[hidden]{display:none}
+.mbox{background:var(--surface-1);border-radius:12px;padding:18px 20px;width:400px;max-width:100%;
+  box-shadow:0 18px 50px rgba(0,0,0,.28)}
+.mbox .mt{font-size:15px;font-weight:700;margin-bottom:14px}
+.mbox .ml{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.mbox .mch{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.mbox input{width:100%;border:1px solid var(--axis);border-radius:7px;padding:7px 10px;
+  font:inherit;font-size:12.5px;background:var(--surface-1);color:var(--ink)}
+.mbox .mb{display:flex;gap:7px;align-items:center;margin-top:16px}
+.chipsync{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.chipsync[data-s=off]{background:color-mix(in srgb,var(--warn) 26%,transparent);color:var(--ink)}
+.chipsync[data-s=ok]{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--ink)}
+.chipsync[data-s=err]{background:color-mix(in srgb,var(--crit) 20%,transparent);color:var(--ink)}
+.empty{padding:36px;text-align:center;color:var(--muted);font-size:13px}
+.status{font-size:11px;color:var(--muted);white-space:nowrap}
+.status.err{color:var(--serious)}
+.status.ok{color:var(--good)}
+</style></head><body><div class="wrap">
+<div class="top">
+  <div>
+    <h1>추가 후보군 파이프라인</h1>
+    <div class="sub" id="sub"></div>
+    <div class="ver" id="ver"></div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="chipsync" id="syncChip" hidden></span>
+    <span class="status" id="nvStatus"></span>
+    <button class="btn" id="copyLink" title="이슈 표시를 포함한 현재 상태를 링크로 복사합니다.">링크 복사</button>
+  </div>
+</div>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="bar">
+  <div class="seg" id="segT">
+    <button data-t="all" aria-pressed="true">전체</button>
+    <button data-t="남">남성향</button>
+    <button data-t="여">여성향</button>
+    <button data-t="여/남">여·남</button>
+    <button data-t="split">나란히</button>
+    <button data-t="issue" id="btIssue">이슈 0</button>
+  </div>
+  <div class="seg" id="segB">
+    <button data-b="fit" aria-pressed="true" title="① ~ ④ 합 + GW + 한국 = 50점">총 적합도</button>
+    <button data-b="s4" title="조회수를 빼고 ① ~ ④ 합만 = 40점">제작 4축</button>
+  </div>
+  <span class="vr"></span>
+  <div class="chips" id="owners"></div>
+  <span class="vr"></span>
+  <div class="chips" id="genres"></div>
+  <span class="spacer"></span>
+  <input type="search" id="q" placeholder="작품명 검색">
+  <select class="ctl" id="year">
+    <option value="">런칭 전체</option>
+    <option value="2023-01-01">2023년 이후</option>
+    <option value="2024-01-01">2024년 이후</option>
+    <option value="2025-01-01">2025년 이후</option>
+  </select>
+  <select class="ctl" id="sort">
+    <option value="basis">평가 기준 순</option>
+    <option value="gem">원석 지수 순</option>
+    <option value="gw">GW 조회수 순</option>
+    <option value="kr">한국 조회수 순</option>
+    <option value="d">최신 런칭 순</option>
+    <option value="rk">시트 순위</option>
+  </select>
+  <label class="tg"><input type="checkbox" id="onlyGem" title="조회수 포함 순위보다 제작 4축 순위가 15계단 이상 앞서는 작품"> 원석만</label>
+  <label class="tg"><input type="checkbox" id="hideFlag"> 이슈 숨기기</label>
+</div>
+
+<div class="cols" id="cols"></div>
+
+</div>
+<script>
+/* ═══ 공유 저장소 (선택) ═══════════════════════════════════════════
+   아래 두 줄을 채우면 이슈 표시가 모든 사람에게 똑같이 보입니다.
+   비워 두면 이슈 표시는 이 브라우저에만 저장되고, '링크 복사'로만 공유됩니다.
+   Supabase → 프로젝트 설정 → API 에서 URL 과 anon key 를 복사해 넣으세요.   */
+const SUPABASE_URL  = "https://znbuabcfjvlzulxnvuux.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_V5IW1OvGcyHDAC4OtjhR6g_Y2a8nT8t";
+const SB_TABLE = "candidate_issues", SB_ROW = "default";
+/* ══════════════════════════════════════════════════════════════ */
+
+const W = [{"rk": 1, "own": "", "n": "멸망 이후의 세계", "g": "판타지", "t": "남", "d": "2022-02-07", "ep": 249, "gw": 82000000, "kr": 221000000, "fit": 41, "gs": 4, "ks": 5, "a": 6, "b": 8, "c": 8, "e": 10, "s4": 32, "cm": "초월자 능력전 이펙트 중심. 수려한 작화+멸망 세계 배경으로 생성 부담 큼", "id": 789979}, {"rk": 2, "own": "", "n": "세레나", "g": "로맨스", "t": "여", "d": "2022-10-21", "ep": 139, "gw": 110000000, "kr": 125000000, "fit": 38, "gs": 5, "ks": 5, "a": 6, "b": 8, "c": 6, "e": 8, "s4": 28, "cm": "뮤직비디오형 각색 방향을 이미 확보했고 주요 인물이 4인 축이라 짧은 호흡에 유리 → 각색·용이성 상향. '압도적으로 아름다운' 작화", "id": 801475}, {"rk": 3, "own": "", "n": "66666년 만에 환생한 흑마법사", "g": "판타지", "t": "남", "d": "2021-06-29", "ep": 197, "gw": 56000000, "kr": 205000000, "fit": 38, "gs": 2, "ks": 5, "a": 7, "b": 6, "c": 8, "e": 10, "s4": 31, "cm": "흑마법 이펙트로 합 부담 낮음. 작가 교체로 작화 기준선 불안정 / 애니메이션 판권이 없다고 전달받아 (2026-08-24) 희망 리스트에서 제외", "id": 775141}, {"rk": 4, "own": "인하우스", "n": "작두", "g": "판타지", "t": "여/남", "d": "2024-07-17", "ep": 114, "gw": 24000000, "kr": 238000000, "fit": 38, "gs": 1, "ks": 5, "a": 7, "b": 8, "c": 9, "e": 8, "s4": 32, "cm": "무속 소재 무경쟁 + 에피소드 아크가 회차 분절 장치를 자체 제공. 정식 회차 3화 제작으로 생성 안정성 실증", "id": 828294}, {"rk": 5, "own": "", "n": "참교육", "g": "액션", "t": "남", "d": "2020-11-01", "ep": 261, "gw": 96000000, "kr": 527000000, "fit": 37, "gs": 4, "ks": 5, "a": 4, "b": 6, "c": 8, "e": 10, "s4": 28, "cm": "6~8화 단위 학교별 자기완결 구조가 회차 분절에 유리하고 교권보호국 소재도 차별적 → 각색 상향. 다만 근접 격투 위주 + 에피소드마다 인물 교체로 용이성 하향", "id": 758037}, {"rk": 6, "own": "", "n": "나노마신", "g": "무협/사극", "t": "남", "d": "2020-06-10", "ep": 325, "gw": 94000000, "kr": 810000000, "fit": 37, "gs": 4, "ks": 5, "a": 6, "b": 8, "c": 6, "e": 8, "s4": 28, "cm": "무협+나노머신 SF 결합이 차별점 → 각색 상향. 정교 작화+다수 앙상블로 용이성은 하향", "id": 747271}, {"rk": 7, "own": "", "n": "신화급 귀속 아이템을 손에 넣었다", "g": "판타지", "t": "남", "d": "2022-06-12", "ep": 195, "gw": 64000000, "kr": 173000000, "fit": 37, "gs": 3, "ks": 5, "a": 7, "b": 8, "c": 6, "e": 8, "s4": 29, "cm": "던전 능력전 이펙트 중심이나 2025 복귀 후 작화·분량 악평이 리스크", "id": 795297}, {"rk": 8, "own": "", "n": "파브르 in 사천당가", "g": "무협/사극", "t": "남", "d": "2024-11-03", "ep": 101, "gw": 12000000, "kr": 123000000, "fit": 37, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 8, "e": 9, "s4": 31, "cm": "독충 전문 유튜버가 사천당가에 전생 — 무경쟁 소재이고 독공·독충·암기는 전부 이펙트로 처리 가능 → 각색 상향", "id": 833702}, {"rk": 9, "own": "", "n": "입학용병", "g": "액션", "t": "남", "d": "2020-11-07", "ep": 281, "gw": 277892213, "kr": 477123666, "fit": 36, "gs": 5, "ks": 5, "a": 3, "b": 6, "c": 9, "e": 8, "s4": 34, "cm": "위기 발생 → 유이진 등장 → 제압 → 마무리'가 회차마다 반복되는 에피소드 완결 구조로 클립 추출이 라인업에서 가장 쉬움 → 서사 대폭 상향. 다만 맨몸 근접 격투가 서사의 본체이고(총격 병용) 인물 40명 이상·학교/용병캠프/기업 다지역까지 겹쳐 생성안정성 결격 구간. ※2025-06-19 일본 TV 애니메이션 제작 확정(라인디지털프론티어) — 판권 충돌 여부 확인이 채점보다 선행되어야 함", "id": 758150}, {"rk": 10, "own": "", "n": "왕의 힘으로 회귀한다", "g": "판타지", "t": "남", "d": "2023-11-03", "ep": 156, "gw": 46000000, "kr": 128000000, "fit": 36, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 7, "e": 9, "s4": 30, "cm": "포식·능력 흡수 이펙트 위주로 무난. 각성 회귀 헌터물 포화 구간", "id": 817958}, {"rk": 11, "own": "", "n": "시한부 천재 암흑기사", "g": "판타지", "t": "남", "d": "2023-05-17", "ep": 162, "gw": 43000000, "kr": 135000000, "fit": 36, "gs": 1, "ks": 5, "a": 6, "b": 8, "c": 7, "e": 9, "s4": 30, "cm": "제복·마법 이펙트 작화 호평. 아카데미 빙의 클리셰+검·격투 혼합으로 난도 상승", "id": 809625}, {"rk": 12, "own": "인하우스", "n": "덴마", "g": "판타지", "t": "남", "d": "2010-01-08", "ep": 1414, "gw": 37577218, "kr": 36904324, "fit": 36, "gs": 1, "ks": 1, "a": 8, "b": 8, "c": 8, "e": 10, "s4": 34, "cm": "1부가 에피소드 완결형이고 우주 택배+초능력 암살자는 유사작 전무 → 각색 상향. 데포르메 단순 작화 + 이펙트 위주로 생성 부담도 낮음. 양영순 서사는 정평이라 서사 상향. 판권(로커스) 해소 시 재검토 1순위라는 내부 판단과 정합", "id": 119874}, {"rk": 13, "own": "", "n": "귀촌리", "g": "스릴러", "t": "여/남", "d": "2024-03-10", "ep": 109, "gw": 37000000, "kr": 151000000, "fit": 36, "gs": 1, "ks": 5, "a": 7, "b": 9, "c": 6, "e": 8, "s4": 30, "cm": "폐쇄 시골 마을 단일 공간 + 소수 주연으로 맨몸 격투 부담을 상쇄.", "id": 822573}, {"rk": 15, "own": "", "n": "아카데미 플레이어를 죽였다", "g": "판타지", "t": "남", "d": "2023-11-06", "ep": 138, "gw": 27000000, "kr": 161000000, "fit": 36, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 7, "e": 9, "s4": 30, "cm": "검술·마법 이펙트 위주로 합 부담 낮음. 아일랜드 신화는 배경 설정 수준이고 아카데미 빙의 구조는 클리셰", "id": 818434}, {"rk": 16, "own": "인하우스", "n": "잔불의 기사", "g": "판타지", "t": "남", "d": "2021-03-21", "ep": 246, "gw": 24000000, "kr": 177000000, "fit": 36, "gs": 1, "ks": 5, "a": 6, "b": 8, "c": 8, "e": 8, "s4": 30, "cm": "발광 이펙트가 맨몸 합을 대체하는 우회 구조. 재능 없는 자의 착각·복수 훅 강함", "id": 768536}, {"rk": 17, "own": "", "n": "어느 마법사의 식당", "g": "판타지", "t": "남", "d": "2023-11-21", "ep": 146, "gw": 20000000, "kr": 157000000, "fit": 36, "gs": 1, "ks": 5, "a": 5, "b": 8, "c": 8, "e": 9, "s4": 30, "cm": "은퇴 대마법사+요리+흑룡 하숙생 조합이 무경쟁. 전투 비중이 낮아 정교 작화 부담을 상쇄.", "id": 818888}, {"rk": 18, "own": "인하우스", "n": "망나니 소교주로 환생했다", "g": "무협/사극", "t": "남", "d": "2021-07-23", "ep": 200, "gw": 17000000, "kr": 139000000, "fit": 36, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 8, "e": 10, "s4": 30, "cm": "검기 이펙트 전투로 합 부담 낮으나 정교 작화가 인물 유지 난도 상승. 천마물 클리셰", "id": 773796}, {"rk": 19, "own": "", "n": "할배무사와 지존 손녀", "g": "무협/사극", "t": "남", "d": "2023-09-27", "ep": 121, "gw": 7397396, "kr": 94602604, "fit": 36, "gs": 1, "ks": 4, "a": 7, "b": 7, "c": 8, "e": 9, "s4": 31, "cm": "조손 육아+무협 조합이 차별점이며 감정 훅 강함. 창술·기공 이펙트로 합 부담 낮음", "id": 817246}, {"rk": 20, "own": "", "n": "1등급 싸움과외", "g": "액션", "t": "남", "d": "2024-02-06", "ep": 99, "gw": 6000000, "kr": 125000000, "fit": 36, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 8, "e": 8, "s4": 30, "cm": "싸움을 '과외'로 배운다는 설정이 차별적이고 회차 완결성도 높음 → 각색 상향. 단순·경쾌 작화 + 고교 단일 배경이 맨몸 격투 부담을 상쇄해 용이성 유지", "id": 821321}, {"rk": 21, "own": "", "n": "천마는 조용히 살고싶다", "g": "무협/사극", "t": "남", "d": "2024-11-26", "ep": 93, "gw": 6000000, "kr": 111000000, "fit": 36, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 7, "e": 9, "s4": 30, "cm": "공포만이 전부였던 천마가 반대로 조용히 살고 싶어진다'는 반전 훅이 있어 각색 소폭 상향. 기공·마공 이펙트로 합 부담 낮음", "id": 834502}, {"rk": 22, "own": "", "n": "귀환했는데 입대 전날이다", "g": "판타지", "t": "남", "d": "2023-03-17", "ep": 101, "gw": 5221403, "kr": 66819916, "fit": 36, "gs": 1, "ks": 3, "a": 6, "b": 9, "c": 8, "e": 9, "s4": 32, "cm": "귀환 직후 입대라는 한 줄 훅 강력. 흑마법 방출 이펙트+깔끔한 작화로 생성 조건 양호", "id": 807393}, {"rk": 23, "own": "스튜디오N", "n": "샤MONEY즘", "g": "판타지", "t": "남", "d": "2025-06-29", "ep": 63, "gw": null, "kr": 125000000, "fit": 36, "gs": 1, "ks": 5, "a": 6, "b": 8, "c": 8, "e": 8, "s4": 30, "cm": "일류 무당은 여의도에서 논다' 한 줄 훅 + 무속×주식은 유사작 전무. 작두 계열 소재 전략과 정합", "id": 840014}, {"rk": 24, "own": "", "n": "회귀한 공작가의 막내도련님은 암살자", "g": "판타지", "t": "남", "d": "2024-02-25", "ep": 140, "gw": 90000000, "kr": 222000000, "fit": 35, "gs": 4, "ks": 5, "a": 4, "b": 6, "c": 7, "e": 9, "s4": 26, "cm": "암살술+마검 혼합. 아카데미 회귀 클리셰로 소재 차별점 없음", "id": 821195}, {"rk": 25, "own": "", "n": "스터디그룹", "g": "액션", "t": "남", "d": "2019-01-04", "ep": 342, "gw": 79000000, "kr": 264000000, "fit": 35, "gs": 4, "ks": 5, "a": 4, "b": 6, "c": 6, "e": 10, "s4": 26, "cm": "체계화된 순수 격투가 서사의 본체 + 정교 작화 + 다지역 앙상블. 맨몸 합 3중 악조건으로 용이성 최하위권. 역동적 액션 작화는 비주얼 자산이라 상향", "id": 721948}, {"rk": 26, "own": "인하우스", "n": "똑 닮은 딸", "g": "스릴러", "t": "여", "d": "2021-08-29", "ep": 222, "gw": 43000000, "kr": 308000000, "fit": 35, "gs": 1, "ks": 5, "a": 7, "b": 6, "c": 10, "e": 6, "s4": 29, "cm": "우리 엄마가 살인마인 것 같다' 훅 강함. 다만 3부 이목구비 극대화가 불쾌한 골짜기 비판을 받은 작품이라 AI 재현 시 같은 리스크가 확대됨", "id": 774866}, {"rk": 27, "own": "", "n": "99강화나무몽둥이", "g": "판타지", "t": "남", "d": "2022-03-25", "ep": 224, "gw": 38000000, "kr": 203000000, "fit": 35, "gs": 1, "ks": 5, "a": 7, "b": 6, "c": 8, "e": 8, "s4": 29, "cm": "개그 컨셉 한 줄 훅+낮은 작화 밀도로 생성 부담 최소. 비주얼 스펙터클은 약함", "id": 792651}, {"rk": 28, "own": "", "n": "게임 최강 트롤러", "g": "판타지", "t": "남", "d": "2022-10-26", "ep": 196, "gw": 29000000, "kr": 109000000, "fit": 35, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 6, "e": 9, "s4": 29, "cm": "스킬·보스전 이펙트 위주. VR 영지·보스 배경 에셋이 방대", "id": 801698}, {"rk": 29, "own": "", "n": "사시미 한 자루로 아카데미를 씹어먹음", "g": "판타지", "t": "남", "d": "2024-08-28", "ep": 93, "gw": 24000000, "kr": 101000000, "fit": 35, "gs": 1, "ks": 5, "a": 6, "b": 7, "c": 8, "e": 8, "s4": 29, "cm": "사시미+검신 가호가 무경쟁 훅. 주인공 단독 편중 구조라 유지할 인물이 적어 용이", "id": 829875}, {"rk": 30, "own": "", "n": "멸망한 가문의 회귀자", "g": "판타지", "t": "남", "d": "2024-01-05", "ep": 147, "gw": 24000000, "kr": 163000000, "fit": 35, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 6, "e": 9, "s4": 29, "cm": "시공참 등 기 이펙트 위주. 다수 귀족가·용병길드·반란군으로 에셋 폭증", "id": 819946}, {"rk": 31, "own": "", "n": "사형집행관", "g": "액션", "t": "남", "d": "2024-04-03", "ep": 72, "gw": 19793409, "kr": 75329718, "fit": 35, "gs": 1, "ks": 4, "a": 5, "b": 9, "c": 7, "e": 9, "s4": 30, "cm": "히어로가 사형을 집행한다는 훅+압도적 작화 평. 교도소 단일 배경은 이점, 정권 격투는 부담", "id": 822765}, {"rk": 32, "own": "", "n": "플레이어가 과거를 숨김", "g": "판타지", "t": "남", "d": "2023-06-16", "ep": 134, "gw": 18000000, "kr": 108000000, "fit": 35, "gs": 1, "ks": 5, "a": 6, "b": 7, "c": 8, "e": 8, "s4": 29, "cm": "중2병 시절 만든 자캐에 빙의됐다'가 강한 한 줄 훅 → 각색 상향. 다만 현대+VR 융합 세계관에 인물이 많아 용이성 하향", "id": 811707}, {"rk": 33, "own": "", "n": "염라강림", "g": "판타지", "t": "남", "d": "2023-10-30", "ep": 150, "gw": 15000000, "kr": 137000000, "fit": 35, "gs": 1, "ks": 5, "a": 6, "b": 7, "c": 8, "e": 8, "s4": 29, "cm": "퇴직 염라+장의사 한 줄 훅. 작두와 같은 한국 무속·신화 소재로 라인업 정합, 장식 밀도가 부담", "id": 818192}, {"rk": 34, "own": "인하우스", "n": "상남자", "g": "드라마", "t": "남", "d": "2020-07-30", "ep": 276, "gw": 15000000, "kr": 232000000, "fit": 35, "gs": 1, "ks": 5, "a": 7, "b": 6, "c": 8, "e": 8, "s4": 29, "cm": "회귀 기업물이 흔하고 대화 중심이라 움직임 증폭 효과가 작음 → 각색 하향. 기업 단일 환경+소수 인물로 용이성은 높음. 서사는 회귀 기업물 표준 수준", "id": 751168}, {"rk": 35, "own": "", "n": "종말에서 살아남기", "g": "판타지", "t": "남", "d": "2024-05-22", "ep": 111, "gw": 11000000, "kr": 100000000, "fit": 35, "gs": 1, "ks": 4, "a": 6, "b": 7, "c": 7, "e": 10, "s4": 30, "cm": "지하실에서 훈련받은 소년이라는 훅+괴수 스펙터클. 디테일한 폐허 배경이 생성 부담", "id": 826321}, {"rk": 36, "own": "인하우스", "n": "화산귀환", "g": "무협/사극", "t": "여/남", "d": "2021-03-23", "ep": 181, "gw": 69000000, "kr": 829000000, "fit": 34, "gs": 3, "ks": 5, "a": 5, "b": 7, "c": 6, "e": 8, "s4": 26, "cm": "작화가 6명+팀 제작 수준의 고밀도라 원작 재현 실패 리스크가 최상급. 원작 팬덤이 거대해 재현 실패 시 IP 손상 폭도 큼 → 용이성 하향", "id": 769209}, {"rk": 37, "own": "스튜디오N", "n": "사신소년", "g": "액션", "t": "남", "d": "2019-07-08", "ep": 345, "gw": 47000000, "kr": 253000000, "fit": 34, "gs": 1, "ks": 5, "a": 6, "b": 8, "c": 6, "e": 8, "s4": 28, "cm": "수명 거래 훅 명확. 역동적 전투씬·색감이 원작 대표 강점이나 고밀도로 재현 난도 높음", "id": 730656}, {"rk": 38, "own": "", "n": "마도전생기", "g": "무협/사극", "t": "남", "d": "2023-03-24", "ep": 184, "gw": 40000000, "kr": 336000000, "fit": 34, "gs": 1, "ks": 5, "a": 6, "b": 8, "c": 6, "e": 8, "s4": 28, "cm": "검기 이펙트 위주로 합 부담은 낮음. '주요 인물 작화와 배경, 전투씬 묘사가 뛰어나다'는 평가가 있어 비주얼 상향", "id": 807777}, {"rk": 39, "own": "", "n": "용사보다 너무 강해서 힘을 숨김", "g": "액션", "t": "남", "d": "2023-08-19", "ep": 135, "gw": 28000000, "kr": 140000000, "fit": 34, "gs": 1, "ks": 5, "a": 5, "b": 6, "c": 9, "e": 8, "s4": 28, "cm": "힘을 숨기지 않으면 심장이 터진다는 한 줄 훅. 코미디+마법 이펙트로 짧은 호흡 정합", "id": 814213}, {"rk": 40, "own": "", "n": "괴력 난신", "g": "무협/사극", "t": "남", "d": "2024-03-04", "ep": 109, "gw": 25000000, "kr": 362000000, "fit": 34, "gs": 1, "ks": 5, "a": 6, "b": 8, "c": 6, "e": 8, "s4": 28, "cm": "술법·이매망량으로 이펙트 대체가 되고 살인마 주인공이 차별점. 정교 작화 + 다문파 앙상블로 용이성은 낮음", "id": 821597}, {"rk": 42, "own": "", "n": "나만 보는 탑 공략집", "g": "판타지", "t": "남", "d": "2024-04-15", "ep": 133, "gw": 17609130, "kr": 82390870, "fit": 34, "gs": 1, "ks": 4, "a": 7, "b": 7, "c": 6, "e": 9, "s4": 29, "cm": "무영추혼검 등 검술 스킬 이펙트로 무난. 탑 공략 시스템물 포화", "id": 823434}, {"rk": 43, "own": "", "n": "풍작이에요, 마왕님!", "g": "판타지", "t": "남", "d": "2025-03-26", "ep": 80, "gw": 17000000, "kr": 101000000, "fit": 34, "gs": 1, "ks": 5, "a": 4, "b": 7, "c": 9, "e": 8, "s4": 28, "cm": "인간을 침공하면 용사에게 죽고 안 하면 굶어죽는 마왕의 답은 농사' — 강한 한 줄 훅에 에피소드형 아크까지 갖춤 → 각색 대폭 상향. 다만 사천왕·영지 군주 등 20명 이상 앙상블이 용이성 병목", "id": 837486}, {"rk": 44, "own": "", "n": "기기괴괴2", "g": "스릴러", "t": "여/남", "d": "2024-03-09", "ep": 118, "gw": 13000000, "kr": 133000000, "fit": 34, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 10, "e": 6, "s4": 28, "cm": "편당 독립 단편 호러 옴니버스. 전략 문서가 요구하는 '회차 끝을 만드는 분절 장치가 원작 구조에 이미 있는가'에 가장 정확히 부합 + 기기괴괴 브랜드 자산", "id": 821851}, {"rk": 45, "own": "", "n": "사천당가의 검신급 소가주가 되었다", "g": "무협/사극", "t": "남", "d": "2024-03-19", "ep": 121, "gw": 10000000, "kr": 177000000, "fit": 34, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 5, "e": 9, "s4": 28, "cm": "독가문+검신 조합은 소폭 차별. 독술·암기 이펙트로 합 부담 낮음", "id": 822862}, {"rk": 46, "own": "", "n": "가족같은 XX", "g": "로맨스", "t": "여", "d": "2022-02-09", "ep": 166, "gw": 6794387, "kr": 73235670, "fit": 34, "gs": 1, "ks": 4, "a": 7, "b": 7, "c": 7, "e": 8, "s4": 29, "cm": "동거 주택 단일 배경 + 주요 3명으로 용이성 상향. 탑 배우와 고등학생의 동거라는 설정은 훅이지만 편성 시 연령 표현 리스크를 별도로 봐야 함", "id": 790239}, {"rk": 47, "own": "", "n": "대마법사 커리큘럼", "g": "판타지", "t": "남", "d": "2025-11-26", "ep": 43, "gw": 863939, "kr": 25265970, "fit": 34, "gs": 1, "ks": 1, "a": 8, "b": 7, "c": 8, "e": 9, "s4": 32, "cm": "해파리형 요정, 뿔 나는 마인종, 누더기로 기워진 몸 등 기괴·비인간 캐릭터가 많아 인물 동일성 기준이 느슨해지는 이점 → 용이성 상향. 바디호러+마법 육성 조합도 무경쟁.", "id": 844951}, {"rk": 48, "own": "", "n": "사람의 탈", "g": "판타지", "t": "남", "d": "2024-03-11", "ep": 106, "gw": 0, "kr": 84667630, "fit": 34, "gs": 1, "ks": 4, "a": 8, "b": 7, "c": 6, "e": 8, "s4": 29, "cm": "탈이 얼굴을 가려 인물 동일성 유지 문제를 구조로 회피. 탈춤·착호대는 작두 계열 한국 전통 소재", "id": 822198}, {"rk": 49, "own": "엠스토리허브", "n": "재혼 황후", "g": "로맨스", "t": "여", "d": "2019-10-24", "ep": 252, "gw": 275161747, "kr": 235404446, "fit": 33, "gs": 5, "ks": 5, "a": 6, "b": 6, "c": 7, "e": 4, "s4": 23, "cm": "남편의 재혼을 승인하는 대신 나도 재혼하겠다'는 훅이 48작품 중 최상급 → 서사 상향. 액션이 없어 합 부담은 없으나 반실사체 얼굴은 생성 시 표정 붕괴가 가장 눈에 띄는 유형이고, 궁정 연회 군중 + 동대/서대 제국 다지역 + 고밀도 드레스·보석까지 겹쳐 용이성 하향. 정적 대화극이라 모션 증폭 폭도 작음. 글로벌 26억 뷰·Disney+ 드라마(2026.11) 편성작이라 IP는 최상위이나 4축만으로는 중위권", "id": 735661}, {"rk": 50, "own": "엠스토리허브", "n": "흔한 빙의물인 줄 알았다", "g": "로맨스", "t": "여", "d": "2023-04-04", "ep": 116, "gw": 212000000, "kr": 144550362, "fit": 33, "gs": 5, "ks": 5, "a": 7, "b": 6, "c": 6, "e": 4, "s4": 28, "cm": "액션 비중이 낮고 핵심 인물 4명 축이라 용이성 유리. 다만 책빙의물 특성상 '원작 소설의 전개'라는 메타 설정을 먼저 깔아야 읽혀 서사압축 하향, 로판 악녀 빙의는 경쟁작도 다수. 마법 세계관이나 귀족 관계극 중심이라 모션 이벤트 적음. ※칵테일 미디어가 애니메이션 개발작으로 보유했으나 동사 2026-01-29 파산 — 권리 상태 확인 선행 필요", "id": 808018}, {"rk": 51, "own": "인하우스", "n": "빌런투킬", "g": "판타지", "t": "남", "d": "2021-02-15", "ep": 251, "gw": 62521256, "kr": 60478744, "fit": 33, "gs": 3, "ks": 3, "a": 7, "b": 6, "c": 6, "e": 8, "s4": 27, "cm": "전투신 퀄리티 호평. MMA 클린치·그라운드 실사 묘사는 AI 생성 최난도 영역", "id": 765156}, {"rk": 52, "own": "스튜디오N", "n": "나태 공자, 노력 천재 되다", "g": "판타지", "t": "남", "d": "2021-05-21", "ep": 157, "gw": 39000000, "kr": 140000000, "fit": 33, "gs": 1, "ks": 5, "a": 7, "b": 6, "c": 6, "e": 8, "s4": 27, "cm": "오러소드 이펙트 위주로 무난. 노력형 성장 클리셰라 차별점 약함", "id": 772853}, {"rk": 53, "own": "인하우스", "n": "초인의 시대", "g": "액션", "t": "남", "d": "2019-07-12", "ep": 249, "gw": 34000000, "kr": 214000000, "fit": 33, "gs": 1, "ks": 5, "a": 4, "b": 8, "c": 5, "e": 10, "s4": 27, "cm": "초능력 실린 근접 격투(맨몸합)로 나와 전략 문서의 '발광·파괴 이펙트 중심' 서술과 상충. 1·2화 정식 회차를 실제로 만들어 검증한 팀 판단을 우선해 유지", "id": 730694}, {"rk": 54, "own": "", "n": "온리호프", "g": "로맨스", "t": "여", "d": "2022-09-29", "ep": 141, "gw": 27899181, "kr": 66381040, "fit": 33, "gs": 1, "ks": 3, "a": 6, "b": 7, "c": 10, "e": 6, "s4": 29, "cm": "사랑하는 남편이 연쇄살인마임을 목격한 밤 살해당해 9년 전으로 회귀' — 강한 한 줄 훅에 로맨스→스릴러 장르 전환까지 갖춤 → 각색 대폭 상향. 부유층 별장이 핵심 무대로 배경도 집중적. '섬세한 그림체' 평으로 비주얼도 상향", "id": 800796}, {"rk": 55, "own": "", "n": "이세계 캠핑으로 힐링 라이프", "g": "판타지", "t": "남", "d": "2024-04-24", "ep": 108, "gw": 27000000, "kr": 134000000, "fit": 33, "gs": 1, "ks": 5, "a": 6, "b": 7, "c": 6, "e": 8, "s4": 27, "cm": "이세계+요리+캠핑 3중 조합이 차별점이고 액션이 거의 없어 생성 부담 낮음", "id": 823971}, {"rk": 56, "own": "인하우스", "n": "플레이어", "g": "액션", "t": "남", "d": "2020-05-07", "ep": 266, "gw": 17564836, "kr": 82309280, "fit": 33, "gs": 1, "ks": 4, "a": 6, "b": 8, "c": 6, "e": 8, "s4": 28, "cm": "", "id": 745876}, {"rk": 57, "own": "", "n": "저 그런 인재 아닙니다", "g": "판타지", "t": "남", "d": "2022-11-21", "ep": 124, "gw": 16128715, "kr": 71011062, "fit": 33, "gs": 1, "ks": 4, "a": 6, "b": 7, "c": 7, "e": 8, "s4": 28, "cm": "주인공 병약으로 액션 거의 없어 생성 부담 최소. 착각물 훅은 있으나 화면 이벤트 약함", "id": 802840}, {"rk": 58, "own": "", "n": "천재 무림 트레이너", "g": "액션", "t": "남", "d": "2024-05-04", "ep": 127, "gw": 16000000, "kr": 100000000, "fit": 33, "gs": 1, "ks": 4, "a": 7, "b": 7, "c": 6, "e": 8, "s4": 28, "cm": "헬스 트레이너가 무림을 교정하는 소재 차별화. 배경 단순·인물 소수가 맨몸 합 부담을 상쇄", "id": 824295}, {"rk": 59, "own": "", "n": "절대군림", "g": "무협/사극", "t": "남", "d": "2024-09-27", "ep": 106, "gw": 16000000, "kr": 238000000, "fit": 33, "gs": 1, "ks": 5, "a": 6, "b": 7, "c": 5, "e": 9, "s4": 27, "cm": "검술 무공 이펙트 위주로 합 부담은 낮으나 강호 다문파·다수 앙상블이 에셋 부담. 정통 강호제패물로 차별점 없음", "id": 832677}, {"rk": 60, "own": "인하우스", "n": "용사가 돌아왔다", "g": "액션", "t": "남", "d": "2021-06-07", "ep": 161, "gw": 12190411, "kr": 82672672, "fit": 33, "gs": 1, "ks": 4, "a": 6, "b": 6, "c": 6, "e": 10, "s4": 28, "cm": "용사가 용사를 죽인다는 다크 복수 훅. 애니풍 정제 작화는 비주얼 강점이나 군장 디테일·대규모 전장이 부담", "id": 773459}, {"rk": 61, "own": "", "n": "내 분신이 거물이 되어간다", "g": "판타지", "t": "남", "d": "2024-09-24", "ep": 92, "gw": 11350421, "kr": 75444078, "fit": 33, "gs": 1, "ks": 4, "a": 6, "b": 7, "c": 7, "e": 8, "s4": 28, "cm": "분신을 여러 차원에 파견하는 구조가 회차 분절 장치로 유리. 다차원 배경은 에셋 폭증(각색 LICO 참여작)", "id": 832667}, {"rk": 62, "own": "", "n": "구세라", "g": "액션", "t": "남", "d": "2024-11-27", "ep": 78, "gw": 8088964, "kr": 82334798, "fit": 33, "gs": 1, "ks": 4, "a": 7, "b": 7, "c": 6, "e": 8, "s4": 28, "cm": "참교육 첫 스핀오프 IP 가치. 학원 맨몸 격투이나 배경 단순·인물 소수로 상쇄(참교육과 동일 조건)", "id": 834421}, {"rk": 63, "own": "", "n": "사자의 서", "g": "판타지", "t": "여", "d": "2024-04-25", "ep": 103, "gw": 7176197, "kr": 64380150, "fit": 33, "gs": 1, "ks": 3, "a": 6, "b": 6, "c": 9, "e": 8, "s4": 29, "cm": "섬마다 독립된 에피소드형 구조 + 삼도천 자살자 심판이라는 무경쟁 세계관 + 랑또 스토리 → 각색 상향. 동양풍 다크판타지 작화와 사념 묘사가 원작 자산이라 비주얼 5. 다만 섬마다 배경이 전면 교체돼 용이성은 최하위권. ※자살 소재라 편성 시 톤·플랫폼 판단이 별도로 필요", "id": 823737}, {"rk": 64, "own": "", "n": "이직로그", "g": "로맨스", "t": "남", "d": "2025-03-23", "ep": 55, "gw": 6000000, "kr": 107511386, "fit": 33, "gs": 1, "ks": 5, "a": 8, "b": 8, "c": 8, "e": 3, "s4": 32, "cm": "판교 IT 스타트업 단일 공간 + 주요 인물 4명 + 액션 전무로 생성 조건이 48작품 중 최상 → 용이성 최고점. '수려한 작화'와 메이크업·배경 디테일 호평으로 비주얼도 상향. '같은 팀 첫날 상대 모니터에서 보면 안 될 것을 봤다' 훅이 배경지식 없이 성립하고 고구마 없는 전개라 서사도 상향. 다만 대화 위주라 움직임 증폭 효과가 라인업 최소 → 모션 최하위. 별점 9.9 · 관심 13만", "id": 837659}, {"rk": 65, "own": "", "n": "백수세끼", "g": "드라마", "t": "여/남", "d": "2019-09-01", "ep": 294, "gw": 6000000, "kr": 133000000, "fit": 33, "gs": 1, "ks": 5, "a": 6, "b": 7, "c": 6, "e": 8, "s4": 27, "cm": "회차마다 한 끼 → 회상으로 이어지는 완결 구조가 원작에 내장돼 있고, 음식은 짧은 호흡 애니에서 강한 화면 소재. 음식 작화를 사진 편집 없이 전량 수작업(회차당 8~10시간)한 것이 원작 대표 자산이라 비주얼도 상향", "id": 733074}, {"rk": 66, "own": "", "n": "쿠베라", "g": "판타지", "t": "남", "d": "2010-02-07", "ep": 760, "gw": 3000000, "kr": 112000000, "fit": 33, "gs": 1, "ks": 5, "a": 6, "b": 7, "c": 6, "e": 8, "s4": 27, "cm": "인도 신화 세계관이 강한 차별점. 신·수라 장식과 방대한 인물군이 생성 안정성 병목", "id": 131385}, {"rk": 67, "own": "", "n": "부활소년", "g": "액션", "t": "남", "d": "2026-02-21", "ep": 35, "gw": 0, "kr": 16465402, "fit": 33, "gs": 1, "ks": 1, "a": 6, "b": 8, "c": 7, "e": 10, "s4": 31, "cm": "수백 번의 죽음도 그를 죽이지 못한다' 훅 + 심장 변이 능력(재생·쇠 생성·가시 발사·폭발)이 전부 이펙트로 처리 가능. 사신소년 작가의 전투씬 연출이 정평이라 비주얼 상향. 2026년 2월 신작", "id": 848075}, {"rk": 68, "own": "", "n": "이섭의 연애", "g": "로맨스", "t": "여", "d": "2023-07-24", "ep": 115, "gw": 171000000, "kr": 166000000, "fit": 32, "gs": 5, "ks": 5, "a": 6, "b": 6, "c": 6, "e": 4, "s4": 22, "cm": "오피스 단일 공간 + 주역 2인으로 생성 부담 낮음 → 용이성 상향. 다만 선정성 위주 연출 비판과 트레이싱 논란이 있어 비주얼 하향, 논란은 권리 리스크로도 확인 필요", "id": 813454}, {"rk": 69, "own": "", "n": "못 잡아먹어서 안달", "g": "로맨스", "t": "여", "d": "2023-10-02", "ep": 124, "gw": 121000000, "kr": 183000000, "fit": 32, "gs": 5, "ks": 5, "a": 6, "b": 6, "c": 6, "e": 4, "s4": 22, "cm": "오피스 단순 배경 + 주역 2인 + 액션 없음으로 용이성 상향. 재벌 남주 복수형 로맨스라 각색 이점은 여전히 낮음", "id": 817247}, {"rk": 70, "own": "", "n": "언니, 이번 생엔 내가 왕비야", "g": "로맨스", "t": "여", "d": "2022-08-11", "ep": 214, "gw": 118000000, "kr": 152000000, "fit": 32, "gs": 5, "ks": 5, "a": 6, "b": 6, "c": 6, "e": 4, "s4": 22, "cm": "16세기 복식 고증을 시도한 정교 작화 + 국외까지 확장되는 복잡 배경으로 용이성 하향. 신체 비율이 회차별로 흔들린다는 지적이 있어 재현 기준선 자체가 불명확", "id": 798917}, {"rk": 71, "own": "스튜디오N", "n": "시월드가 내게 집착한다", "g": "로맨스", "t": "여", "d": "2021-11-27", "ep": 130, "gw": 109000000, "kr": 125000000, "fit": 32, "gs": 5, "ks": 5, "a": 6, "b": 4, "c": 8, "e": 4, "s4": 22, "cm": "의상이 매회 달라지는 우아한 디자인 + 매화 별도 일러스트가 원작 자산 → 비주얼 대폭 상향. 반대로 그 매회 의상 교체가 인물 동일성 유지의 최악 조건이라 용이성 하향", "id": 785251}, {"rk": 72, "own": "", "n": "악녀는 조용히 살고 싶을 뿐인데!", "g": "로맨스", "t": "여", "d": "2024-03-23", "ep": 90, "gw": 56651866, "kr": 64348134, "fit": 32, "gs": 2, "ks": 3, "a": 7, "b": 8, "c": 7, "e": 5, "s4": 27, "cm": "액션 없고 배경도 보통 수준이라 용이성 상향. 악녀 빙의 로판은 경쟁작 다수", "id": 822875}, {"rk": 73, "own": "", "n": "나 혼자 탑에서 농사", "g": "판타지", "t": "남", "d": "2023-04-20", "ep": 139, "gw": 55000000, "kr": 210000000, "fit": 32, "gs": 2, "ks": 5, "a": 7, "b": 8, "c": 4, "e": 6, "s4": 25, "cm": "탑 내부 단일 공간 + 액션 거의 없음 + 주요 조연이 동물 몬스터(비인간)로 생성 부담이 최저 수준. 던전+농사 조합도 무경쟁", "id": 808389}, {"rk": 74, "own": "", "n": "절대검감", "g": "무협/사극", "t": "남", "d": "2022-06-19", "ep": 197, "gw": 45000000, "kr": 324000000, "fit": 32, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 6, "e": 8, "s4": 26, "cm": "검기 이펙트 위주. 회차별 작화 변동이 있어 기준선 확인 필요", "id": 796075}, {"rk": 75, "own": "", "n": "아카데미에 위장취업당했다", "g": "판타지", "t": "남", "d": "2022-06-04", "ep": 171, "gw": 33239886, "kr": 87760114, "fit": 32, "gs": 1, "ks": 4, "a": 4, "b": 8, "c": 5, "e": 10, "s4": 27, "cm": "검기·마법 이펙트+액션씬 호평. 스팀펑크 제국 배경과 정교 작화가 부담", "id": 795529}, {"rk": 76, "own": "", "n": "나쁜사람", "g": "액션", "t": "남", "d": "2020-08-04", "ep": 318, "gw": 33000000, "kr": 176000000, "fit": 32, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 8, "e": 6, "s4": 26, "cm": "타격·유도 등 맨몸 합 위주에 인물 20명 이상. AI 파이프라인 최악 조건", "id": 750184}, {"rk": 77, "own": "", "n": "집구석 절대자", "g": "판타지", "t": "남", "d": "2024-11-29", "ep": 93, "gw": 26525661, "kr": 64203260, "fit": 32, "gs": 1, "ks": 3, "a": 7, "b": 7, "c": 8, "e": 6, "s4": 28, "cm": "집을 벗어날 수 없는 패시브라는 한 줄 훅+단일 공간으로 배경 에셋 최소. 화면은 실내 위주", "id": 834351}, {"rk": 78, "own": "인하우스", "n": "빌드업", "g": "스포츠", "t": "남", "d": "2020-07-28", "ep": 217, "gw": 24655758, "kr": 96344242, "fit": 32, "gs": 1, "ks": 4, "a": 5, "b": 6, "c": 6, "e": 10, "s4": 27, "cm": "135행과 동일 작품·동일 조회수. 중복 제거 필요", "id": 750826}, {"rk": 79, "own": "", "n": "디펜스 게임의 폭군이 되었다", "g": "판타지", "t": "남", "d": "2022-08-05", "ep": 195, "gw": 23000000, "kr": 179000000, "fit": 32, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 6, "e": 8, "s4": 26, "cm": "대규모 방어전이 이펙트 스펙터클을 만들지만 국가 단위 군중이 생성 부담. 게임 빙의 구조 자체는 클리셰", "id": 798182}, {"rk": 80, "own": "", "n": "환생좌", "g": "액션", "t": "남", "d": "2023-12-30", "ep": 148, "gw": 22521556, "kr": 92478444, "fit": 32, "gs": 1, "ks": 4, "a": 6, "b": 5, "c": 6, "e": 10, "s4": 27, "cm": "룬 육체전+광선 이펙트 혼합. 다종족 전쟁 배경과 작가 교체 이력이 리스크", "id": 819912}, {"rk": 81, "own": "", "n": "강철을 먹는 플레이어", "g": "액션", "t": "남", "d": "2023-08-29", "ep": 106, "gw": 19769954, "kr": 61285898, "fit": 32, "gs": 1, "ks": 3, "a": 5, "b": 7, "c": 6, "e": 10, "s4": 28, "cm": "강철 조작 이펙트와 타격감 묘사는 강점이나 고밀도 작화가 부담. 헌터물+군대 조합은 소폭 차별", "id": 814421}, {"rk": 82, "own": "", "n": "소년법칙", "g": "액션", "t": "남", "d": "2024-07-13", "ep": 52, "gw": 15492385, "kr": 61753330, "fit": 32, "gs": 1, "ks": 3, "a": 7, "b": 7, "c": 6, "e": 8, "s4": 28, "cm": "데포르메 애니메이션풍이 생성에 유리해 맨몸 격투 부담을 상쇄. 박태준 유니버스 IP 연계", "id": 827908}, {"rk": 83, "own": "", "n": "오늘의 한요일은 여자다", "g": "드라마", "t": "남", "d": "2025-03-26", "ep": 71, "gw": 11014111, "kr": 74006784, "fit": 32, "gs": 1, "ks": 4, "a": 5, "b": 7, "c": 7, "e": 8, "s4": 27, "cm": "TS 변신 자체가 시각적 훅이라 짧은 호흡에 유리 → 각색 상향. 주인공 여성형 작화가 특히 호평이라 비주얼도 상향. 다만 경연 무대와 10명 이상 인물이 부담", "id": 837504}, {"rk": 84, "own": "", "n": "신수 유치원", "g": "판타지", "t": "남", "d": "2025-01-21", "ep": 83, "gw": 10166719, "kr": 43721796, "fit": 32, "gs": 1, "ks": 1, "a": 8, "b": 6, "c": 8, "e": 8, "s4": 30, "cm": "주요 8명 중 6명이 아기 신수(비인간·수인형)라 인물 동일성 유지 문제를 구조적으로 회피. 신수 육아+아레나 공략 조합도 무경쟁. 팀 채점 그대로 타당", "id": 835762}, {"rk": 85, "own": "", "n": "만남어플 중독", "g": "드라마", "t": "여/남", "d": "2025-05-14", "ep": 101, "gw": 5000000, "kr": 314000000, "fit": 32, "gs": 1, "ks": 5, "a": 8, "b": 6, "c": 8, "e": 4, "s4": 26, "cm": "스릴러 훅은 있으나 의도적 병맛·비주얼쇼크 연출이 짧은 애니 각색과 충돌. 단순 작화+액션 없음으로 용이성은 상향, 비주얼은 우스꽝 묘사가 의도라 하향", "id": 839004}, {"rk": 86, "own": "", "n": "신체", "g": "스릴러", "t": "남", "d": "2025-10-26", "ep": 47, "gw": 100135, "kr": 76333346, "fit": 32, "gs": 1, "ks": 4, "a": 4, "b": 8, "c": 9, "e": 6, "s4": 26, "cm": "사채업자도 재벌도 첫사랑까지 모두가 내 몸을 원한다' — 관계도 없이 즉시 읽히는 훅에 인물 5명 소규모 캐스트, 실내 단일 공간 중심이라 서사·배경 조건은 우수. 그러나 무한 신체 재생 설정상 절단·재생 등 신체 변형 묘사가 핵심 볼거리인데 이는 AI 생성이 가장 쉽게 붕괴시키는 피사체 → 용이성 결격 구간. 어두운 준실사 명암은 조명 연출 여지로 비주얼 상향. 별점 9.90 / 19세 청불이라 편성 제약 별도 판단 필요", "id": 844058}, {"rk": 87, "own": "", "n": "울어 봐, 빌어도 좋고", "g": "로맨스", "t": "여", "d": "2023-09-12", "ep": 79, "gw": 99000000, "kr": 163000000, "fit": 31, "gs": 4, "ks": 5, "a": 5, "b": 6, "c": 6, "e": 5, "s4": 22, "cm": "집착 로판 클리셰로 각색 이점은 낮음 → 하향. 반지 작가의 미려하고 입체적인 작화가 매화 유지되는 작품이라 비주얼 상향, 주요 4인 축으로 용이성도 소폭 상향", "id": 814826}, {"rk": 88, "own": "", "n": "배트맨: 웨인 패밀리 어드벤처", "g": "일상", "t": "남", "d": "2021-11-24", "ep": 116, "gw": 70869520, "kr": 932050, "fit": 31, "gs": 4, "ks": 1, "a": 5, "b": 6, "c": 9, "e": 6, "s4": 26, "cm": "회차 완결 시트콤 구조가 짧은 호흡에 최적, 단순·명랑 작화로 생성 부담 최소. DC 권리 관문이 별도 변수", "id": 784989}, {"rk": 89, "own": "", "n": "문제적 왕자님", "g": "로맨스", "t": "여", "d": "2022-09-08", "ep": 156, "gw": 63000000, "kr": 125000000, "fit": 31, "gs": 3, "ks": 5, "a": 5, "b": 6, "c": 7, "e": 5, "s4": 23, "cm": "로코 훅은 있어 1점은 가혹 → 소폭 상향. 액션이 없어 생성 부담은 낮음", "id": 800046}, {"rk": 90, "own": "", "n": "현실퀘스트", "g": "액션", "t": "남", "d": "2021-10-27", "ep": 228, "gw": 57000000, "kr": 203000000, "fit": 31, "gs": 2, "ks": 5, "a": 4, "b": 6, "c": 6, "e": 8, "s4": 24, "cm": "게임 스킬을 학원물에 접목한 소재 차별화. 일진 근접 격투가 일부 부담", "id": 783888}, {"rk": 91, "own": "", "n": "악당 가족이 독립을 반대한다", "g": "로맨스", "t": "여", "d": "2023-10-08", "ep": 105, "gw": 47735160, "kr": 76264840, "fit": 31, "gs": 1, "ks": 4, "a": 4, "b": 6, "c": 10, "e": 6, "s4": 26, "cm": "제목이 그대로 한 줄 훅이고 가족 코미디라 회차 완결성도 있음 → 각색 소폭 상향. 황가+4대 공작가 직계·방계 앙상블이 용이성 병목", "id": 817365}, {"rk": 93, "own": "", "n": "버림받은 왕녀의 은밀한 침실", "g": "로맨스", "t": "여", "d": "2022-07-03", "ep": 168, "gw": 32000000, "kr": 127000000, "fit": 31, "gs": 1, "ks": 5, "a": 7, "b": 6, "c": 8, "e": 4, "s4": 25, "cm": "침실 단일 공간 + 소수 인물로 생성 부담은 낮으나, 청불 성인 로판이라 숏애니 플랫폼 편성 제약이 각색 이점을 상쇄 → 용이성 상향·각색 하향 / 청불", "id": 796867}, {"rk": 94, "own": "", "n": "고수, 후궁으로 깨어나다", "g": "로맨스", "t": "여", "d": "2023-05-27", "ep": 141, "gw": 30085388, "kr": 86914612, "fit": 31, "gs": 1, "ks": 4, "a": 6, "b": 5, "c": 7, "e": 8, "s4": 26, "cm": "무협+후궁 궁중암투 결합이 무경쟁 소재 → 각색 대폭 상향. LICO 자사 제작작이라 원작 접근성도 유리. 다만 휴재 후 작화팀 전면 교체로 '작화·연출 모두 교체 전보다 못하다'는 혹평이 있어 비주얼·용이성은 낮게 유지", "id": 811219}, {"rk": 95, "own": "", "n": "규격 외 혈통 천재", "g": "판타지", "t": "남", "d": "2022-08-03", "ep": 154, "gw": 30006127, "kr": 61083910, "fit": 31, "gs": 1, "ks": 3, "a": 7, "b": 5, "c": 6, "e": 9, "s4": 27, "cm": "변신·염동 이펙트 위주. 군 소탕전 배경과 시즌별 작가 교체가 리스크", "id": 798331}, {"rk": 96, "own": "", "n": "일타강사 백사부", "g": "무협/사극", "t": "남", "d": "2021-10-23", "ep": 159, "gw": 20000000, "kr": 133000000, "fit": 31, "gs": 1, "ks": 5, "a": 7, "b": 6, "c": 6, "e": 6, "s4": 25, "cm": "무협+입시 교육물 소재 차별화, 회차 완결 구조 유리. 초기 작화 혹평이 리스크", "id": 779632}, {"rk": 97, "own": "", "n": "백투더찬비", "g": "로맨스", "t": "남", "d": "2024-05-22", "ep": 102, "gw": 15000000, "kr": 153000000, "fit": 31, "gs": 1, "ks": 5, "a": 7, "b": 7, "c": 6, "e": 5, "s4": 25, "cm": "고교 단일 배경 + 소수 인물로 용이성 상향. '예쁜 그림체' 호평이 있어 비주얼 1점은 과소평가. '짝사랑 기억만 상실'이라는 클리셰 변형은 있음", "id": 826322}, {"rk": 98, "own": "", "n": "어느날 갑자기 서울은", "g": "스릴러", "t": "남", "d": "2021-07-10", "ep": 181, "gw": 13440283, "kr": 61905318, "fit": 31, "gs": 1, "ks": 3, "a": 5, "b": 6, "c": 7, "e": 9, "s4": 27, "cm": "서울 한복판 변이 크리처 소재가 차별점이며 기괴한 디자인이 화면 임팩트. 군중 패닉이 생성 부담", "id": 776092}, {"rk": 99, "own": "", "n": "연우의 순정", "g": "감성", "t": "남", "d": "2020-09-21", "ep": 226, "gw": 12586034, "kr": 74195064, "fit": 31, "gs": 1, "ks": 4, "a": 8, "b": 7, "c": 6, "e": 5, "s4": 26, "cm": "혜성고 단일 배경 + 액션 없음으로 용이성 상향. 학원 BL이라 라인업 타깃 전략과 별개 판단이 필요한 항목", "id": 752532}, {"rk": 100, "own": "", "n": "황제의 검", "g": "무협/사극", "t": "남", "d": "2023-08-04", "ep": 130, "gw": 11000000, "kr": 100000000, "fit": 31, "gs": 1, "ks": 4, "a": 4, "b": 7, "c": 5, "e": 10, "s4": 26, "cm": "검강·무형검 이펙트 스펙터클 강함. 문파 대전 대규모 전장이 생성 부담", "id": 813443}, {"rk": 101, "own": "", "n": "아포칼립스에 집을 숨김", "g": "액션", "t": "남", "d": "2024-06-02", "ep": 117, "gw": 7881435, "kr": 90279490, "fit": 31, "gs": 1, "ks": 4, "a": 7, "b": 7, "c": 6, "e": 6, "s4": 26, "cm": "방공호 단일 공간+액션 비중 낮아 생성 부담 최소. 생존주의자 소재 차별화, 화면은 실내 위주", "id": 825332}, {"rk": 102, "own": "", "n": "가공낙원", "g": "판타지", "t": "남", "d": "2024-09-09", "ep": 107, "gw": 1857134, "kr": 33484438, "fit": 31, "gs": 1, "ks": 1, "a": 8, "b": 6, "c": 8, "e": 7, "s4": 29, "cm": "인간을 애완동물로 키우는 괴물들의 세상 — 무경쟁 설정에 강한 한 줄 훅 → 각색 대폭 상향. 배틀보다 일상 전개 중심이고 비인간 괴물 캐릭터가 많아 인물 유지에도 유리. 다만 복잡한 배경 묘사는 부담", "id": 830053}, {"rk": 103, "own": "", "n": "멸귀수도전", "g": "판타지", "t": "남", "d": "2026-07-21", "ep": 9, "gw": 0, "kr": 0, "fit": 31, "gs": 1, "ks": 1, "a": 7, "b": 8, "c": 6, "e": 8, "s4": 29, "cm": "작두·염라강림과 같은 한국 사극풍 요괴 사냥 계열로 소재 전략에 정합 → 각색 5 유지. 다만 2026년 7월 연재 시작 신작이라 작화·서사 평가 자료가 없어 서사는 하향, 테스트 영상 선행 필요", "id": 851689}, {"rk": 104, "own": "", "n": "이기적 연애론", "g": "로맨스", "t": "여", "d": "2024-05-21", "ep": 51, "gw": 81842420, "kr": 80157580, "fit": 30, "gs": 4, "ks": 4, "a": 5, "b": 6, "c": 6, "e": 5, "s4": 22, "cm": "팀 채점 그대로 타당. 1년 이상 장기 휴재 중이라 권리·작가 컨택 리스크도 별도 확인 필요", "id": 824888}, {"rk": 105, "own": "", "n": "소녀의 세계", "g": "드라마", "t": "여", "d": "2015-05-17", "ep": 506, "gw": 68000000, "kr": 243000000, "fit": 30, "gs": 3, "ks": 5, "a": 6, "b": 3, "c": 7, "e": 6, "s4": 22, "cm": "비선형 회상 구조 + 느린 전개로 짧은 호흡 압축이 가장 어려운 유형. 다만 단일 학교 배경 + 주요 4명이라 용이성만 상향. 2부 작화 하락 비판으로 비주얼은 유지", "id": 654774}, {"rk": 106, "own": "", "n": "날 닮은 아이", "g": "로맨스", "t": "여", "d": "2024-03-02", "ep": 61, "gw": 62882740, "kr": 85117260, "fit": 30, "gs": 3, "ks": 4, "a": 7, "b": 6, "c": 5, "e": 5, "s4": 23, "cm": "원작 웹소설 삽화가가 웹툰 작화를 그대로 담당해 원작 재현 기준이 명확하고, 직장·가정 단순 배경 + 소수 인물 → 용이성 상향. 비주얼은 보통 밀도라 4는 근거 부족", "id": 822111}, {"rk": 107, "own": "", "n": "김부장", "g": "액션", "t": "남", "d": "2021-11-01", "ep": 256, "gw": 50000000, "kr": 416000000, "fit": 30, "gs": 1, "ks": 5, "a": 4, "b": 4, "c": 6, "e": 10, "s4": 24, "cm": "테이큰류 아버지 복수 액션으로 훅 차별성 낮음. CQC 맨몸 격투 + 한국·해외 국제조직 배경으로 용이성 하향. 후반 개연성·파워밸런스 붕괴 비판으로 서사도 하향.", "id": 783053}, {"rk": 108, "own": "", "n": "회귀한 용병은 다 계획이 있다", "g": "판타지", "t": "남", "d": "2024-09-23", "ep": 102, "gw": 38000000, "kr": 159000000, "fit": 30, "gs": 1, "ks": 5, "a": 3, "b": 7, "c": 6, "e": 8, "s4": 24, "cm": "서양검술 고증은 작화 강점이나 각색 이점으로 전환되진 않음. 검 궤적 실전 검투는 합 묘사 필수라 난도 높음", "id": 832557}, {"rk": 109, "own": "", "n": "엄마를 만나러 가는 길", "g": "판타지", "t": "여", "d": "2024-11-25", "ep": 55, "gw": 36189564, "kr": 75810436, "fit": 30, "gs": 1, "ks": 4, "a": 5, "b": 9, "c": 6, "e": 5, "s4": 25, "cm": "동화책급 정제 작화가 원작 자산이고 액션이 전무해 합 부담 제로. 31화 단편으로 각색 물량도 적정", "id": 834369}, {"rk": 110, "own": "", "n": "내향남녀", "g": "로맨스", "t": "여", "d": "2023-06-28", "ep": 163, "gw": 34000000, "kr": 119000000, "fit": 30, "gs": 1, "ks": 5, "a": 7, "b": 6, "c": 7, "e": 4, "s4": 24, "cm": "MBTI 극 I 내향형을 전면 소재화한 점은 차별적이고 회차 완결성 높은 관계 코미디 → 각색 상향. 고교 단일 배경+소수 인물로 용이성도 상향", "id": 812629}, {"rk": 111, "own": "", "n": "천마육성", "g": "무협/사극", "t": "남", "d": "2021-10-06", "ep": 195, "gw": 31000000, "kr": 188000000, "fit": 30, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 6, "e": 6, "s4": 24, "cm": "작화 호평이 강점. 회귀 시뮬레이션 구조는 회차 분절에 유리하나 천마물 포화", "id": 776255}, {"rk": 112, "own": "", "n": "백XX", "g": "액션", "t": "남", "d": "2023-01-17", "ep": 192, "gw": 27000000, "kr": 244000000, "fit": 30, "gs": 1, "ks": 5, "a": 4, "b": 6, "c": 6, "e": 8, "s4": 24, "cm": "쌍둥이 신분 교체 첩보 훅 강함. 극진가라데 맨몸 합+다조직 도시로 생성 난도 최상급", "id": 804862}, {"rk": 113, "own": "스튜디오N", "n": "내 남편과 결혼해줘", "g": "로맨스", "t": "여", "d": "2021-11-02", "ep": 69, "gw": 26476694, "kr": 12133744, "fit": 30, "gs": 1, "ks": 1, "a": 7, "b": 7, "c": 8, "e": 6, "s4": 28, "cm": "나 대신 내 남편과 결혼해줘'는 강한 한 줄 훅이고 드라마 흥행으로 서사가 이미 검증된 IP → 각색·서사 상향. 다만 웹툰 작화가 캐주얼 데포르메 계열이라 비주얼 4는 높음", "id": 783769}, {"rk": 114, "own": "", "n": "문스트럭", "g": "로맨스", "t": "여", "d": "2024-10-19", "ep": 67, "gw": 25000000, "kr": 109000000, "fit": 30, "gs": 1, "ks": 5, "a": 5, "b": 6, "c": 8, "e": 5, "s4": 24, "cm": "5편이 각각 독립된 옴니버스 앤솔로지 + 에피소드별 색채 설계(레드/블루/핫핑크/그레이/오렌지)가 그대로 회차별 화면 문법이 됨. 1~2화 배경을 언리얼 엔진으로 만든 작품이라 비주얼도 상향. 단 에피소드마다 배경 전면 교체는 에셋 부담", "id": 833052}, {"rk": 115, "own": "", "n": "탑아이돌의 막내 멤버가 되었다", "g": "드라마", "t": "여", "d": "2023-12-29", "ep": 91, "gw": 17445587, "kr": 58625252, "fit": 30, "gs": 1, "ks": 2, "a": 6, "b": 6, "c": 7, "e": 8, "s4": 27, "cm": "무대 군무와 관객은 다인 동시 동작이라 AI 파이프라인 최난도 구간. 남돌 회귀물도 경쟁작 다수. 팀 채점 정확", "id": 819748}, {"rk": 116, "own": "", "n": "죽지 않으려면", "g": "액션", "t": "남", "d": "2021-05-20", "ep": 226, "gw": 17000000, "kr": 117000000, "fit": 30, "gs": 1, "ks": 5, "a": 4, "b": 6, "c": 6, "e": 8, "s4": 24, "cm": "변칙 실전 맨몸 싸움 위주+조직 전쟁 군중. 느와르 톤은 있으나 생성 부담 큼", "id": 772764}, {"rk": 117, "own": "", "n": "천마는 평범하게 살 수 없다", "g": "판타지", "t": "남", "d": "2021-06-14", "ep": 210, "gw": 16000000, "kr": 115000000, "fit": 30, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 6, "e": 6, "s4": 24, "cm": "작가 교체 후 3D 모델 남용으로 액션씬이 조악하고 병사 묘사가 성의없다는 비판을 받은 상태 → 비주얼 하향. 재현 목표 자체가 낮아 용이성은 유지", "id": 774358}, {"rk": 118, "own": "", "n": "아포칼립스에 물류센터를 숨김", "g": "판타지", "t": "남", "d": "2024-09-02", "ep": 97, "gw": 12760535, "kr": 79714972, "fit": 30, "gs": 1, "ks": 4, "a": 6, "b": 7, "c": 6, "e": 6, "s4": 25, "cm": "아공간 물류센터 소재는 차별적이나 화면 이벤트가 약함. 액션 정보 확인 필요", "id": 829743}, {"rk": 119, "own": "", "n": "암호는 002!", "g": "로맨스", "t": "여", "d": "2023-12-18", "ep": 64, "gw": 11773423, "kr": 62874488, "fit": 30, "gs": 1, "ks": 3, "a": 5, "b": 6, "c": 9, "e": 6, "s4": 26, "cm": "교실·체육 창고 등 학교 단순 배경으로 용이성 상향. '짝남 꼬시기 대작전'은 회차 완결 코미디로 쓸 수 있어 각색 소폭 상향", "id": 819223}, {"rk": 120, "own": "", "n": "사내연애 사절!", "g": "로맨스", "t": "여", "d": "2023-08-23", "ep": 119, "gw": 8000000, "kr": 105000000, "fit": 30, "gs": 1, "ks": 5, "a": 7, "b": 6, "c": 6, "e": 5, "s4": 24, "cm": "오피스 단일 공간이라 주요 8명이어도 배경 에셋 부담은 낮음 → 용이성 상향. 사내연애+가짜연애 조합은 경쟁작 다수", "id": 814512}, {"rk": 121, "own": "인하우스", "n": "살아남은 로맨스", "g": "판타지", "t": "여", "d": "2021-01-16", "ep": 103, "gw": 6242288, "kr": 3732604, "fit": 30, "gs": 1, "ks": 1, "a": 7, "b": 6, "c": 8, "e": 7, "s4": 28, "cm": "로맨스→호러 장르 전환이 그대로 화면 이벤트가 되고 타임루프가 회차 분절 장치를 자체 제공 → 각색 상향. 첫 착수작으로 서사 검증도 끝난 상태. 다만 제작 소요 9일로 라인업 최장이라 인물 동일성 유지 난도는 실측으로 확인된 셈", "id": 764129}, {"rk": 122, "own": "인하우스", "n": "쪽팔려게임", "g": "스릴러", "t": "여", "d": "2026-01-20", "ep": 35, "gw": 3049490, "kr": 48349462, "fit": 30, "gs": 1, "ks": 1, "a": 7, "b": 9, "c": 8, "e": 4, "s4": 28, "cm": "벌칙게임 소재는 무경쟁이고 교실 단일 배경도 유리해 각색은 5 유지. 다만 학생 간 폭행·싸움(맨몸합)이 있고 작화 평가 자료가 없어 용이성·비주얼 5점은 조사 근거로 지지되지 않음 → 하향. 내부 테스트 결과가 있으면 그쪽을 우선해 주세요", "id": 847135}, {"rk": 123, "own": "", "n": "돌아온 천재 검성", "g": "판타지", "t": "남", "d": "2025-05-24", "ep": 72, "gw": 1919439, "kr": 1098054, "fit": 30, "gs": 1, "ks": 1, "a": 7, "b": 6, "c": 7, "e": 8, "s4": 28, "cm": "검기 이펙트 위주로 무난하나 환생 검성 클리셰.", "id": 838910}, {"rk": 124, "own": "", "n": "수요웹툰의 나강림", "g": "판타지", "t": "남", "d": "2021-05-04", "ep": 172, "gw": 1105700, "kr": 17591308, "fit": 30, "gs": 1, "ks": 1, "a": 7, "b": 8, "c": 8, "e": 5, "s4": 28, "cm": "루프 구조가 회차 분절 장치를 자체 제공. 액션 없고 배경 단순, 식별성 높은 애니풍 캐릭터로 생성 안정", "id": 771718}, {"rk": 125, "own": "엠스토리허브", "n": "다 때려치고 콜라 팝니다", "g": "판타지", "t": "여/남", "d": "2026-07-14", "ep": 10, "gw": 0, "kr": 0, "fit": 30, "gs": 1, "ks": 1, "a": 7, "b": 8, "c": 8, "e": 5, "s4": 30, "cm": "이세계 영웅이 된 지 20년, 명예도 권력도 다 얻었다. 콜라 빼고' — 코믹 훅이 1분 클립에 그대로 성립 → 서사 상향. 작화 윤재호의 포스터컬러 기법 고퀄 일러스트는 라인업 비주얼 상한권 → 상향. 연금술·마법 요소가 있으나 경영·생활물 성격이 강해 모션은 중위, 이세계 왕국 다지역 + 인물 8명 이상이 용이성 병목. 원작 웹소설 완결이라 결말 리스크는 해소", "id": 852631}, {"rk": 126, "own": "", "n": "장인의 거리", "g": "판타지", "t": "남", "d": "2026-02-20", "ep": 33, "gw": 0, "kr": 4228530, "fit": 30, "gs": 1, "ks": 1, "a": 7, "b": 8, "c": 6, "e": 7, "s4": 28, "cm": "용사 서사의 조명 밖에 있는 대장장이 시점이 차별적이고 원작 세계관이 옴니버스 형식 → 각색 상향. 다만 작화·배경·인물 규모 정보가 전부 확인되지 않아 비주얼·서사는 근거 부족으로 하향. 테스트 영상 선행 권장", "id": 847612}, {"rk": 127, "own": "", "n": "생존지상주의", "g": "판타지", "t": "남", "d": "2026-08-16", "ep": 6, "gw": 0, "kr": 0, "fit": 30, "gs": 1, "ks": 1, "a": 5, "b": 7, "c": 8, "e": 8, "s4": 28, "cm": "하교 버스가 통째로 이세계로 전이, 오직 주인공의 Chat AI만 작동한다'가 1화에 설정을 다 얹는 강한 훅 → 서사 상향. 괴수·이능 이펙트로 모션도 확보. 다만 버스 탑승 학생 집단이 곧 등장인물군이라 다수 인물 동시 컷이 구조적으로 잦고 이세계 야외 다지역 이동까지 겹쳐 용이성 하향. 박태준 만화회사 제작으로 또렷한 선+3D 배경 계열 추정, 2026-08-16 연재 4주차라 지표 없음", "id": 853709}, {"rk": 128, "own": "", "n": "킬러 배드로", "g": "액션", "t": "남", "d": "2023-09-15", "ep": 146, "gw": null, "kr": 376295330, "fit": 30, "gs": 1, "ks": 5, "a": 2, "b": 7, "c": 6, "e": 9, "s4": 33, "cm": "※정식 제목은 '킬러 배드로'. 맨몸 격투 + 도검 + 총격이 모두 섞이고 12개 조직·한일중브라질 다국가 무대에 인물이 수십 명 규모라 AI 파이프라인 최악 조건 → 용이성 최하위권. 2부의 최면 능력 이펙트가 일부 완화. '독특하고 수려한 작화'·다이내믹 구도는 비주얼 자산이나 2부 '선이 얄상하고 타격감 부족' 혹평 병기. 화면 이벤트 밀도는 높아 모션 상향, 12사도 관계도가 서사 부담", "id": 816798}, {"rk": 129, "own": "", "n": "쓰레기의 법칙", "g": "로맨스", "t": "여", "d": "2025-01-22", "ep": 63, "gw": 72414794, "kr": 64585206, "fit": 29, "gs": 4, "ks": 3, "a": 5, "b": 6, "c": 6, "e": 5, "s4": 22, "cm": "하숙집·대학 단순 배경 + 주요 5명으로 용이성 상향. 캠퍼스 연애물로 각색 이점은 낮음", "id": 835809}, {"rk": 130, "own": "", "n": "연애리뷰", "g": "로맨스", "t": "여", "d": "2024-12-29", "ep": 83, "gw": 44220942, "kr": 88779058, "fit": 29, "gs": 1, "ks": 4, "a": 8, "b": 6, "c": 8, "e": 2, "s4": 24, "cm": "남자의 전 여친 리뷰창이 보인다'는 시스템 UI 장치가 그대로 화면 이벤트가 되고 회차 완결성도 높음. 액션 없고 배경 단순해 용이성도 상향", "id": 835082}, {"rk": 131, "own": "", "n": "개짓", "g": "로맨스", "t": "여", "d": "2024-10-26", "ep": 84, "gw": 43000000, "kr": 162000000, "fit": 29, "gs": 1, "ks": 5, "a": 8, "b": 6, "c": 6, "e": 3, "s4": 23, "cm": "영화당' 직장 단일 공간 + 소수 인물 + 액션 없음으로 용이성 상향. 오만한 상사×직원 구도라 각색 이점은 낮음", "id": 833620}, {"rk": 132, "own": "", "n": "가장 썩은 것을 줄게", "g": "로맨스", "t": "여", "d": "2024-02-22", "ep": 107, "gw": 27831706, "kr": 88168294, "fit": 29, "gs": 1, "ks": 4, "a": 6, "b": 6, "c": 7, "e": 5, "s4": 24, "cm": "10년 연인의 외도를 알고 의도적으로 되갚는다는 상호 파괴형 관계를 정면으로 다룸 → 고자극 훅으로 각색·서사 상향. 소수 인물로 용이성도 상향", "id": 821814}, {"rk": 133, "own": "", "n": "속아주고싶어", "g": "로맨스", "t": "여", "d": "2025-06-28", "ep": 46, "gw": 22244406, "kr": 74900512, "fit": 29, "gs": 1, "ks": 4, "a": 7, "b": 6, "c": 6, "e": 5, "s4": 24, "cm": "캠퍼스 단순 배경 + 소수 인물이고 이미 테스트 영상까지 제작된 보류작이라 용이성 상향. 다만 밀당 로맨스로 각색 이점은 낮아 하향", "id": 840114}, {"rk": 134, "own": "인하우스", "n": "심해수", "g": "액션", "t": "남", "d": "2024-05-15", "ep": 116, "gw": 12207593, "kr": 23286448, "fit": 29, "gs": 1, "ks": 1, "a": 6, "b": 6, "c": 5, "e": 10, "s4": 27, "cm": "심해 빛과 괴수 스케일이 이펙트 중심 화면을 만들어 맨몸 합 의존 최저. 바다 배경·군중 적음이 생성에 유리", "id": 824204}, {"rk": 135, "own": "", "n": "우렉 마지노", "g": "판타지", "t": "남", "d": "2025-04-28", "ep": 70, "gw": 8699657, "kr": 78869784, "fit": 29, "gs": 1, "ks": 4, "a": 6, "b": 4, "c": 6, "e": 8, "s4": 24, "cm": "신의 탑 첫 외전 IP 가치. 단순한 선은 생성에 유리하나 가독성·연출력 비판이 리스크", "id": 838432}, {"rk": 136, "own": "", "n": "종말이 찾아왔다", "g": "판타지", "t": "남", "d": "2025-04-08", "ep": 77, "gw": 8000000, "kr": 148000000, "fit": 29, "gs": 1, "ks": 5, "a": 4, "b": 6, "c": 7, "e": 6, "s4": 23, "cm": "총기+격투 혼합에 좀비 군중 다수. 학원 좀비물은 경쟁작 다수", "id": 838002}, {"rk": 137, "own": "", "n": "천재는 평범하게 살기로 했더", "g": "드라마", "t": "여/남", "d": "2024-12-24", "ep": 73, "gw": 6737230, "kr": 63461502, "fit": 29, "gs": 1, "ks": 3, "a": 7, "b": 6, "c": 7, "e": 5, "s4": 25, "cm": "회귀자 2인 협업 구조는 차별점. 액션이 거의 없는 대신 1987~90년대 한국 시대 재현이 배경 에셋 부담이라 용이성은 상쇄. 서사는 시대상 소재로 소폭 상향", "id": 835042}, {"rk": 138, "own": "엠스토리허브", "n": "권왕환생", "g": "무협/사극", "t": "남", "d": "2025-06-14", "ep": 65, "gw": 5610132, "kr": 90924380, "fit": 29, "gs": 1, "ks": 4, "a": 1, "b": 6, "c": 7, "e": 10, "s4": 24, "cm": "뇌기·검법 이펙트는 유리하나 권법 타격이 맨몸 합. 무협 환생 복수 클리셰", "id": 839568}, {"rk": 139, "own": "", "n": "잘 헤어지는 방법", "g": "스릴러", "t": "여", "d": "2024-05-26", "ep": 82, "gw": 3680206, "kr": 70996174, "fit": 29, "gs": 1, "ks": 4, "a": 7, "b": 6, "c": 6, "e": 5, "s4": 24, "cm": "가스라이팅 탈출을 정면으로 다룬 관계 스릴러로 유사작이 적고, 아파트 단일 공간 2인극이라 짧은 호흡에 유리 → 각색·용이성·서사 모두 상향. ※자살 시도·가스라이팅 소재라 편성 시 톤 판단 별도 필요", "id": 826348}, {"rk": 140, "own": "", "n": "네가 사는 그 집", "g": "드라마", "t": "여", "d": "2025-09-11", "ep": 55, "gw": 3674029, "kr": 56010212, "fit": 29, "gs": 1, "ks": 2, "a": 8, "b": 6, "c": 8, "e": 4, "s4": 27, "cm": "부유한 단독주택 단일 공간 + 인물 6명 밀실극 + 액션 전무로 생성 부담이 라인업 최저 수준 → 용이성 대폭 상향. '부러워하던 친구와 몸이 바뀌었는데 그 집에 추악한 비밀이 있었다'가 선행 지식 없이 성립. 심리 가정극이라 모션 증폭은 최소. 19세 청불이라 편성 제약이 각색 이점을 일부 상쇄 / 작화 평가 자료가 없어 비주얼 중립 유지", "id": 842465}, {"rk": 141, "own": "", "n": "그레이마크", "g": "판타지", "t": "남", "d": "2024-08-17", "ep": 103, "gw": 2174135, "kr": 41987598, "fit": 29, "gs": 1, "ks": 1, "a": 6, "b": 6, "c": 6, "e": 9, "s4": 27, "cm": "WORLD OF GRAYMARK 최종장이라 전작 없이 진입하기 어려운 구조 → 각색 소폭 하향. 맨손격투가 검술과 병용되고 우주까지 확장되는 광역 세계관이라 용이성은 낮게 유지", "id": 829462}, {"rk": 142, "own": "", "n": "아수라", "g": "판타지", "t": "남", "d": "2024-05-31", "ep": 58, "gw": 1891036, "kr": 93071522, "fit": 29, "gs": 1, "ks": 4, "a": 4, "b": 7, "c": 5, "e": 8, "s4": 24, "cm": "무협+서양 설화 결합이 차별점. 문정후 고밀도 작화와 확장 세계관이 생성 부담", "id": 826670}, {"rk": 143, "own": "인하우스", "n": "냐한 남자", "g": "로맨스", "t": "여", "d": "2018-03-15", "ep": 155, "gw": 1042503, "kr": 3161400, "fit": 29, "gs": 1, "ks": 1, "a": 7, "b": 8, "c": 8, "e": 4, "s4": 27, "cm": "4컷 호흡이 짧은 포맷과 그대로 맞물리고 제작 소요 7일로 라인업 최단. 실측 실적이 있어 팀 채점 그대로 유지", "id": 708452}, {"rk": 144, "own": "", "n": "아포칼립스를 걷는 우체부", "g": "판타지", "t": "남", "d": "2026-02-05", "ep": 33, "gw": 553646, "kr": 8984310, "fit": 29, "gs": 1, "ks": 1, "a": 7, "b": 5, "c": 6, "e": 9, "s4": 27, "cm": "우체부'라는 의외의 직업군 설정이 신선하고 초능력 배틀이 이펙트로 처리 가능. 로지스틱이 붕괴한 근미래 배경은 화면 이벤트가 있어 비주얼 소폭 상향", "id": 847306}, {"rk": 145, "own": "", "n": "철과 얼음의 여정", "g": "판타지", "t": "남", "d": "2026-01-23", "ep": 34, "gw": 59741, "kr": 6359370, "fit": 29, "gs": 1, "ks": 1, "a": 8, "b": 6, "c": 6, "e": 7, "s4": 27, "cm": "로봇 주인공이라 인물 얼굴 흔들림 문제를 원천 회피. 남극 설원 단순 배경+3D 보조 병행 이력", "id": 846781}, {"rk": 146, "own": "", "n": "겟라이프", "g": "판타지", "t": "남", "d": "2019-09-18", "ep": 127, "gw": 0, "kr": 52286, "fit": 29, "gs": 1, "ks": 1, "a": 7, "b": 6, "c": 6, "e": 8, "s4": 27, "cm": "라이프' 능력 전투가 전부 이펙트로 처리 가능해 합 부담은 낮음. 다만 가문·길드·반란군 다수 세력으로 에셋 부담. 능력 성장형 소년 판타지 정석이라 차별점 없음", "id": 733076}, {"rk": 147, "own": "스튜디오N", "n": "베이비 폭군", "g": "로맨스", "t": "여", "d": "2023-02-28", "ep": 133, "gw": 112000000, "kr": 152000000, "fit": 28, "gs": 5, "ks": 5, "a": 4, "b": 4, "c": 6, "e": 4, "s4": 18, "cm": "부드러운 작화는 강점이나 회귀 아기 로판은 경쟁작이 많음. 원작 삽화가가 웹툰까지 담당해 재현 기준은 명확", "id": 807019}, {"rk": 148, "own": "", "n": "별정직 공무원", "g": "판타지", "t": "남", "d": "2024-06-05", "ep": 68, "gw": 50911128, "kr": 78088872, "fit": 28, "gs": 2, "ks": 4, "a": 1, "b": 6, "c": 5, "e": 10, "s4": 22, "cm": "환경부 별정직이 괴물을 잡는 소재 차별화. 능력 복제 이펙트는 유리하나 맨몸 격투 혼합", "id": 826341}, {"rk": 149, "own": "", "n": "킬러경찰", "g": "액션", "t": "남", "d": "2023-04-14", "ep": 147, "gw": 25000000, "kr": 132000000, "fit": 28, "gs": 1, "ks": 5, "a": 1, "b": 7, "c": 5, "e": 9, "s4": 22, "cm": "섬세한 작화는 강점이나 치고박는 맨몸 격투+경찰·조직 도시 배경으로 생성 난도 최상", "id": 808439}, {"rk": 150, "own": "", "n": "소년교도소", "g": "액션", "t": "남", "d": "2024-06-29", "ep": 113, "gw": 20000000, "kr": 122000000, "fit": 28, "gs": 1, "ks": 5, "a": 1, "b": 7, "c": 6, "e": 8, "s4": 22, "cm": "소년교도소라는 무대 자체가 희소하고 교도소 단일 시설이라 배경 에셋도 집중적. 다만 주먹·발차기 난투가 서사의 본체이고 정교 작화 + 30명 이상 앙상블까지 겹쳐 용이성 하향", "id": 827335}, {"rk": 151, "own": "", "n": "여우놀이", "g": "드라마", "t": "여", "d": "2021-08-05", "ep": 132, "gw": 16222767, "kr": 77093978, "fit": 28, "gs": 1, "ks": 4, "a": 6, "b": 7, "c": 5, "e": 5, "s4": 23, "cm": "학교 단순 배경 + 핵심 7명으로 용이성 상향. '날이 갈수록 성장하는 아름다운 그림체' 호평이 있어 비주얼 1점은 과소평가. 하이틴 학원 로맨스로 각색 이점은 낮음", "id": 768469}, {"rk": 152, "own": "", "n": "왕과의 야행", "g": "로맨스", "t": "여", "d": "2023-11-05", "ep": 98, "gw": 13000000, "kr": 199000000, "fit": 28, "gs": 1, "ks": 5, "a": 5, "b": 6, "c": 6, "e": 5, "s4": 22, "cm": "조선 궁중 낭독이라는 설정이 차별적이고, 한국 소재의 해외 진입 장벽이 낮아진 흐름과도 정합 → 각색 상향. 다만 궁궐·강계·함흥 등 조선 각지 + 주요 15명 이상 + 사극 고증이 겹쳐 용이성은 여전히 낮음", "id": 817859}, {"rk": 153, "own": "", "n": "고대동물기", "g": "드라마", "t": "남", "d": "2025-02-22", "ep": 81, "gw": 12207593, "kr": 39868280, "fit": 28, "gs": 1, "ks": 1, "a": 7, "b": 7, "c": 7, "e": 5, "s4": 26, "cm": "주역이 전원 비인간 고생물이라 인물 얼굴 동일성 문제를 원천 회피 + 에피소드별 완결 옴니버스 + 유사 경쟁작 없음. AI 파이프라인 관점에서 라인업급 조건인데 2/3/2/2로 저평가돼 있었음 → 각색·비주얼 대폭 상향. 다큐멘터리에서도 드문 고증 수준(네이버 9.97)이 그대로 비주얼 자산", "id": 835910}, {"rk": 154, "own": "", "n": "오빠세끼", "g": "일상", "t": "여", "d": "2021-08-04", "ep": 117, "gw": 11083272, "kr": 76149762, "fit": 28, "gs": 1, "ks": 4, "a": 6, "b": 5, "c": 7, "e": 5, "s4": 23, "cm": "일상 에피소드 중심이라 회차 완결성은 있어 각색 소폭 상향. 학교·집 단순 배경으로 용이성 상향. 장기휴재 후 복귀 이력 확인 필요", "id": 758659}, {"rk": 155, "own": "", "n": "귀공자", "g": "액션", "t": "남", "d": "2024-09-09", "ep": 97, "gw": 11073417, "kr": 66841604, "fit": 28, "gs": 1, "ks": 3, "a": 1, "b": 6, "c": 7, "e": 10, "s4": 24, "cm": "칼 무술 이펙트는 유리하나 맨몸 격투 혼합. 재벌 후계 복수극은 경쟁작 다수", "id": 831168}, {"rk": 156, "own": "", "n": "내 남편의 정부에게", "g": "로맨스", "t": "여", "d": "2023-10-09", "ep": 120, "gw": 9633684, "kr": 92366316, "fit": 28, "gs": 1, "ks": 4, "a": 5, "b": 6, "c": 7, "e": 5, "s4": 23, "cm": "전투 요소가 명시되지 않고 인물 규모도 크지 않아 용이성 상향. 로판 복수·이혼물은 경쟁작 다수", "id": 817366}, {"rk": 157, "own": "", "n": "캐슬2:만인지상", "g": "액션", "t": "남", "d": "2023-03-07", "ep": 136, "gw": 3000000, "kr": 234000000, "fit": 28, "gs": 1, "ks": 5, "a": 1, "b": 6, "c": 5, "e": 10, "s4": 22, "cm": "주먹·나이프 근접전에 이펙트를 의도적으로 배제한 현실 표현이라 AI 파이프라인과 정면 충돌. 다국적 조직 앙상블까지 겹쳐 용이성 최하위권이지만 '복붙 거의 없음' 수준의 수려한 작화는 비주얼 자산 → 비주얼 상향, 각색 하향", "id": 807178}, {"rk": 158, "own": "", "n": "세상에 나쁜 영애는 없다", "g": "판타지", "t": "남", "d": "2026-01-24", "ep": 38, "gw": 968156, "kr": 19718108, "fit": 28, "gs": 1, "ks": 1, "a": 6, "b": 7, "c": 5, "e": 8, "s4": 31, "cm": "제목과 달리 문피아 연재 남성향 퓨전 판타지·게임빙의물. 얼음창·화염구·지각변동·시간마법까지 이펙트가 화면을 채우는 유형이라 맨몸 합 부담이 없고 모션임팩트 상위 → 상향. 팀 핑크샥 팀 작화로 균질성도 유리. 다만 등장인물 약 35명이 가문별로 분류될 만큼 계보 선행 설명 부담이 커 서사압축 하향, 복수 가문 영지 다지역도 용이성 병목", "id": 846779}, {"rk": 159, "own": "", "n": "용사 카리엘", "g": "판타지", "t": "남", "d": "2025-08-06", "ep": 52, "gw": 855561, "kr": 20959508, "fit": 28, "gs": 1, "ks": 1, "a": 5, "b": 6, "c": 6, "e": 9, "s4": 26, "cm": "기를 실은 검격 이펙트가 강점. 배경·소품 전부 수작업 고밀도라 재현 공수 큼", "id": 841236}, {"rk": 160, "own": "", "n": "미로 인 메모리", "g": "판타지", "t": "남", "d": "2024-10-23", "ep": 86, "gw": 652296, "kr": 9444876, "fit": 28, "gs": 1, "ks": 1, "a": 7, "b": 6, "c": 6, "e": 7, "s4": 26, "cm": "봉인석이 원흉이라는 반전 소재. 작화·배경 정보 부족으로 테스트 영상 선행 필요", "id": 833040}, {"rk": 161, "own": "인하우스", "n": "소녀바둑", "g": "드라마", "t": "여", "d": "2025-09-20", "ep": 52, "gw": 242918, "kr": 32333686, "fit": 28, "gs": 1, "ks": 1, "a": 7, "b": 8, "c": 6, "e": 5, "s4": 26, "cm": "정식 회차 4화를 6~7일에 뽑아내고 있어 생성 안정성이 실측으로 확인된 상태. 기원·대국장 단순 배경 + 소수 인물까지 겹치므로 용이성 상향", "id": 842839}, {"rk": 162, "own": "", "n": "아카데미 편의점으로 힐링할게요", "g": "판타지", "t": "남", "d": "2026-08-24", "ep": 0, "gw": 0, "kr": 0, "fit": 28, "gs": 1, "ks": 1, "a": 6, "b": 8, "c": 7, "e": 5, "s4": 18, "cm": "※ 웹툰이 아니라 웹소설(문피아·카카오페이지, 1122화 완결). 웹툰화 사실이 확인되지 않아 재현할 원작 화면 자체가 없음 → 원작재현 축 최하위. 등장인물 90명 이상 + 아카데미·황가·요정계 다지역으로 캐릭터 디자인 부담 최대, 착각물 구조상 게임 설정 선행 이해도 필요. 아래 점수는 원작 기준 참고치이며 검수 시트 기반 판정 아님 — 평가 대상 적격 여부부터 확인 필요", "id": 853839}, {"rk": 163, "own": "", "n": "청부입학", "g": "액션", "t": "남", "d": "2026-06-21", "ep": 14, "gw": 0, "kr": 1007210, "fit": 28, "gs": 1, "ks": 1, "a": 4, "b": 7, "c": 8, "e": 7, "s4": 35, "cm": "킬러 조직을 나가는 조건으로 고등학교에 입학해 타겟을 암살하라' — 훅이 라인업 최상급이고 선행 설명이 필요 없음. 현재는 한일고 단일 배경 비중이 커 용이성이 학원 격투물치고 높으나, 청부살인 소재상 맨몸 근접전이 본체가 될 가능성이 높아 4 이상은 부여하기 어려움. 윈드브레이커 계열 작화라는 언급 외 평가 자료 없음. 2026-06-21 연재 3개월차·별점 9.56, 와이랩 제작이라 영상화 판권 확인 필요", "id": 851688}, {"rk": 164, "own": "", "n": "까맣지만 새하얀", "g": "로맨스", "t": "남", "d": "2026-08-26", "ep": 8, "gw": 0, "kr": 0, "fit": 28, "gs": 1, "ks": 1, "a": 8, "b": 6, "c": 8, "e": 4, "s4": 27, "cm": "중학교 교실+육상부 단일 배경에 핵심 인물 4명, 액션 전무로 생성 조건이 라인업 최상위권 → 용이성 대폭 상향. '방학 끝나고 까맣게 탄 짝꿍에게 자꾸 눈이 간다' 훅이 선행 설명 없이 1분에 성립. 다만 감정 클로즈업 위주라 모션 증폭 폭은 최소. 2026-08-26 연재 개시 3주차로 작화 평가·성과 지표가 없어 비주얼은 중립 유지 — 실제 회차 확인 필요", "id": 854126}, {"rk": 165, "own": "", "n": "제물 투표", "g": "스릴러", "t": "여/남", "d": "2026-05-25", "ep": 18, "gw": 0, "kr": 3452108, "fit": 28, "gs": 1, "ks": 1, "a": 7, "b": 5, "c": 9, "e": 5, "s4": 26, "cm": "이틀마다 기차로 오는 악마에게 바칠 제물을 주민 투표로 정한다' — 룰만 제시하면 읽히고 투표 자체가 회차 분절 장치를 제공 → 서사 대폭 상향, 기기괴괴2 계열. 폐쇄 마을 단일 무대에 액션도 간헐적이라 용이성 유리하나 마을 회의·투표 컷의 다인 동시 등장이 상쇄. 작가 전작이 '정돈된 스케치풍 + 최소 채색' 화풍으로 면 정보가 적어 생성 보간에 불리 → 비주얼 하향", "id": 850211}, {"rk": 166, "own": "", "n": "남편은 한 명으로 족하다", "g": "로맨스", "t": "여", "d": "2024-04-18", "ep": 112, "gw": 35609004, "kr": 73390996, "fit": 27, "gs": 1, "ks": 4, "a": 4, "b": 6, "c": 7, "e": 5, "s4": 22, "cm": "연애 시뮬 게임 빙의에 '집착 로판을 호러로 비틀었다'는 평가 → 장르 전환 자체가 화면 이벤트가 되는 구조로 살아남은 로맨스와 같은 각색 이점 → 상향. 다만 서양풍 제국 + 주요 10명 이상이 용이성 병목", "id": 823773}, {"rk": 167, "own": "", "n": "백작가의 비밀스런 시녀님", "g": "로맨스", "t": "여", "d": "2024-09-02", "ep": 103, "gw": 27524654, "kr": 91475346, "fit": 27, "gs": 1, "ks": 4, "a": 8, "b": 6, "c": 6, "e": 2, "s4": 22, "cm": "벨루니타 백작가 저택 단일 배경 중심 + 액션 없음으로 용이성 대폭 상향. 시녀·고용인 로판은 흔한 계열", "id": 830106}, {"rk": 168, "own": "", "n": "상사불상사", "g": "로맨스", "t": "여", "d": "2023-09-02", "ep": 135, "gw": 22833935, "kr": 56876366, "fit": 27, "gs": 1, "ks": 2, "a": 7, "b": 6, "c": 6, "e": 5, "s4": 24, "cm": "광고대행사 오피스가 사실상 단일 공간이고 인물도 7명 수준 → 용이성 상향. 오피스 로코로 차별점은 없음", "id": 814820}, {"rk": 169, "own": "", "n": "청춘 러브썸", "g": "로맨스", "t": "여", "d": "2024-08-12", "ep": 80, "gw": 22428604, "kr": 99571396, "fit": 27, "gs": 1, "ks": 4, "a": 6, "b": 5, "c": 6, "e": 5, "s4": 22, "cm": "시즌별로 주인공 커플이 교체되는 구조라 회차 분절에는 유리 → 각색 소폭 상향. 캠퍼스 일상 배경으로 용이성 상향", "id": 828920}, {"rk": 170, "own": "", "n": "중간에서 만나", "g": "로맨스", "t": "여", "d": "2023-05-09", "ep": 136, "gw": 17000000, "kr": 159000000, "fit": 27, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 6, "e": 3, "s4": 21, "cm": "액션 없고 오피스·일상 배경이라 용이성 상향. 조역이 10명 이상이라 5까지는 아님. 서사는 연상연하 로코 표준 수준으로 1점은 가혹", "id": 808455}, {"rk": 171, "own": "", "n": "왕따가 격투기를 너무 잘함", "g": "액션", "t": "남", "d": "2023-02-28", "ep": 186, "gw": 10000000, "kr": 142000000, "fit": 27, "gs": 1, "ks": 5, "a": 1, "b": 6, "c": 5, "e": 9, "s4": 21, "cm": "MMA 맨몸 합이 서사 전부. 3D 배경은 이점이나 격투 재현이 근본 병목", "id": 806888}, {"rk": 172, "own": "", "n": "축구천재로 오해받는 중입니다", "g": "스포츠", "t": "남", "d": "2024-12-28", "ep": 89, "gw": 8630589, "kr": 85019692, "fit": 27, "gs": 1, "ks": 4, "a": 4, "b": 6, "c": 4, "e": 8, "s4": 22, "cm": "착각물 훅은 좋으나 축구 경기 압축이 난제. 경기장 관중이 생성 부담", "id": 835119}, {"rk": 173, "own": "", "n": "칼에 취한 밤을 걷다", "g": "무협/사극", "t": "남", "d": "2022-06-07", "ep": 131, "gw": 7514274, "kr": 81326758, "fit": 27, "gs": 1, "ks": 4, "a": 3, "b": 6, "c": 6, "e": 7, "s4": 22, "cm": "순식간 제압 연출이 짧은 호흡에 최적. 서정적 고밀도 작화는 비주얼 강점이자 생성 부담", "id": 795542}, {"rk": 174, "own": "인하우스", "n": "나이트런", "g": "판타지", "t": "남", "d": "2009-04-21", "ep": 815, "gw": 210326, "kr": 61193270, "fit": 27, "gs": 1, "ks": 3, "a": 4, "b": 4, "c": 6, "e": 9, "s4": 23, "cm": "우주 전장·괴수전 스케일이 재생 화면에서 증폭. 군단 규모 교전과 후반 작화 붕괴 이력이 리스크", "id": 64997}, {"rk": 175, "own": "스튜디오N", "n": "악당의 사연", "g": "개그", "t": "남", "d": "2012-02-06", "ep": 67, "gw": 0, "kr": 422580, "fit": 27, "gs": 1, "ks": 1, "a": 6, "b": 6, "c": 8, "e": 5, "s4": 25, "cm": "악당 조직 직장인 시트콤이 회차 완결 구조에 최적. 개그체 단순 작화로 생성 부담 최소, 비주얼은 약함", "id": 443421}, {"rk": 176, "own": "", "n": "하는 사이", "g": "로맨스", "t": "여", "d": "2024-04-04", "ep": 95, "gw": 43231978, "kr": 85768022, "fit": 26, "gs": 1, "ks": 4, "a": 7, "b": 6, "c": 6, "e": 2, "s4": 21, "cm": "단순 배경 + 주역 2인 + 액션 없음으로 용이성 상향. 소꿉친구 재회 로맨스로 차별점은 없음", "id": 823437}, {"rk": 177, "own": "", "n": "나를 바꿔줘", "g": "드라마", "t": "여", "d": "2019-09-06", "ep": 363, "gw": 40000000, "kr": 164000000, "fit": 26, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 4, "e": 4, "s4": 20, "cm": "에피소드마다 주인공이 교체되는 완결형 구조 + 고정 조연 3명이 앵커 역할. 외모 교환 비밀조직도 차별 소재로 짧은 호흡에 매우 유리 → 각색 대폭 상향", "id": 733280}, {"rk": 178, "own": "", "n": "피폐물을 힐링물로 만드는 방법", "g": "로맨스", "t": "여", "d": "2024-06-02", "ep": 93, "gw": 37755972, "kr": 69244028, "fit": 26, "gs": 1, "ks": 3, "a": 7, "b": 6, "c": 7, "e": 2, "s4": 22, "cm": "피폐물을 힐링물로 바꾼다'는 메타 훅은 화면 문법 전환 설계로 이어질 수 있어 각색 상향. 주요 3명 + 액션 없음으로 용이성도 상향", "id": 826381}, {"rk": 179, "own": "", "n": "재벌집 막내아들", "g": "드라마", "t": "남", "d": "2022-09-28", "ep": 220, "gw": 35000000, "kr": 279000000, "fit": 26, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 4, "e": 4, "s4": 20, "cm": "내용 대부분이 대화인 기업 정치극으로 움직임 증폭 효과가 최소. 재벌가 조직 앙상블로 용이성도 하향. 다만 '뛰어난 연출로 대화 위주의 단조로움을 커버'한다는 평이 있어 비주얼 소폭 상향", "id": 800770}, {"rk": 180, "own": "", "n": "삼이는 재생한다", "g": "로맨스", "t": "여", "d": "2024-03-20", "ep": 92, "gw": 24717649, "kr": 57747078, "fit": 26, "gs": 1, "ks": 2, "a": 5, "b": 7, "c": 6, "e": 5, "s4": 23, "cm": "학교 단순 배경으로 용이성 상향. 작가의 인체 비율·의상 센스에 호평이 있어 비주얼 1점은 과소평가. 학원 삼각 로맨스로 각색 이점은 낮음", "id": 822874}, {"rk": 181, "own": "", "n": "A.I. 닥터", "g": "드라마", "t": "남", "d": "2021-02-04", "ep": 254, "gw": 10000000, "kr": 197000000, "fit": 26, "gs": 1, "ks": 5, "a": 6, "b": 6, "c": 4, "e": 4, "s4": 20, "cm": "액션 없어 합 부담 제로. 진단 AI 버디 소재+회차 완결 구조는 강점, 화면 스펙터클은 약함", "id": 765804}, {"rk": 182, "own": "", "n": "여자사람친구", "g": "로맨스", "t": "남", "d": "2025-01-25", "ep": 43, "gw": 5324469, "kr": 66641312, "fit": 26, "gs": 1, "ks": 3, "a": 7, "b": 6, "c": 4, "e": 5, "s4": 22, "cm": "액션 없는 대화 중심 청춘 로맨스로 움직임 증폭 효과 최소. 각색 이점을 찾기 어려움", "id": 835693}, {"rk": 183, "own": "", "n": "레드셔츠", "g": "액션", "t": "남", "d": "2025-05-03", "ep": 72, "gw": 4196119, "kr": 55964682, "fit": 26, "gs": 1, "ks": 2, "a": 3, "b": 6, "c": 6, "e": 8, "s4": 36, "cm": "킬러 회사의 전설이 은퇴하려다 모든 것을 빼앗기고 복수한다' 훅은 명확하나 회사·네빌가·5대 세력 다층 구도라 중반 관계도 부담. 별명이 '살인 시 셔츠에 튀는 피'에서 유래할 만큼 근접 유혈 살상 중심이고 다조직·다지역이라 용이성 하향. 먼치킨 액션으로 화면 이벤트는 확보. ※16작품 중 자료가 가장 부족 — 작화·액션 유형·성과 지표를 하나도 확인하지 못했으므로 1~5화 육안 확인 전까지는 잠정치", "id": 838553}, {"rk": 184, "own": "엠스토리허브", "n": "스캔들 메이커가 돌아왔다", "g": "로맨스", "t": "여", "d": "2026-03-25", "ep": 26, "gw": 0, "kr": 7988538, "fit": 26, "gs": 1, "ks": 1, "a": 7, "b": 6, "c": 7, "e": 4, "s4": 29, "cm": "추문을 뒤집어쓰고 쫓겨났다가 스스로 진짜 스캔들 메이커가 되어 돌아왔다' 훅이 명확하고 전형적 로판 구도라 진입 부담이 낮음. 액션이 없어 합 부담도 없으나 제국 사교계 연회의 다인 컷 + 명시 인물 9명 이상 + 귀족 다지역으로 용이성은 중위. 사교계 드라마라 모션 증폭 폭 최소. 영어판 구독 19.7만 · 5개 언어 연재로 해외 반응은 검증된 편", "id": 849277}, {"rk": 185, "own": "", "n": "법법궤궤", "g": "판타지", "t": "남", "d": "2024-06-04", "ep": 80, "gw": 0, "kr": 6755068, "fit": 26, "gs": 1, "ks": 1, "a": 5, "b": 6, "c": 6, "e": 7, "s4": 24, "cm": "세계를 멸할 아이 여덟이라는 설정은 강하나 8인 앙상블이 짧은 호흡 압축·인물 유지 모두 병목", "id": 826536}, {"rk": 186, "own": "", "n": "그 기사가 레이디로 사는 법", "g": "판타지", "t": "여", "d": "2021-03-11", "ep": 193, "gw": 45984772, "kr": 56015228, "fit": 25, "gs": 1, "ks": 2, "a": 6, "b": 6, "c": 6, "e": 4, "s4": 22, "cm": "기사가 적국 영애로 환생하는 정체성 전환 훅 + 검술 액션이 있어 로판 중에서는 드물게 화면 이벤트를 만들 수 있는 케이스. 에피소드식 사건 구성도 유리 → 각색 대폭 상향. Ink.의 세련된 그림체와 섬세한 의상 표현으로 비주얼도 1→4 상향", "id": 758675}, {"rk": 187, "own": "", "n": "완벽한 계약", "g": "로맨스", "t": "여", "d": "2024-05-24", "ep": 85, "gw": 33585172, "kr": 35370768, "fit": 25, "gs": 1, "ks": 1, "a": 6, "b": 6, "c": 6, "e": 5, "s4": 23, "cm": "현대 일상 단순 배경 + 주역 2인으로 용이성 상향. 다만 계약연애는 클리셰가 많아 각색·서사는 하향", "id": 826400}, {"rk": 189, "own": "", "n": "나를 미워하던 남편이 기억을 잃었다", "g": "로맨스", "t": "여", "d": "2023-09-29", "ep": 106, "gw": 13476984, "kr": 84232292, "fit": 25, "gs": 1, "ks": 4, "a": 6, "b": 6, "c": 6, "e": 2, "s4": 20, "cm": "마물 폭주 외에 액션이 거의 없어 용이성 소폭 상향. 다만 주요 인물이 10명 이상이라 4까지는 아님. 로판 후회·기억상실물은 경쟁작 다수", "id": 816614}, {"rk": 188, "own": "", "n": "다정한 침입자", "g": "로맨스", "t": "여", "d": "2025-07-20", "ep": 62, "gw": 11535371, "kr": 60979142, "fit": 25, "gs": 1, "ks": 3, "a": 7, "b": 3, "c": 6, "e": 5, "s4": 21, "cm": "정이한의 집 단일 공간 + 소수 인물로 용이성 상향. 다만 남녀 체격 대비를 극적으로 강조하는 연출이 특징이라 AI 생성 시 비율 붕괴 리스크는 별도 확인 필요", "id": 840839}, {"rk": 190, "own": "스튜디오N", "n": "검은머리 영국의사", "g": "드라마", "t": "남", "d": "2025-01-15", "ep": 53, "gw": 6551637, "kr": 34340062, "fit": 25, "gs": 1, "ks": 1, "a": 3, "b": 5, "c": 10, "e": 5, "s4": 23, "cm": "초반이 환자 중심 옴니버스라 회차 완결 구조를 갖췄고 19세기 영국 의료 개혁은 무경쟁 소재 → 각색 대폭 상향. 다만 19세기 런던 시대 재현 + 공개 절단술 시연 등 군중 장면 + 30명 이상 인물로 용이성은 낮게 유지. 시대극 화면이라 비주얼 소폭 상향", "id": 835435}, {"rk": 191, "own": "", "n": "눈에 밟힌 발걸음", "g": "드라마", "t": "여", "d": "2025-02-19", "ep": 15, "gw": 695242, "kr": 4926006, "fit": 25, "gs": 1, "ks": 1, "a": 7, "b": 5, "c": 6, "e": 5, "s4": 23, "cm": "죽은 소녀를 안고 남쪽으로 걷는 의족 소년 — 강한 정서 훅이고 단편 완결이라 각색 물량도 적정 → 각색 상향. 소수 인물로 용이성 소폭 상향, 다만 이동형 로드무비라 배경이 계속 바뀜", "id": 836648}, {"rk": 192, "own": "", "n": "펜홀더", "g": "스포츠", "t": "남", "d": "2023-08-24", "ep": 138, "gw": 562935, "kr": 59888756, "fit": 25, "gs": 1, "ks": 2, "a": 5, "b": 6, "c": 5, "e": 6, "s4": 22, "cm": "탁구는 2인 대결이라 스포츠물 중 인물 부담이 가장 적고(축구·야구 대비 결정적 이점) 탁구장 단순 배경까지 유리. 소재 희소성도 확보. 팀 채점 정확", "id": 814587}, {"rk": 193, "own": "", "n": "갓 오브 킬러즈", "g": "판타지", "t": "남", "d": "2025-12-13", "ep": 40, "gw": 0, "kr": 682394, "fit": 25, "gs": 1, "ks": 1, "a": 3, "b": 6, "c": 6, "e": 8, "s4": 23, "cm": "마법 없는 순수 맨몸 액션이 서사 전부라 AI 파이프라인 부적합.", "id": 845389}, {"rk": 194, "own": "", "n": "저세상 클라스!", "g": "액션", "t": "남", "d": "2019-09-16", "ep": 73, "gw": 0, "kr": 333156, "fit": 25, "gs": 1, "ks": 1, "a": 1, "b": 5, "c": 9, "e": 8, "s4": 23, "cm": "싸움 고수 할머니 영혼이 손자 몸에 빙의해 몸을 번갈아 쓴다 — 강한 개그 훅에 회차 완결성까지 있어 각색 대폭 상향. 다만 비밀권법 맨몸 격투라 용이성은 4→3 하향", "id": 733765}, {"rk": 196, "own": "", "n": "성스러운 작가생활", "g": "로맨스", "t": "여", "d": "2023-03-28", "ep": 67, "gw": 14178221, "kr": 58664034, "fit": 24, "gs": 1, "ks": 2, "a": 5, "b": 5, "c": 6, "e": 5, "s4": 21, "cm": "웹툰 제작 업계를 다루는 메타 소재가 차별적이고 주요 인물이 3명 → 각색·용이성 상향. '작화가 예쁘다'는 리뷰 평으로 비주얼도 상향. 현재 휴재 중이라 컨택 상태 확인 필요", "id": 807859}, {"rk": 197, "own": "", "n": "수희0(tngmlek0)", "g": "드라마", "t": "여", "d": "2021-07-03", "ep": 257, "gw": 3938232, "kr": 68408606, "fit": 24, "gs": 1, "ks": 3, "a": 7, "b": 5, "c": 3, "e": 5, "s4": 20, "cm": "트위치 UI·커뮤니티 게시판을 거의 복붙 수준으로 재현한 작품이라 화면의 상당 부분이 UI로 채워져 작화 부담이 낮음 → 용이성 상향. 인방 산업 고발 소재도 차별적. 다만 5년치 장기 서사를 짧은 호흡으로 압축하는 건 난제", "id": 774831}, {"rk": 198, "own": "스튜디오N", "n": "레사 시즌1", "g": "판타지", "t": "남", "d": "2012-06-21", "ep": 59, "gw": 0, "kr": 5107334, "fit": 24, "gs": 1, "ks": 1, "a": 2, "b": 7, "c": 6, "e": 7, "s4": 22, "cm": "일러스트급 작화가 비주얼 상한. 창작 신화 세계관은 차별점이나 디자인 밀도·맨몸 합 혼합으로 난도 최상", "id": 478262}, {"rk": 199, "own": "", "n": "좋아하면 멍청해진다", "g": "로맨스", "t": "남", "d": "2026-05-12", "ep": 19, "gw": 0, "kr": 4855556, "fit": 24, "gs": 1, "ks": 1, "a": 7, "b": 5, "c": 8, "e": 2, "s4": 22, "cm": "둘이 있으면 바보가 된다는 설정은 회차 완결 개그로 쓸 수 있으나 캠퍼스 로코 경쟁작이 많아 4까지는 아님 → 소폭 하향. 액션 없어 용이성은 유지", "id": 850214}, {"rk": 200, "own": "", "n": "애드립의 신", "g": "드라마", "t": "남", "d": "2026-03-08", "ep": 32, "gw": 113470, "kr": 6534696, "fit": 23, "gs": 1, "ks": 1, "a": 7, "b": 7, "c": 5, "e": 2, "s4": 21, "cm": "감정 복사 능력이 표정·연기 대비를 그대로 화면 이벤트로 만들어 짧은 호흡에 유리 → 각색 상향. 액션 없어 용이성도 높음. 다만 2026년 3월 시작 신작이라 서사 검증 이력이 없어 서사는 하향", "id": 848578}, {"rk": 201, "own": "", "n": "몬스터", "g": "액션", "t": "남", "d": "2021-04-26", "ep": 74, "gw": 42373, "kr": 452860, "fit": 23, "gs": 1, "ks": 1, "a": 1, "b": 5, "c": 5, "e": 10, "s4": 21, "cm": "1차 각성 후 신체 능력 변화가 없다고 명시돼 순수 격투가 아니고 주요 인물도 5명 중심 → 용이성 높음. 학원 초능력물이라 차별점은 없음. ※동명작 다수(우라사와 나오키 등) 대상 확인 필요", "id": 771044}, {"rk": 202, "own": "", "n": "흑요석의 신부", "g": "로맨스", "t": "여", "d": "2023-08-17", "ep": 106, "gw": 46996283, "kr": 37198256, "fit": 22, "gs": 1, "ks": 1, "a": 3, "b": 6, "c": 6, "e": 5, "s4": 20, "cm": "수면 위의 대무', 기마 사격 등 의식화된 경합이 회차별 무대 이벤트로 완결되는 구조이고 보석 콘셉트가 비주얼 컨셉을 이미 제공 → 각색 상향. 귀족 의상 장식이 매우 정교해 세레나 계열 로판 비주얼 상한 → 5. 다만 9개 왕국 왕족 앙상블이 용이성 병목. 106화 후 휴재", "id": 814310}, {"rk": 203, "own": "엠스토리허브", "n": "하렘의 남자들", "g": "로맨스", "t": "여", "d": "2020-11-24", "ep": 217, "gw": 43570614, "kr": 39030304, "fit": 22, "gs": 1, "ks": 1, "a": 6, "b": 6, "c": 4, "e": 4, "s4": 20, "cm": "여황제가 관례를 깨고 남자 후궁을 모집한다는 설정이 차별점 → 각색 상향. 원작 삽화와 웹툰 인물 외모의 괴리가 적어 재현 기준이 명확해 용이성도 상향. 다만 조역 20명 이상 앙상블은 부담", "id": 760001}, {"rk": 204, "own": "", "n": "흑화 폭군의 집착이 멈추지 않습니다", "g": "로맨스", "t": "여", "d": "2026-06-05", "ep": 30, "gw": 0, "kr": 0, "fit": 22, "gs": 1, "ks": 1, "a": 5, "b": 4, "c": 6, "e": 5, "s4": 20, "cm": "집착남주 로판 클리셰로 각색 이점 낮음. 제목·작품 동일성 미확정, 조회수 데이터 없음", "id": null}, {"rk": 205, "own": "", "n": "낫오버", "g": "스포츠", "t": "남", "d": "2024-06-04", "ep": 66, "gw": 150185, "kr": 30160974, "fit": 21, "gs": 1, "ks": 1, "a": 4, "b": 6, "c": 3, "e": 6, "s4": 19, "cm": "야구는 팀 단위 인물+관중에 경기 압축이 난제. 정지 컷 대비 증폭 폭이 작음", "id": 826440}];
+const ISSUE_REASONS = ["판권 없음","원작사 협의 중","작가 협의 불가","내부 보류","기타"];
+const OWNERS = ["미정","인하우스","스튜디오N","엠스토리허브"];
+const BUILD = "v3 · 2026-09-14";
+const ownerOf = (w)=> OWN[w.n] || w.own || "미정";
+
+/* ── 상태 ── */
+const LSK = "cand_pipeline_v1";
+let FLAG = {};           // 작품명 -> 이슈 사유
+let OWN  = {};           // 작품명 -> 제작 담당 (시트값을 덮어씀)
+let T = "all", G = new Set(), O = new Set(), Q = "", SORT = "basis", HIDE = false;
+let BASIS = "fit";     // fit = 총 적합도(50점) · s4 = 제작 4축(40점)
+let YEAR = "";         // 런칭 연도 하한
+let ONLYGEM = false;   // 원석(조회수 대비 제작 강세)만
+
+function load(){
+  try{ const m=location.hash.match(/f=([^&]+)/);
+       if(m){ const o=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/")))));
+              FLAG=o.flag||o||{}; OWN=o.own||{}; }
+  }catch(e){}
+  try{ const s=JSON.parse(localStorage.getItem(LSK)||"{}");
+       if(!Object.keys(FLAG).length && s.flag) FLAG=s.flag;
+       if(!Object.keys(OWN).length && s.own) OWN=s.own;
+  }catch(e){}
+  // 공유 저장소를 쓰면 서버 값이 기준이므로, 첫 pull 결과로 통째로 교체된다
+}
+let READY=false;   // 최초 pull 이 끝나기 전에는 절대 push 하지 않는다
+function save(){
+  try{ localStorage.setItem(LSK, JSON.stringify({flag:FLAG, own:OWN})); }catch(e){}
+  if(READY) sbPush();
+}
+const enc = (o)=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_");
+
+/* ── 포맷 ── */
+const fmt = (n)=> n==null ? "—" : n>=1e8 ? (n/1e8).toFixed(n>=1e9?0:1)+"억" : n>=1e4 ? Math.round(n/1e4)+"만" : String(n);
+const esc = (s)=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fitVar = (f)=> f>=36?"var(--f7)": f>=33?"var(--f6)": f>=30?"var(--f5)": f>=27?"var(--f4)":"var(--f3)";
+const AXC = ["var(--s1)","var(--s2)","var(--s3)","var(--s4)"];
+const AXN = ["① 생성안정성","② 원작재현·각색고도화","③ 서사 압축","④ 모션 임팩트"];
+const link = (w)=> w.id ? `https://comic.naver.com/webtoon/list?titleId=${w.id}`
+                        : `https://comic.naver.com/search?keyword=${encodeURIComponent(w.n)}`;
+
+/* ── 공유 저장소 동기화 ── */
+/* 새 publishable 키(sb_publishable_...)는 apikey 헤더로만 보내야 하고,
+   구 anon 키(eyJ... JWT)는 Authorization 헤더도 함께 보낸다 */
+const SB_NEWKEY = /^sb_publishable_/.test(SUPABASE_ANON_KEY);
+const SB={on:!!(SUPABASE_URL&&SUPABASE_ANON_KEY),
+  url:`${SUPABASE_URL}/rest/v1/${SB_TABLE}`,
+  hdr:Object.assign({apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},
+       SB_NEWKEY?{}:{Authorization:`Bearer ${SUPABASE_ANON_KEY}`})};
+const board=new URLSearchParams(location.search).get("board")||SB_ROW;
+let LASTPUSH=0, PULLING=false;
+function chip(state,txt){
+  const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
+  c.style.cursor = LASTERR ? "pointer" : "default";
+}
+document.addEventListener("click",(e)=>{
+  if(!e.target.closest("#syncChip")) return;
+  alert(LASTERR ? `공유 저장소 오류\n\n${LASTERR}\n\n주소: ${SB.url}\n보드: ${board}`
+                : `공유 저장소 정상\n\n주소: ${SB.url}\n보드: ${board}\n키: ${SUPABASE_ANON_KEY.slice(0,24)}…`);
+});
+let LASTERR="";
+async function sbPull(first){
+  if(!SB.on||PULLING) return;
+  if(!first && Date.now()-LASTPUSH<6000) return;   // 내가 방금 고친 값은 덮어쓰지 않는다
+  PULLING=true;
+  try{
+    const r=await fetch(`${SB.url}?id=eq.${encodeURIComponent(board)}&select=data`,{headers:SB.hdr});
+    const txt=await r.text();
+    if(!r.ok) throw new Error(`읽기 ${r.status} — ${txt.slice(0,200)}`);
+    const j=JSON.parse(txt);
+    if(!Array.isArray(j)) throw new Error(`읽기 응답 형식 오류 — ${txt.slice(0,200)}`);
+    if(j[0]&&j[0].data){
+      const inc=j[0].data.flag||{}, io2=j[0].data.own||{};
+      if(JSON.stringify(inc)!==JSON.stringify(FLAG)||JSON.stringify(io2)!==JSON.stringify(OWN)){
+        FLAG=inc; OWN=io2; render(); }
+    }
+    LASTERR=""; chip("ok","공유 저장소 연결됨");
+    READY=true;
+  }catch(e){
+    LASTERR=String(e.message||e);
+    console.error("[공유 저장소] 읽기 실패:",LASTERR);
+    chip("err","읽기 실패 — 눌러서 원인 보기");
+  }
+  PULLING=false;
+}
+async function sbPush(){
+  if(!SB.on) return;
+  LASTPUSH=Date.now();
+  try{
+    const r=await fetch(SB.url,{method:"POST",
+      headers:{...SB.hdr,Prefer:"resolution=merge-duplicates,return=minimal"},
+      body:JSON.stringify({id:board,data:{flag:FLAG,own:OWN},updated_at:new Date().toISOString()})});
+    if(!r.ok){ const t=await r.text(); throw new Error(`저장 ${r.status} — ${t.slice(0,200)}`); }
+    LASTERR=""; chip("ok","저장됨 — 모두에게 반영");
+  }catch(e){
+    LASTERR=String(e.message||e);
+    console.error("[공유 저장소] 저장 실패:",LASTERR);
+    chip("err","저장 실패 — 눌러서 원인 보기");
+  }
+}
+
+/* ── 선정 컷 — 전체 50 (남성향 30 + 여성향 20) ── */
+const CUT={all:50,"남":30,"여":20};
+W.forEach((w,i)=>w._i=i);
+let RANK={};      // _i -> {all, m, f}
+function ranks(){
+  RANK={};
+  const live=W.filter(w=>w.fit!=null && !FLAG[w.n]);
+  [["fit","f"],["s4","s"]].forEach(([key,tag])=>{
+    const pool=[...live].sort((a,b)=>(b[key]-a[key])||(b.fit-a.fit)||((a.rk||9e9)-(b.rk||9e9)));
+    let i=0,m=0,f=0;
+    pool.forEach(w=>{
+      const r=RANK[w._i]||(RANK[w._i]={});
+      r["all"+tag]=++i;
+      if(w.t==="남") r["m"+tag]=++m;
+      if(w.t==="여") r["f"+tag]=++f;
+    });
+  });
+}
+/* 원석 지수 — 조회수 포함 순위 대비 제작 4축 순위가 얼마나 앞서는가 */
+const gem=(w)=>{const r=RANK[w._i]; return r?(r.allf-r.alls):0;};
+const tag=()=>BASIS==="s4"?"s":"f";
+const cutRank=(w,scope)=>{
+  const r=RANK[w._i]; if(!r) return null;
+  const k=(scope==="남"?"m":scope==="여"?"f":"all")+tag();
+  return r[k]??null;
+};
+const inCut=(w,scope)=>{
+  if(scope==="none") return false;
+  const v=cutRank(w,scope); if(v==null) return false;
+  return v<=(CUT[scope]||CUT.all);
+};
+
+/* ── 필터·정렬 ── */
+function view(){
+  let a = W.filter(w=>{
+    if(G.size && !G.has(w.g||"미정")) return false;
+    if(O.size && !O.has(ownerOf(w))) return false;
+    if(YEAR && (!w.d || w.d < YEAR)) return false;
+    if(ONLYGEM && gem(w) < 15) return false;
+    if(Q && !w.n.toLowerCase().includes(Q)) return false;
+    if(HIDE && FLAG[w.n]) return false;
+    return true;
+  });
+  const key={basis:w=>w[BASIS], fit:w=>w.fit, s4:w=>w.s4, gw:w=>w.gw, kr:w=>w.kr,
+             gem:w=>gem(w), rk:w=>w.rk==null?9e9:-w.rk, d:w=>w.d?w.d.replace(/-/g,""):0}[SORT]||((w)=>w[BASIS]);
+  a.sort((x,y)=>{
+    const fx=!!FLAG[x.n], fy=!!FLAG[y.n]; if(fx!==fy) return fx?1:-1;   // 이슈 작품은 항상 아래로
+    const vx=key(x)??-1, vy=key(y)??-1;
+    if(vy!==vx) return (SORT==="rk"||SORT==="d") ? (SORT==="d" ? (vy>vx?1:-1) : (vx>vy?1:-1)) : vy-vx;
+    return (x.rk||9e9)-(y.rk||9e9);
+  });
+  return a;
+}
+
+/* ── 행 ── */
+function rowHTML(w,i,scope){
+  const cut=inCut(w,scope), cr=cutRank(w,scope);
+  const flag = FLAG[w.n];
+  const genre = w.g||"장르 미정";
+  const meta = [w.t?({"남":"남성향","여":"여성향","여/남":"여·남"}[w.t]||w.t):null,
+                w.ep?`${w.ep}화`:null, w.d].filter(Boolean).join(" · ");
+  const gp = `<span class="gp">${esc(genre)}</span>`;
+  const ax = w.a==null ? `<div class="ax na">채점 대기</div>`
+    : `<div class="ax">`+[w.a,w.b,w.c,w.e].map((v,j)=>
+        `<i title="${AXN[j]} ${v}점"><b style="height:${v*10}%;background:${AXC[j]};display:flex;align-items:center;justify-content:center">${v}</b></i>`).join("")+`</div>`;
+  const V = BASIS==="s4" ? w.s4 : w.fit;
+  const fit = V==null ? `<div class="fit na">—</div>`
+    : `<div class="fit" style="background:${fitVar(BASIS==="s4"?V+8:V)}" data-tip="${esc(w.n)}">${V}</div>`;
+  const g = gem(w);
+  const gb = (BASIS==="s4" && g>=15) ? `<span class="gem" title="조회수 포함 순위 ${RANK[w._i].allf}위 → 제작 4축 ${RANK[w._i].alls}위 (${g}계단 상승)">▲${g}</span>` : "";
+  return `<div class="row${flag?" flag":""}${cut?" cut":(w.fit!=null&&!flag?" out":"")}" data-n="${esc(w.n)}">
+    <div class="rk">${cut?`<b class="cn">${cr}</b>`:(cr??"·")}</div>
+    <div class="ow"><select class="osel${ownerOf(w)!=="미정"?" set":""}" data-o="${esc(w.n)}">${
+      OWNERS.concat(OWNERS.includes(ownerOf(w))?[]:[ownerOf(w)])
+        .map(o=>`<option${o===ownerOf(w)?" selected":""}>${esc(o)}</option>`).join("")
+    }<option value="__c">＋ 직접 입력…</option></select></div>
+    <div class="nm">
+      <a href="${link(w)}" target="_blank" rel="noopener">${esc(w.n)}</a>${gp}${gb}${w.id?"":`<span class="bsearch">검색</span>`}${flag?`<span class="rsn">${esc(flag)}</span>`:""}
+      <div class="meta">${esc(meta)}</div>
+    </div>
+    ${ax}
+    <div class="num">${fmt(w.gw)}<small>GW</small></div>
+    <div class="num">${fmt(w.kr)}<small>한국</small></div>
+    ${fit}
+    <button class="iss" title="이슈 표시 / 해제">${flag?"⊘":"○"}</button>
+  </div>`;
+}
+const AXS = ["생성\n안정성","원작\n재현","서사\n압축","모션\n임팩트"];
+const HEAD = `<div class="row rhead"><div class="rk" title="해당 풀 안에서의 적합도 순위">순위</div>
+  <div title="바꾸면 바로 저장됩니다">제작 담당</div><div>작품</div>
+  <div class="axh">${AXS.map((t,j)=>`<i title="${AXN[j]} (10점)"><em style="background:${AXC[j]}"></em>${["①","②","③","④"][j]}<b>${t.replace("\n","<br>")}</b></i>`).join("")}</div>
+  <div class="num">GW</div><div class="num">한국</div>
+  <div style="text-align:center" title="숫자에 마우스를 올리면 4축 상세와 코멘트가 보입니다">${BASIS==="s4"?"제작":"적합"}</div>
+  <div class="issh" title="판권 없음 등 이슈가 있는 작품을 표시합니다">이슈</div></div>`;
+
+function listHTML(arr,title,desc,scope){
+  const lbl=(scope==="남"?"남성향 30위":scope==="여"?"여성향 20위":"전체 50위")+(BASIS==="s4"?" · 제작 4축 기준":"");
+  if(scope==="none") return `<div><div class="colh"><b>${title}</b><span>${desc}</span></div>
+    ${HEAD}${arr.length?arr.map((w,i)=>rowHTML(w,i,"none")).join(""):`<div class="empty">이슈로 표시한 작품이 없습니다</div>`}</div>`;
+  let body="", drawn=false;
+  arr.forEach((w,i)=>{
+    if(!drawn && !inCut(w,scope) && i>0){ body+=`<div class="cutline"><span>${lbl} 컷</span></div>`; drawn=true; }
+    body+=rowHTML(w,i,scope);
+  });
+  return `<div><div class="colh"><b>${title}</b><span>${desc}</span></div>
+    ${HEAD}${arr.length?body:`<div class="empty">해당 작품이 없습니다</div>`}</div>`;
+}
+
+/* ── 렌더 ── */
+function render(){
+  ranks();
+  const all = view();
+  const cols = document.getElementById("cols");
+  const label = (w)=> w.t==="남"?"남성향" : w.t==="여"?"여성향" : w.t==="여/남"?"여·남":"타겟 미정";
+  const stat = (a)=>{const s=a.filter(x=>x.fit!=null); if(!s.length) return `${a.length}작품`;
+    const avg=(s.reduce((p,c)=>p+(BASIS==="s4"?c.s4:c.fit),0)/s.length).toFixed(1);
+    return `${a.length}작품 · 평균 ${BASIS==="s4"?"제작 4축":"적합도"} ${avg}`;};
+  if(T==="issue"){
+    cols.className="cols";
+    const a=W.filter(w=>FLAG[w.n]).sort((x,y)=>(y.fit??-1)-(x.fit??-1));
+    cols.innerHTML = listHTML(a,"이슈 작품",`${a.length}작품 · 컷 집계에서 제외됩니다`,"none");
+  }else if(T==="split"){
+    cols.className="cols two";
+    const m=all.filter(w=>w.t==="남"), f=all.filter(w=>w.t==="여");
+    cols.innerHTML = listHTML(m,"남성향",`${stat(m)} · 상위 ${CUT["남"]}작품 강조`,"남")
+                   + listHTML(f,"여성향",`${stat(f)} · 상위 ${CUT["여"]}작품 강조`,"여");
+  }else{
+    cols.className="cols";
+    const sc = (T==="남"||T==="여") ? T : "all";
+    const a = T==="all" ? all : all.filter(w=>w.t===T);
+    const cn = CUT[sc]||CUT.all;
+    cols.innerHTML = listHTML(a, T==="all"?"전체 라인업":label({t:T}), `${stat(a)} · 상위 ${cn}작품 강조`, sc);
+  }
+  // KPI
+  const sc=W.filter(w=>w.fit!=null), fl=Object.keys(FLAG).length;
+  const V=(w)=>BASIS==="s4"?w.s4:w.fit;
+  const edge=(scope)=>{const a=W.filter(w=>inCut(w,scope)).sort((x,y)=>V(y)-V(x));
+                       return a.length?`${V(a[a.length-1])}점 이상`:"—";};
+  document.getElementById("kpis").innerHTML=[
+    ["총 후보", W.length, "작품"],
+    ["평가 기준", BASIS==="s4"?"제작 4축":"총 적합도", BASIS==="s4"?"40점 만점":"50점 만점"],
+    ["전체 컷", CUT.all, edge("all")],
+    ["남성향 컷", CUT["남"], edge("남")],
+    ["여성향 컷", CUT["여"], edge("여")],
+    ["이슈 표시", fl, fl?"작품 제외":"없음"],
+  ].map(([k,v,u])=>`<div class="kpi"><div class="k">${k}</div><div class="v">${v}<small>${u}</small></div></div>`).join("");
+  document.getElementById("btIssue").textContent = `이슈 ${fl}`;
+  const OC={}; W.forEach(w=>{const o=ownerOf(w); OC[o]=(OC[o]||0)+1;});
+  const keys=OWNERS.concat(Object.keys(OC).filter(k=>!OWNERS.includes(k)));
+  document.getElementById("owners").innerHTML=keys.filter(k=>OC[k]).map(k=>
+    `<button class="chip" data-o="${esc(k)}" aria-pressed="${String(O.has(k))}">${esc(k)} <span style="color:var(--muted)">${OC[k]}</span></button>`).join("");
+  document.getElementById("ver").innerHTML =
+    `<b>${BUILD}</b> 공유 저장소 ${SB.on?`설정됨 (${SUPABASE_URL.replace("https://","").split(".")[0]})`:"<b style=\"color:var(--serious)\">미설정</b>"}`;
+  document.getElementById("sub").textContent =
+    BASIS==="s4"
+      ? `${W.length}개 작품 · 제작 4축만(40점) — 조회수를 빼고 제작 난이도·각색 여지만으로 본 순위입니다`
+      : `${W.length}개 작품 · 총 적합도 = ① ~ ④ 합(40점) + GW 조회수(5점) + 한국 조회수(5점)`;
+  save();
+}
+
+/* ── 이벤트 ── */
+/* ── 이슈 입력 모달 ── */
+const MD=document.createElement("div"); MD.id="modal"; MD.className="mwrap"; MD.hidden=true;
+MD.innerHTML=`<div class="mbox">
+  <div class="mt" id="mName"></div>
+  <div class="ml">이슈 사유</div>
+  <div class="mch" id="mChips"></div>
+  <input id="mTxt" placeholder="직접 입력 (예: 판권 2027년까지 잠김)" maxlength="60">
+  <div class="mb">
+    <button class="btn" id="mDel" hidden>이슈 해제</button>
+    <span style="flex:1"></span>
+    <button class="btn" id="mCancel">취소</button>
+    <button class="btn prim" id="mOk">확인</button>
+  </div></div>`;
+document.body.appendChild(MD);
+let MTARGET=null;
+function openModal(n){
+  MTARGET=n;
+  const cur=FLAG[n]||"";
+  document.getElementById("mName").textContent=n;
+  document.getElementById("mChips").innerHTML=ISSUE_REASONS.map(r=>
+    `<button class="chip" data-r="${esc(r)}" aria-pressed="${String(r===cur)}">${esc(r)}</button>`).join("");
+  const t=document.getElementById("mTxt");
+  t.value = (cur && !ISSUE_REASONS.includes(cur)) ? cur : "";
+  document.getElementById("mDel").hidden = !cur;
+  MD.hidden=false; setTimeout(()=>t.focus(),30);
+}
+function closeModal(){ MD.hidden=true; MTARGET=null; }
+document.getElementById("mChips").addEventListener("click",(e)=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  [...e.currentTarget.children].forEach(c=>c.setAttribute("aria-pressed",String(c===b)));
+  document.getElementById("mTxt").value="";
+});
+document.getElementById("mOk").onclick=()=>{
+  if(!MTARGET) return closeModal();
+  const txt=document.getElementById("mTxt").value.trim();
+  const sel=document.querySelector('#mChips .chip[aria-pressed=true]');
+  FLAG[MTARGET]= txt || (sel?sel.dataset.r:ISSUE_REASONS[0]);
+  closeModal(); render();
+};
+document.getElementById("mDel").onclick=()=>{ if(MTARGET) delete FLAG[MTARGET]; closeModal(); render(); };
+document.getElementById("mCancel").onclick=closeModal;
+MD.addEventListener("click",(e)=>{ if(e.target===MD) closeModal(); });
+document.addEventListener("keydown",(e)=>{
+  if(MD.hidden || !OD.hidden) return;
+  if(e.key==="Escape") closeModal();
+  if(e.key==="Enter") document.getElementById("mOk").click();
+});
+
+document.getElementById("cols").addEventListener("click",(e)=>{
+  const b=e.target.closest(".iss"); if(b){ openModal(b.closest(".row").dataset.n); }
+});
+document.getElementById("cols").addEventListener("change",(e)=>{
+  const sel=e.target.closest(".osel"); if(!sel)return;
+  const n=sel.dataset.o;
+  if(sel.value==="__c"){ openOwner(n); return; }   // 모달에서 입력받는다 (prompt 는 일부 환경에서 막힘)
+  OWN[n]=sel.value; save(); render();
+});
+/* ── 제작 담당 직접 입력 모달 ── */
+const OD=document.createElement("div"); OD.id="omodal"; OD.className="mwrap"; OD.hidden=true;
+OD.innerHTML=`<div class="mbox">
+  <div class="mt" id="oName"></div>
+  <div class="ml">제작 담당 직접 입력</div>
+  <div class="mch" id="oChips"></div>
+  <input id="oTxt" placeholder="예: 스튜디오 리코, 외주 A사" maxlength="30" autocomplete="off">
+  <div class="mb"><span style="flex:1"></span>
+    <button class="btn" id="oCancel">취소</button>
+    <button class="btn prim" id="oOk">확인</button></div></div>`;
+document.body.appendChild(OD);
+let OTARGET=null;
+function customOwners(){
+  return [...new Set(Object.values(OWN).concat(W.map(w=>w.own).filter(Boolean)))]
+    .filter(o=>o && !OWNERS.includes(o));
+}
+function openOwner(n){
+  OTARGET=n;
+  document.getElementById("oName").textContent=n;
+  const used=customOwners();
+  document.getElementById("oChips").innerHTML = used.length
+    ? `<div style="font-size:10.5px;color:var(--muted);width:100%;margin-bottom:3px">이미 쓰고 있는 이름</div>`
+      + used.map(o=>`<button class="chip" data-o="${esc(o)}">${esc(o)}</button>`).join("")
+    : "";
+  const t=document.getElementById("oTxt"); t.value="";
+  OD.hidden=false; setTimeout(()=>t.focus(),30);
+}
+function closeOwner(){ OD.hidden=true; OTARGET=null; render(); }   // render 로 select 원복
+document.getElementById("oChips").addEventListener("click",(e)=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  document.getElementById("oTxt").value=b.dataset.o;
+});
+document.getElementById("oOk").onclick=()=>{
+  const v=document.getElementById("oTxt").value.trim();
+  if(OTARGET && v){ OWN[OTARGET]=v; save(); }
+  closeOwner();
+};
+document.getElementById("oCancel").onclick=closeOwner;
+OD.addEventListener("click",(e)=>{ if(e.target===OD) closeOwner(); });
+document.getElementById("oTxt").addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){ e.preventDefault(); document.getElementById("oOk").click(); }
+  if(e.key==="Escape"){ e.preventDefault(); closeOwner(); }
+});
+
+/* ── 적합도 마우스오버 툴팁 = 4축 상세 + 코멘트 ── */
+const TIP=document.createElement("div"); TIP.id="tip"; document.body.appendChild(TIP);
+const byName={}; W.forEach(w=>byName[w.n]=w);
+function showTip(el){
+  const w=byName[el.dataset.tip]; if(!w) return;
+  const ax=[w.a,w.b,w.c,w.e];
+  TIP.innerHTML=`<div class="tt">${esc(w.n)}</div>
+    <div class="tx">${["① 생성안정성","② 원작재현","③ 서사압축","④ 모션임팩트"].map((n,j)=>`<s><i style="background:${AXC[j]}"></i>${n} <b>${ax[j]??"—"}</b></s>`).join("")}</div>
+    <div class="tx" style="margin-bottom:0">4축 합 <b>${w.s4??"—"}</b> · GW <b>${w.gs??"—"}</b> · 한국 <b>${w.ks??"—"}</b> · 총 적합도 <b>${w.fit??"—"}</b></div>
+    <div class="tx" style="margin-bottom:0">순위 — 총 적합도 <b>${RANK[w._i]?.allf??"—"}위</b> · 제작 4축 <b>${RANK[w._i]?.alls??"—"}위</b>${gem(w)?` <span style="color:#7ee2b8">(${gem(w)>0?"▲":"▼"}${Math.abs(gem(w))})</span>`:""}</div>
+    ${w.cm?`<div class="tc">${esc(w.cm)}</div>`:""}`;
+  TIP.classList.add("on");
+  const r=el.getBoundingClientRect(), t=TIP.getBoundingClientRect();
+  let x=r.left+r.width/2-t.width/2, y=r.bottom+8;
+  if(x<8) x=8; if(x+t.width>innerWidth-8) x=innerWidth-8-t.width;
+  if(y+t.height>innerHeight-8) y=r.top-t.height-8;
+  TIP.style.left=x+"px"; TIP.style.top=Math.max(8,y)+"px";
+}
+document.addEventListener("mouseover",(e)=>{ const f=e.target.closest(".fit[data-tip]"); if(f) showTip(f); });
+document.addEventListener("mouseout",(e)=>{ if(e.target.closest(".fit[data-tip]")) TIP.classList.remove("on"); });
+document.addEventListener("scroll",()=>TIP.classList.remove("on"),true);
+
+document.getElementById("segT").addEventListener("click",(e)=>{
+  const b=e.target.closest("button"); if(!b)return;
+  T=b.dataset.t; [...e.currentTarget.children].forEach(x=>x.setAttribute("aria-pressed",String(x===b))); render();
+});
+document.getElementById("segB").addEventListener("click",(e)=>{
+  const b=e.target.closest("button"); if(!b)return;
+  BASIS=b.dataset.b; [...e.currentTarget.children].forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  render();
+});
+document.getElementById("year").onchange=(e)=>{YEAR=e.target.value;render();};
+document.getElementById("onlyGem").onchange=(e)=>{ONLYGEM=e.target.checked;render();};
+document.getElementById("owners").addEventListener("click",(e)=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  const o=b.dataset.o; O.has(o)?O.delete(o):O.add(o);
+  b.setAttribute("aria-pressed",String(O.has(o))); render();
+});
+document.getElementById("genres").addEventListener("click",(e)=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  const g=b.dataset.g; G.has(g)?G.delete(g):G.add(g);
+  b.setAttribute("aria-pressed",String(G.has(g))); render();
+});
+document.getElementById("q").oninput=(e)=>{Q=e.target.value.trim().toLowerCase();render();};
+document.getElementById("sort").onchange=(e)=>{SORT=e.target.value;render();};
+document.getElementById("hideFlag").onchange=(e)=>{HIDE=e.target.checked;render();};
+document.getElementById("copyLink").onclick=()=>{
+  const u=location.origin+location.pathname+"#f="+enc({flag:FLAG,own:OWN});
+  navigator.clipboard.writeText(u).then(()=>{
+    const s=document.getElementById("nvStatus"); s.className="status ok"; s.textContent="링크를 복사했습니다";
+    setTimeout(()=>{s.textContent="";s.className="status";},2500);
+  });
+};
+
+/* ── 초기화 ── */
+load();
+const GS={};W.forEach(w=>GS[w.g||"미정"]=(GS[w.g||"미정"]||0)+1);
+document.getElementById("genres").innerHTML=Object.entries(GS).sort((a,b)=>b[1]-a[1])
+  .map(([g,n])=>`<button class="chip" data-g="${esc(g)}" aria-pressed="false">${esc(g)} <span style="color:var(--muted)">${n}</span></button>`).join("");
+
+render();
+if(SB.on){ chip("ok","공유 저장소 불러오는 중"); sbPull(true); setInterval(()=>sbPull(false),15000); }
+else { READY=true; chip("off","공유 저장소 미설정 — 이슈 표시가 나에게만 보입니다"); }
+</script></body></html>
