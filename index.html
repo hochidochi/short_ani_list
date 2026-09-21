@@ -386,6 +386,30 @@ const XSC = [["x","부가사업 확장가치 (미반영)",10]];
 const link = (w)=> w.id ? `https://comic.naver.com/webtoon/list?titleId=${w.id}`
                         : `https://comic.naver.com/search?keyword=${encodeURIComponent(w.n)}`;
 
+/* ── 서버리스 함수 호출 ── */
+let APIBAD="";
+function showApi(){
+  const s=document.getElementById("nvStatus"); if(!s) return;
+  if(APIBAD){ s.className="status err"; s.textContent="표지·자동입력 API 미연결"; s.title=APIBAD; }
+  else if(s.title){ s.className="status"; s.textContent=""; s.title=""; }
+}
+async function apiGet(qs){
+  let r;
+  try{ r=await fetch(`${API}?${qs}`); }
+  catch(e){ APIBAD="네트워크 요청이 막혔습니다 — 배포된 주소에서 열었는지 확인해 주세요"; showApi(); throw new Error(APIBAD); }
+  const ct=r.headers.get("content-type")||"", txt=await r.text();
+  if(!ct.includes("json")){
+    APIBAD = location.protocol==="file:"
+      ? "로컬 파일(file://)로 열면 서버 기능이 동작하지 않습니다 — 배포된 주소에서 열어 주세요"
+      : r.status===404
+        ? "/api/naver 주소가 없습니다 — 저장소 최상위 api/ 폴더에 naver.js 가 올라갔는지 확인해 주세요"
+        : `서버가 JSON 대신 ${r.status} 응답을 보냈습니다`;
+    showApi(); throw new Error(APIBAD);
+  }
+  APIBAD=""; showApi();
+  return JSON.parse(txt);
+}
+
 /* ── 표지 썸네일 — 보이는 것만, 4개씩, 14일 캐시 ── */
 const THKEY="cand_thumb_v1", TH_TTL=14*864e5;
 let THC={}; try{ THC=JSON.parse(localStorage.getItem(THKEY)||"{}"); }catch(e){}
@@ -398,7 +422,7 @@ function thPump(){
   while(thRun<4 && thQ.length){
     const cid=thQ.shift(); if(thHit(cid)){ paintThumb(cid); continue; }
     thRun++;
-    fetch(`${API}?cid=${cid}`).then(r=>r.json()).then(j=>{
+    apiGet(`cid=${cid}`).then(j=>{
       THC[cid]={u:(j&&j.ok&&j.thumb)?j.thumb:"", t:Date.now()}; thSave(); paintThumb(cid);
     }).catch(()=>{ THC[cid]={u:"",t:Date.now()}; })
      .then(()=>{ thRun--; thPump(); });
@@ -408,7 +432,7 @@ function paintThumb(cid){
   const c=thHit(cid); if(!c||!c.u) return;
   document.querySelectorAll(`.th[data-cid="${cid}"]`).forEach(el=>{
     if(el.dataset.done) return; el.dataset.done="1";
-    el.innerHTML=`<img src="${esc(c.u)}" data-o="${esc(c.u)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='/api/img?u='+encodeURIComponent(this.dataset.o)">`;
+    el.innerHTML=`<img src="${esc(c.u)}" data-o="${esc(c.u)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='/api/naver?img='+encodeURIComponent(this.dataset.o)">`;
   });
 }
 const thObs = ("IntersectionObserver" in window) ? new IntersectionObserver((es)=>{
@@ -830,9 +854,8 @@ $("eFetch").onclick=async ()=>{
   if(!cid) return $("eWarn").textContent="네이버 titleId(cid)를 먼저 입력해 주세요.";
   $("eWarn").textContent="네이버에서 불러오는 중…"; $("eFetch").disabled=true;
   try{
-    const r=await fetch(`${API}?cid=${encodeURIComponent(cid)}`);
-    const j=await r.json();
-    if(!j||!j.ok) throw new Error(j&&j.error?j.error:`응답 ${r.status}`);
+    const j=await apiGet(`cid=${encodeURIComponent(cid)}`);
+    if(!j||!j.ok) throw new Error(j&&j.error?j.error:"네이버에서 값을 받지 못했습니다");
     if(j.title && !$("e_n").value.trim()) $("e_n").value=j.title;
     if(j.genre) $("e_g").value=j.genre;
     if(j.ep!=null) $("e_ep").value=j.ep;
@@ -841,7 +864,7 @@ $("eFetch").onclick=async ()=>{
     if(j.thumb){ THC[cid]={u:j.thumb,t:Date.now()}; thSave(); }
     $("eWarn").textContent=`불러왔습니다 — ${j.title||"제목 없음"}${j.weekday?" · "+j.weekday:""}${j.adult?" · 19세":""}`;
   }catch(err){
-    $("eWarn").textContent=`불러오기 실패: ${err.message} — 값을 직접 입력해 주세요.`;
+    $("eWarn").textContent=`불러오기 실패 — ${err.message}. 값은 직접 입력하셔도 됩니다.`;
   }
   $("eFetch").disabled=false;
 };
@@ -1012,7 +1035,7 @@ document.getElementById("copyLink").onclick=()=>{
   const u=location.origin+location.pathname+"#f="+enc(payload());
   navigator.clipboard.writeText(u).then(()=>{
     const s=document.getElementById("nvStatus"); s.className="status ok"; s.textContent="링크를 복사했습니다";
-    setTimeout(()=>{s.textContent="";s.className="status";},2500);
+    setTimeout(()=>{s.textContent="";s.className="status";showApi();},2500);
   });
 };
 document.getElementById("exportBtn").onclick=()=>{
