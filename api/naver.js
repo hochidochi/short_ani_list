@@ -1,4 +1,3 @@
-api/naver.js
 /* /api/naver?cid=769209
    네이버웹툰 공개 JSON 을 서버에서 대신 불러옵니다 (브라우저 CORS 회피).
    반환: { ok, cid, title, genre, age, adult, weekday, ep, thumb }
