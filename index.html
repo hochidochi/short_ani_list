@@ -176,7 +176,7 @@ label.tg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var
 .rsn{border:1px solid var(--crit);background:var(--surface-1);color:var(--crit);font:inherit;font-size:10.5px;
   padding:1px 4px;border-radius:5px;margin-left:6px;font-weight:600;vertical-align:1px}
 .fit{cursor:pointer}
-#tip{position:fixed;z-index:100;max-width:420px;background:var(--ink);color:#fff;border-radius:8px;
+#tip{position:fixed;z-index:300;max-width:420px;background:var(--ink);color:#fff;border-radius:8px;
   padding:10px 12px;font-size:11.5px;line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.22);
   pointer-events:none;opacity:0;transition:opacity .09s;display:none}
 #tip.on{opacity:1;display:block}
@@ -184,6 +184,15 @@ label.tg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var
 #tip .tx{display:flex;gap:10px;margin-bottom:6px;font-size:10.5px;color:#e8e7e2}
 #tip .tx s{text-decoration:none;display:flex;align-items:center;gap:4px}
 #tip .tx s i{width:7px;height:7px;border-radius:2px;display:inline-block}
+[data-help]{cursor:help}
+.sci>b[data-help]{text-decoration:underline dotted var(--axis);text-underline-offset:3px}
+.sci>b[data-help]:after{content:"?";display:inline-block;margin-left:5px;width:13px;height:13px;border-radius:50%;
+  border:1px solid var(--axis);color:var(--muted);font-size:9px;line-height:11px;text-align:center;vertical-align:1px;text-decoration:none}
+#tip .hq{color:#fff;margin-bottom:6px}
+#tip ul{margin:0 0 6px;padding-left:16px;color:#e8e7e2}
+#tip ul li{margin:1px 0}
+#tip .hv{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;margin-bottom:6px;color:#e8e7e2}
+#tip .hv b{color:#fff}
 #tip .tc{color:#e8e7e2;border-top:1px solid rgba(255,255,255,.18);padding-top:6px;margin-top:2px}
 .ow{min-width:0}
 .osel{width:100%;font:inherit;font-size:10.5px;font-weight:600;color:var(--ink-2);
@@ -347,8 +356,8 @@ label.tg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var
     <button data-t="issue" id="btIssue">이슈 0</button>
   </div>
   <div class="seg" id="segB">
-    <button data-b="fit" aria-pressed="true" title="① ~ ④ 합 + GW + 한국 + 확장가치 = 53점">총 적합도</button>
-    <button data-b="s4" title="조회수를 빼고 ① ~ ④ 합만 = 40점">제작 4축</button>
+    <button data-b="fit" aria-pressed="true" data-help="fit">총 적합도</button>
+    <button data-b="s4" data-help="s4">제작 4축</button>
   </div>
   <span class="vr"></span>
   <div class="chips" id="owners"></div>
@@ -449,7 +458,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v13 · 2026-10-02";
+const BUILD = "v14 · 2026-10-06";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -768,10 +777,10 @@ const AXS = ["생성\n안정성","원작\n재현","서사\n압축","모션\n임�
 const HEAD = `<div class="row rhead"><div class="rk" title="해당 풀 안에서의 적합도 순위">순위</div>
   <div title="네이버웹툰 표지"></div>
   <div title="바꾸면 바로 저장됩니다">제작 담당</div><div>작품</div>
-  <div class="axh" title="클릭하면 점수를 고칠 수 있습니다">${AXS.map((t,j)=>`<i title="${AXN[j]} (10점)"><em style="background:${AXC[j]}"></em>${["①","②","③","④"][j]}<b>${t.replace("\n","<br>")}</b></i>`).join("")}</div>
-  <div class="num">GW</div><div class="num">한국</div>
-  <div class="num" title="라인망가(일본) 조회수 — 데이터 입고 예정">일본</div>
-  <div style="text-align:center" title="숫자에 마우스를 올리면 4축 상세와 코멘트가 보입니다 · 클릭하면 수정">${BASIS==="s4"?"제작":"적합"}</div>
+  <div class="axh">${AXS.map((t,j)=>`<i data-help="${["a","b","c","e"][j]}"><em style="background:${AXC[j]}"></em>${["①","②","③","④"][j]}<b>${t.replace("\n","<br>")}</b></i>`).join("")}</div>
+  <div class="num" data-help="gs">GW</div><div class="num" data-help="ks">한국</div>
+  <div class="num" data-help="ls">일본</div>
+  <div style="text-align:center" data-help="${BASIS==="s4"?"s4":"fit"}">${BASIS==="s4"?"제작":"적합"}</div>
   <div class="issh" title="작가 동의를 받은 작품">작가<br>동의</div>
   <div class="issh" title="판권 없음 등 이슈가 있는 작품을 표시합니다">이슈</div></div>`;
 
@@ -932,7 +941,7 @@ ED.innerHTML=`<div class="mbox wide">
   <div class="sc" id="eVw"></div>
   <div class="tot" id="eTot"></div>
   <div class="ml" style="margin-top:13px">부가사업 확장가치</div>
-  <label class="tg" style="font-size:12.5px"><input type="checkbox" id="e_x" style="width:auto"> <b>MD·게임 등 부가사업 확장가치 있음</b> <span style="color:var(--s1);font-weight:700">총 적합도 +3점</span></label>
+  <label class="tg" style="font-size:12.5px" data-help="x"><input type="checkbox" id="e_x" style="width:auto"> <b>MD·게임 등 부가사업 확장가치 있음</b> <span style="color:var(--s1);font-weight:700">총 적합도 +3점</span></label>
   <label class="tg" style="margin-top:7px;font-size:12.5px"><input type="checkbox" id="e_mega" style="width:auto"> <b>Mega IP 포트폴리오 20선</b> 포함 작품</label>
   <div class="ml" style="margin-top:11px">코멘트</div>
   <textarea id="e_cm" rows="4" placeholder="채점 근거 · 리스크 등"></textarea>
@@ -950,7 +959,7 @@ const $=(id)=>document.getElementById(id);
 let EMODE="new", EKEY=null, ETHUMB=null, ER19=false, EWD=null;
 
 function stepHTML(list,colored){
-  return list.map(([k,label],j)=>`<div class="sci"><b>${colored?`<i style="background:${AXC[j]}"></i>`:""}${esc(label)}</b>
+  return list.map(([k,label],j)=>`<div class="sci"><b data-help="${k}">${colored?`<i style="background:${AXC[j]}"></i>`:""}${esc(label)}</b>
     <div class="stp"><button type="button" data-k="${k}" data-d="-1">−</button>
     <input type="number" data-k="${k}" min="0" max="${k==="gs"||k==="ks"?5:10}">
     <button type="button" data-k="${k}" data-d="1">＋</button></div></div>`).join("");
@@ -1153,6 +1162,7 @@ document.getElementById("cols").addEventListener("change",(e)=>{
 /* ── 적합도 마우스오버 툴팁 = 4축 상세 + 코멘트 ── */
 const TIP=document.createElement("div"); TIP.id="tip"; document.body.appendChild(TIP);
 function showTip(el){
+  TIP.removeAttribute("data-noi18n");
   const w=byName[el.dataset.tip]; if(!w) return;
   const ax=[w.a,w.b,w.c,w.e];
   TIP.innerHTML=`<div class="tt"><span data-noi18n>${esc(dn(w))}</span>${isDirty(w)?` <span style="color:#ffd27a;font-size:10px">${w._new?"직접 추가":"점수 수정됨"}</span>`:""}</div>
@@ -1172,6 +1182,26 @@ function showTip(el){
 document.addEventListener("mouseover",(e)=>{ const f=e.target.closest(".fit[data-tip]"); if(f) showTip(f); });
 document.addEventListener("mouseout",(e)=>{ if(e.target.closest(".fit[data-tip]")) TIP.classList.remove("on"); });
 document.addEventListener("scroll",()=>TIP.classList.remove("on"),true);
+/* ── 평가 항목 설명 (마우스오버) ── */
+const HELP = {"ko": {"a": {"t": "① 생성안정성 · 10점", "q": "AI 생성 파이프라인으로 인물과 장면을 흔들림 없이 만들 수 있는가?", "p": ["전투가 맨몸 격투(합)보다 마법·기공 같은 이펙트로 처리되는가", "주요 인물이 적고, 한 장면에 동시에 나오는 인물이 적은가", "배경이 단일 공간이거나 소수 장소에 집중되는가", "비인간·데포르메 캐릭터처럼 얼굴 동일성을 유지하기 쉬운가", "작화 밀도(장식·의상·군중)가 과하지 않은가"], "s": "높을수록 제작이 쉽고 안정적 · 맨몸 근접전 + 대규모 앙상블은 하위권"}, "b": {"t": "② 원작재현·각색고도화 · 10점", "q": "원작의 강점을 재현하면서, 영상으로 원작보다 더 끌어올릴 여지가 있는가?", "p": ["유사작이 드문 소재·설정인가 (장르 클리셰는 감점)", "원작 작화·연출·색감이 비주얼 자산이 되는가", "회차를 끊어 줄 구조(에피소드 완결·옴니버스·루프 등)가 원작에 이미 있는가", "올드한 작화처럼 영상화로 보완해 매력을 키울 여지가 있는가"], "s": "높을수록 영상화로 더해지는 가치가 큼"}, "c": {"t": "③ 서사 압축 · 10점", "q": "1분 안팎의 짧은 호흡에서 선행 설명 없이 바로 읽히는가?", "p": ["제목·설정이 한 줄 훅으로 즉시 이해되는가", "세계관·관계도를 먼저 깔아야 하는 부담이 적은가", "회차 안에서 갈등 → 보상(사이다·반전·웃음)이 완결되는가", "초반 회차에서 주인공과 목표가 빨리 드러나는가"], "s": "높을수록 숏폼 클립으로 자르기 쉬움"}, "e": {"t": "④ 모션 임팩트 · 10점", "q": "움직임을 붙였을 때 정지 컷보다 볼거리가 크게 늘어나는가?", "p": ["전투·이펙트·변신·괴수 같은 화면 이벤트가 많은가", "타격감·스펙터클이 영상에서 더 살아나는가", "대화·감정 클로즈업 위주의 정적인 작품은 낮게"], "s": "높을수록 영상화했을 때 증폭 효과가 큼"}, "gs": {"t": "GW 조회수 점수 · 5점", "q": "해외 언어판(글로벌) 누적 조회수는 얼마나 되는가?", "v": [["1점", "5천만 미만 (신작·미집계 포함)"], ["2점", "5천만 ~ 6천만"], ["3점", "6천만 ~ 7천만"], ["4점", "7천만 ~ 1억"], ["5점", "1억 초과"]], "s": "원작의 해외 검증도 · 총 적합도에 반영"}, "ks": {"t": "한국 조회수 점수 · 5점", "q": "네이버웹툰(한국) 누적 조회수는 얼마나 되는가?", "v": [["1점", "5천만 미만 (신작·미집계 포함)"], ["2점", "5천만 ~ 6천만"], ["3점", "6천만 ~ 7천만"], ["4점", "7천만 ~ 1억"], ["5점", "1억 초과"]], "s": "원작의 국내 검증도 · 총 적합도에 반영"}, "ls": {"t": "일본 조회수 점수 · 미반영", "q": "LINE망가(일본) 누적 조회수", "p": ["데이터가 들어오기 전까지 기록만 하고 총 적합도에는 넣지 않아요"]}, "x": {"t": "부가사업 확장가치 · +3점", "q": "MD·게임·이모티콘 등 영상 밖으로 넓힐 수 있는 IP인가?", "p": ["캐릭터 자체가 굿즈·이모티콘이 되는가", "게임·출판 등 2차 사업 연결이 자연스러운가"], "s": "점수가 아니라 있음/없음 · 체크하면 총 적합도 +3점"}, "fit": {"t": "총 적합도 · 53점", "q": "제작 4축 합(40) + GW 조회수(5) + 한국 조회수(5) + 확장가치(3)", "p": ["제작하기 좋은가와 원작이 검증됐는가를 함께 본 종합 점수", "작품별 숫자에 마우스를 올리면 항목별 상세가 보여요"]}, "s4": {"t": "제작 4축 · 40점", "q": "조회수를 빼고 ① ~ ④ 제작 4축만 더한 점수", "p": ["원작 인기와 상관없이 숏애니로 만들기 좋은 작품을 찾을 때", "조회수 대비 4축 순위가 크게 앞서면 '원석'으로 표시돼요"]}}, "ja": {"a": {"t": "① 生成安定性 · 10点", "q": "AI生成パイプラインで人物や場面をブレなく作れるか？", "p": ["戦闘が素手の格闘より、魔法・気功などのエフェクトで処理されるか", "主要人物が少なく、1シーンに同時に登場する人物が少ないか", "背景が単一空間、または少数の場所に集中しているか", "人外・デフォルメキャラのように顔の同一性を保ちやすいか", "作画密度（装飾・衣装・群衆）が過剰でないか"], "s": "高いほど制作が容易で安定 · 素手の近接戦＋大人数のアンサンブルは下位"}, "b": {"t": "② 原作再現・脚色高度化 · 10点", "q": "原作の強みを再現しつつ、映像化で原作以上に引き上げる余地があるか？", "p": ["類似作が少ない題材・設定か（ジャンルの定番は減点）", "原作の作画・演出・色彩がビジュアル資産になるか", "話を区切る構造（エピソード完結・オムニバス・ループ等）が原作にあるか", "古い作画など、映像化で補って魅力を高める余地があるか"], "s": "高いほど映像化で加わる価値が大きい"}, "c": {"t": "③ 物語圧縮 · 10点", "q": "1分前後の短い尺で、前提説明なしにすぐ伝わるか？", "p": ["タイトル・設定が一行のフックですぐ理解できるか", "世界観・人物相関を先に説明する負担が少ないか", "1話の中で葛藤→報酬（スカッと・反転・笑い）が完結するか", "序盤で主人公と目標が早く見えるか"], "s": "高いほどショート動画として切り出しやすい"}, "e": {"t": "④ モーションインパクト · 10点", "q": "動きを付けたとき、静止コマより見どころが大きく増えるか？", "p": ["戦闘・エフェクト・変身・怪獣など画面のイベントが多いか", "打撃感・スペクタクルが映像でより生きるか", "会話・感情のアップ中心の静的な作品は低め"], "s": "高いほど映像化したときの増幅効果が大きい"}, "gs": {"t": "GW閲覧数スコア · 5点", "q": "海外言語版（グローバル）の累計閲覧数はどのくらいか？", "v": [["1点", "5,000万未満（新作・未集計を含む）"], ["2点", "5,000万〜6,000万"], ["3点", "6,000万〜7,000万"], ["4点", "7,000万〜1億"], ["5点", "1億超"]], "s": "原作の海外での実績 · 総合適合度に反映"}, "ks": {"t": "韓国閲覧数スコア · 5点", "q": "NAVER WEBTOON（韓国）の累計閲覧数はどのくらいか？", "v": [["1点", "5,000万未満（新作・未集計を含む）"], ["2点", "5,000万〜6,000万"], ["3点", "6,000万〜7,000万"], ["4点", "7,000万〜1億"], ["5点", "1億超"]], "s": "原作の国内での実績 · 総合適合度に反映"}, "ls": {"t": "日本閲覧数スコア · 未反映", "q": "LINEマンガ（日本）の累計閲覧数", "p": ["データが入るまでは記録のみで、総合適合度には含めません"]}, "x": {"t": "付加事業の拡張価値 · +3点", "q": "MD・ゲーム・スタンプなど映像以外にも広げられるIPか？", "p": ["キャラクター自体がグッズ・スタンプになるか", "ゲーム・出版など二次事業へのつながりが自然か"], "s": "点数ではなく有無 · チェックすると総合適合度 +3点"}, "fit": {"t": "総合適合度 · 53点", "q": "制作4軸合計(40) + GW閲覧数(5) + 韓国閲覧数(5) + 拡張価値(3)", "p": ["作りやすさと原作の実績をあわせて見た総合スコア", "作品ごとの数字にマウスを乗せると項目別の詳細が見られます"]}, "s4": {"t": "制作4軸 · 40点", "q": "閲覧数を除き、①〜④の制作4軸だけを合計したスコア", "p": ["原作の人気に関係なく、ショートアニメ向きの作品を探すとき", "閲覧数込みより4軸の順位が大きく上なら「原石」と表示されます"]}}};
+function showHelp(el){
+  const h=(HELP[LANG]||HELP.ko)[el.dataset.help]; if(!h) return;
+  TIP.innerHTML=`<div class="tt">${esc(h.t)}</div><div class="hq">${esc(h.q)}</div>`
+    + (h.p?`<ul>${h.p.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")
+    + (h.v?`<div class="hv">${h.v.map(([a,b])=>`<b>${esc(a)}</b><span>${esc(b)}</span>`).join("")}</div>`:"")
+    + (h.s?`<div class="tc">${esc(h.s)}</div>`:"");
+  TIP.setAttribute("data-noi18n","");
+  TIP.classList.add("on");
+  const r=el.getBoundingClientRect(), t=TIP.getBoundingClientRect();
+  let x=r.left+r.width/2-t.width/2, y=r.bottom+8;
+  if(x<8) x=8; if(x+t.width>innerWidth-8) x=innerWidth-8-t.width;
+  if(y+t.height>innerHeight-8) y=r.top-t.height-8;
+  TIP.style.left=x+"px"; TIP.style.top=Math.max(8,y)+"px";
+}
+document.addEventListener("mouseover",(e)=>{ const h=e.target.closest("[data-help]"); if(h) showHelp(h); });
+document.addEventListener("mouseout",(e)=>{ const h=e.target.closest("[data-help]");
+  if(h && !h.contains(e.relatedTarget)) TIP.classList.remove("on"); });
+
 
 /* ── 필터 이벤트 ── */
 document.getElementById("segT").addEventListener("click",(e)=>{
