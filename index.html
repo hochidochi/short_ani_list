@@ -92,17 +92,17 @@ label.tg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var
 .rhead:hover{background:var(--plane)}
 .rk{font-size:11px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
 /* 선정 컷 강조 */
-.row.cut{background:color-mix(in srgb,var(--s1) 5%,var(--surface-1));
-  box-shadow:inset 3px 0 0 var(--s1)}
-.row.cut:hover{background:color-mix(in srgb,var(--s1) 10%,var(--surface-1))}
+/* 컷 안 작품은 연한 초록 셀로 구분 — 컷 밖 작품도 흐리게 하지 않고 그대로 보여줌 */
+.row.cut{background:color-mix(in srgb,var(--s3) 8%,var(--surface-1));
+  box-shadow:inset 3px 0 0 color-mix(in srgb,var(--s3) 70%,transparent)}
+.row.cut:hover{background:color-mix(in srgb,var(--s3) 14%,var(--surface-1))}
 .row.cut .nm a{font-weight:700}
-.rk .cn{color:var(--s1);font-weight:800;font-size:12px}
-.row.out{opacity:.62}
-.row.out:hover{opacity:1}
+.rk .cn{color:color-mix(in srgb,var(--s3) 75%,var(--ink));font-weight:800;font-size:12px}
+.row.out{opacity:1}
 .row.flag.cut{box-shadow:none}
-.cutline{display:flex;align-items:center;gap:8px;margin:3px 0 2px;color:var(--s1);
+.cutline{display:flex;align-items:center;gap:8px;margin:3px 0 2px;color:color-mix(in srgb,var(--s3) 75%,var(--ink));
   font-size:10px;font-weight:700;letter-spacing:.03em;white-space:nowrap}
-.cutline:before,.cutline:after{content:"";flex:1;height:0;border-top:2px dashed color-mix(in srgb,var(--s1) 55%,transparent)}
+.cutline:before,.cutline:after{content:"";flex:1;height:0;border-top:2px dashed color-mix(in srgb,var(--s3) 55%,transparent)}
 .cutline span{padding:0 2px}
 
 /* 표지 */
@@ -470,7 +470,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v21 · 2026-10-08";
+const BUILD = "v22 · 2026-10-08";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
