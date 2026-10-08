@@ -472,7 +472,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v23 · 2026-10-08";
+const BUILD = "v24 · 2026-10-08";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -528,10 +528,56 @@ const enc = (o)=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/
 const SKEYS=["a","b","c","e","gs","ks"];            // 총 적합도에 들어가는 값
 const XKEYS=["cm","x","mega","lm","ls"];             // 순위에 넣지 않는 값 (확장가치 · 일본 조회수)
 let W=[], byName={};
-const PKEYS=["g","t","d","ep","ag","id","th","r19","wd","gw","kr","kr2","gw2","mo","vb"];   // 일괄 추가 작품에서 화면으로 고칠 수 있는 정보
+const PKEYS=["g","t","d","ep","ag","id","th","r19","wd","gw","kr","kr2","gw2","mo","vb","syn","tags","fin"];
+/* ── 1차 자동 채점 규칙 (네이버 줄거리·태그 기반) ───────────────────
+   장르 중앙값(기존 채점 작품 기준)에서 출발 → 제목·줄거리·태그 단서로 ±1~2점 → 타겟 추정 */
+const AUTO_MED={"판타지":[6,7,7,8],"로맨스":[6,6,6,5],"액션":[4,6,6,8],"무협/사극":[6,7,6,8],"스릴러":[7,6,8,6],
+  "드라마":[6,6,6,5],"일상":[7,6,6,4],"개그":[7,6,7,5],"감성":[7,6,6,4],"스포츠":[5,6,5,7]};
+const CUE=[
+  [["싸움","격투","일진","주먹","정권","권법","파이터","깡패","양아치","폭행","학원액션","격투기","맨몸","난투","조폭","참교육"],{a:-2,e:1},"맨몸 격투(생성 −2·모션 +1)",g=>g!=="로맨스"],
+  [["고양이","동물","드래곤","해츨링","슬라임","해골","로봇","고블린","신수","여우","늑대","토끼","몬스터","마물","인외","수인","강아지","요괴"],{a:1},"비인간 캐릭터(생성 +1)"],
+  [["전쟁","군단","아이돌","길드전","대전쟁","공성","전장","군대","대군"],{a:-1},"군중·대규모 장면(생성 −1)"],
+  [["식당","편의점","카페","집구석","사무소","하숙","오피스","회사","벙커","저택","단칸방","옆집","동거"],{a:1},"단일 공간(생성 +1)"],
+  [["마법","네크로","흑마법","서클","마력","이능","초능력","각성","염동","이펙트","주술","술법"],{a:1},"마법·이능 이펙트(생성 +1)",g=>g!=="로맨스"],
+  [["영애","공녀","황녀","공작","대공","황후","왕비","황실","궁중","귀족","사교계","후궁","황제"],{a:-1},"궁정·귀족 배경(생성 −1)"],
+  [["검","소드","헌터","던전","용사","마왕","킬러","전투","배틀","무림","천마","혈마","좀비","괴물","히어로","레벨업","암살","용병","전사","기사단","무공","마교"],{e:1},"전투 소재(모션 +1)",g=>g!=="로맨스"],
+  [["힐링","요리","캠핑","농사","육아","셰프","일상물","잔잔","음식","카페","힐링물"],{e:-2},"힐링·일상 소재(모션 −2)",g=>g!=="로맨스"],
+  [["좀비","괴물","귀신","공포","괴이","악몽","살인","크리처","호러","오컬트","무당"],{e:1},"크리처·공포 연출(모션 +1)"],
+  [["옴니버스","에피소드","단편","시트콤","회차완결"],{b:1,c:1},"회차 완결 구조(원작·각색 +1·서사 +1)"],
+  [["사이다","참교육","복수","먼치킨","착각","고자극"],{c:1},"훅이 강한 장르 문법(서사 +1)"],
+  [["시즌","2부","3부","외전","리마스터"],{c:-1},"후속작이라 진입 부담(서사 −1)"],
+  [["미친작화","작화","미친연출"],{b:1},"작화가 원작 자산(원작·각색 +1)"],
+];
+const FEM=["로판","로맨스판타지","BL","집착남","계략남","후회남","순정남","다정남","연하남","직진남","걸크러시","여주","육아물","계약연애","오피스로맨스","학원로맨스","첫사랑","짝사랑","궁중로맨스","서양","악녀","영애","공녀","황녀","황후","왕비","대공","빙의"];
+const MAL=["먼치킨","헌터","레벨업","무협","무림","천마","하렘","격투기","학원액션","싸움","참교육","게임판타지","능력자","남주","던전","용병","킬러","회귀자"];
+function autoFromText(w){
+  const tags=w.tags||[], text=[w.n,w.syn||"",tags.join(" ")].join(" ");
+  const g=AUTO_MED[w.g]?w.g:null, m=[...(AUTO_MED[g]||[6,6,6,6])], notes=[];
+  const d={a:0,b:0,c:0,e:0};
+  CUE.forEach(([ks,delta,label,cond])=>{
+    if(cond && !cond(w.g)) return;
+    if(ks.some(k=>text.includes(k))){ Object.entries(delta).forEach(([k,v])=>d[k]+=v); notes.push(label); }
+  });
+  if((w.gw2||0)>=2.5e7){ d.b+=1; notes.push("해외 반응 검증(원작·각색 +1)"); }
+  const cl=(v)=>Math.max(1,Math.min(10,v));
+  const sc={a:cl(m[0]+d.a), b:cl(m[1]+d.b), c:cl(m[2]+d.c), e:cl(m[3]+d.e)};
+  // 타겟
+  const fv=FEM.filter(k=>text.includes(k)).length, mv=MAL.filter(k=>text.includes(k)).length;
+  let t;
+  if(fv>mv) t="여"; else if(mv>fv) t="남";
+  else t = w.g==="로맨스" ? "여" : (w.g==="액션"||w.g==="무협/사극") ? "남" : (w.g==="판타지") ? "남" : "여/남";
+  const src = w.syn||tags.length ? "네이버 줄거리·태그" : "제목";
+  sc.t=t;
+  sc.cm=`[1차 자동 채점 · ${src} 기반 추정] 4축은 ${g||"전체"} 기존 작품 중앙값(${m.join("/")})에서 출발`
+       +(notes.length?`, 단서: ${notes.join(", ")}`:", 단서 없음")
+       +`. 타겟은 ${fv||mv?`태그·줄거리 단서(여 ${fv} · 남 ${mv})`:"장르 기본값"}으로 추정. 원고 확인 후 조정 필요`;
+  return sc;
+}
+   // 일괄 추가 작품에서 화면으로 고칠 수 있는 정보
 function compose(src,isNew){
   const o=SCORE[src.n], w=Object.assign({},src);
   if(o && !isNew) SKEYS.concat(XKEYS).forEach(k=>{ if(o[k]!=null&&o[k]!=="") w[k]=o[k]; });
+  if(!isNew && src.pend && INFO[src.n]) Object.assign(w, INFO[src.n]);   // 네이버에서 불러온 정보 (__info__ 행)
   if(o && !isNew && src.pend) PKEYS.forEach(k=>{ if(o[k]!==undefined && o[k]!=="") w[k]=o[k]; });
   if(src.pend && w.vb && w.kr==null && w.kr2!=null){          // 월평균이 아직 없으면 화수(없으면 24개월)로 추정
     const mo = w.mo || (w.ep ? Math.min(24,Math.max(1,w.ep/4.35)) : 24);
@@ -548,6 +594,10 @@ function compose(src,isNew){
   w._ed = !isNew && !src.pend && !!o && SKEYS.concat("cm").some(k=>o[k]!=null&&o[k]!=="");
   w._new = !!isNew;
   w.auto = !!src.auto && !(o && (o.ok || o.a!=null));   // 1차 자동 채점 — 편집 창에서 저장하면 확정
+  if(w.auto && (w.syn || (w.tags&&w.tags.length))){       // 네이버 줄거리·태그가 있으면 그 기준으로 다시 계산
+    const r=autoFromText(w); ["a","b","c","e","t","cm"].forEach(k=>w[k]=r[k]);
+    if(o && o.t) w.t=o.t;
+  }
   return w;
 }
 function build(){
@@ -1061,9 +1111,10 @@ function openEdit(name){
   $("eAuto").hidden=base; $("eAutoMsg").textContent="";
   $("eDel").hidden = EMODE!=="add";
   $("eReset").hidden = !(base && SCORE[w.n]);
-  $("eHint").textContent = (w && w.auto) ? "1차 자동 채점된 작품입니다(장르 중앙값 + 제목 단서 + 조회수). 점수를 확인·조정하고 저장하면 '1차' 표시가 사라집니다." : (w && w.pend) ? "일괄 추가된 작품입니다. 불러오기·1차 자동 채점으로 정보를 채운 뒤 4축 점수를 입력하면 전체 라인업으로 옮겨집니다." : base
+  $("eHint").textContent = ((w && (w.syn||(w.tags&&w.tags.length))) ? `${w.tags&&w.tags.length?w.tags.map(t=>"#"+t).join(" ")+" · ":""}${w.syn||""}\n` : "") + ((w && w.auto) ? "1차 자동 채점된 작품입니다(장르 중앙값 + 줄거리·태그·제목 단서 + 조회수). 점수를 확인·조정하고 저장하면 '1차' 표시가 사라집니다." : (w && w.pend) ? "일괄 추가된 작품입니다. 불러오기·1차 자동 채점으로 정보를 채운 뒤 4축 점수를 입력하면 전체 라인업으로 옮겨집니다." : base
     ? "시트에서 온 원본 작품입니다. 점수·확장가치·일본 조회수·코멘트만 고칠 수 있고, 원본 값은 그대로 보존됩니다."
-    : "cid(네이버 titleId)를 넣고 불러오기를 누르면 제목·장르·화수·연령·표지를 자동으로 채웁니다.";
+    : "cid(네이버 titleId)를 넣고 불러오기를 누르면 제목·장르·화수·연령·표지를 자동으로 채웁니다.");
+  $("eHint").style.whiteSpace="pre-line";
   $("eWarn").textContent="";
   eSync(); ED.hidden=false; setTimeout(()=>$(base?"e_cm":"e_n").focus(),30);
 }
@@ -1096,34 +1147,47 @@ $("eFetch").onclick=async ()=>{
 
 /* ── 채점 대기 작품: 네이버 정보 일괄 불러오기 ── */
 let BULK=null;   // {done, total, fail, stop}
+let INFO={};     // 작품명 -> 네이버 정보 {g, ep, ag, th, r19, wd, syn, tags, fin} — 공유 저장소 '__info__' 행에 따로 저장 (매번 저장하는 데이터를 가볍게 유지)
+async function loadInfo(){
+  try{ const r=await fetch(`${SB.url}?id=eq.__info__&select=data`,{headers:await authHdr()}); const j=await r.json();
+       INFO=(Array.isArray(j)&&j[0]&&j[0].data&&j[0].data.info)||{}; }catch(e){ INFO={}; }
+}
+async function pushInfo(){
+  try{ await fetch(SB.url,{method:"POST",headers:{...(await authHdr()),Prefer:"resolution=merge-duplicates,return=minimal"},
+       body:JSON.stringify({id:"__info__",data:{info:INFO},updated_at:new Date().toISOString()})}); }catch(e){}
+}
 function pendBarHTML(){
-  const P=W.filter(w=>w.a==null||w.auto), need=P.filter(w=>w.id && w.ep==null), noid=P.filter(w=>!w.id).length;
+  const P=W.filter(w=>w.a==null||w.auto), need=P.filter(w=>w.id && !w.syn && !(w.tags&&w.tags.length)), noid=P.filter(w=>!w.id).length;
   if(BULK && !BULK.end) return `<b>네이버 정보 불러오는 중</b> ${BULK.done} / ${BULK.total}${BULK.fail?` · 실패 ${BULK.fail}`:""}<span class="spacer"></span><button class="btn sm" id="bulkStop">멈추기</button>`;
-  return `<span>장르·화수·연령·표지를 네이버에서 불러오면 월평균 조회수와 조회수 점수가 함께 계산돼요.</span>
+  return `<span>네이버에서 장르·줄거리·태그·화수를 불러오면 1차 점수·타겟·조회수 점수를 그 기준으로 다시 계산해요.</span>
     <span class="spacer"></span><span>${need.length?`불러올 작품 <b>${need.length}</b>`:"모두 불러옴"}${noid?` · cid 없음 ${noid}`:""}${BULK&&BULK.end?` · 방금 ${BULK.done-BULK.fail}개 완료${BULK.fail?`, 실패 ${BULK.fail}`:""}`:""}</span>
     <button class="btn sm prim" id="bulkGo"${need.length?"":" disabled"}>네이버 정보 일괄 불러오기</button>`;
 }
 function paintPendBar(){ const b=document.querySelector(".pendbar"); if(b) b.innerHTML=pendBarHTML(); }
 async function bulkFetch(){
-  const list=W.filter(w=>(w.a==null||w.auto) && w.id && w.ep==null);
+  const list=W.filter(w=>(w.a==null||w.auto) && w.id && !w.syn && !(w.tags&&w.tags.length));
   BULK={done:0,total:list.length,fail:0,stop:false,end:false}; paintPendBar();
   let i=0;
   const worker=async ()=>{
     while(i<list.length && !BULK.stop){
       const w=list[i++];
       try{
-        const j=await apiGet(`cid=${w.id}`);
+        let j=null;
+        try{ const r=await fetch(`/api/naver-info?cid=${w.id}`); if(r.ok) j=await r.json(); }catch(err){}
+        if(!j||!j.ok) j=await apiGet(`cid=${w.id}`);          // 새 함수가 없으면 기존 함수로 (줄거리·태그 없음)
         if(!j||!j.ok) throw 0;
-        const o=SCORE[w.n]||(SCORE[w.n]={});
+        const o=INFO[w.n]||(INFO[w.n]={});
         if(j.genre) o.g=j.genre; if(j.ep!=null) o.ep=j.ep; if(j.age) o.ag=j.age;
+        if(j.synopsis) o.syn=j.synopsis.slice(0,300); if(j.tags&&j.tags.length) o.tags=j.tags.slice(0,12);
+        if(j.finished) o.fin=true;
         if(j.thumb){ o.th=j.thumb; THC[w.id]={u:j.thumb,t:Date.now()}; }
         if(j.adult) o.r19=true; if(j.weekday) o.wd=j.weekday;
       }catch(e){ BULK.fail++; }
-      BULK.done++; if(BULK.done%10===0) paintPendBar();
+      BULK.done++; if(BULK.done%10===0) paintPendBar(); if(BULK.done%200===0) pushInfo();
     }
   };
   await Promise.all([worker(),worker(),worker(),worker()]);
-  BULK.end=true; thSave(); render();
+  BULK.end=true; thSave(); await pushInfo(); render();
 }
 document.addEventListener("click",(e)=>{
   if(e.target.closest("#bulkGo")) bulkFetch();
@@ -1346,6 +1410,7 @@ function showTip(el){
     <div class="tx" style="margin-bottom:0">4축 합 <b>${w.s4??"—"}</b> · GW <b>${w.gsU??"—"}</b> · 한국 <b>${w.ksU??"—"}</b> · 확장 <b>${w.xb?"+"+w.xb:"—"}</b> · 총 적합도 <b>${w.fit??"—"}</b></div>
     <div class="tx" style="margin-bottom:0">회차 <b>${w.ep??"—"}</b>${LONG(w)?" (100화+)":""} · 일본 <b>${w.lm!=null?fmt(w.lm):"데이터 없음"}</b>${w.mega?' · <span style="color:#7ee2b8">MEGA IP 20선</span>':""}</div>
     <div class="tx" style="margin-bottom:0">순위 — 총 적합도 <b>${RANK[w.n]?.allf??"—"}위</b> · 제작 4축 <b>${RANK[w.n]?.alls??"—"}위</b>${gem(w)?` <span style="color:#7ee2b8">(${gem(w)>0?"▲":"▼"}${Math.abs(gem(w))})</span>`:""}</div>
+    ${(w.tags&&w.tags.length)?`<div class="tc" data-noi18n>${esc(w.tags.map(t=>"#"+t).join(" "))}</div>`:""}${w.syn?`<div class="tc" data-noi18n>${esc(w.syn)}</div>`:""}
     ${w.cm?`<div class="tc" data-noi18n>${esc(w.cm)}</div>`:""}
     <div class="tc" style="color:#b9b7b1">클릭하면 점수를 고칠 수 있습니다</div>`;
   jaNode(TIP); TIP.classList.add("on");
@@ -1522,6 +1587,7 @@ async function startApp(){
   $g("gate").hidden=true;
   $g("who").textContent=(ME.name?ME.name+" · ":"")+(ME.email||"");
   $g("usersBtn").hidden=!ME.is_admin;
+  await loadInfo();
   load(); cleanOwn(); render(); jaNode(document.body);
   chip("ok","공유 저장소 불러오는 중"); sbPull(true); setInterval(()=>sbPull(false),15000);
 }
