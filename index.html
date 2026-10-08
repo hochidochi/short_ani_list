@@ -472,7 +472,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v24 · 2026-10-08";
+const BUILD = "v25 · 2026-10-08";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -550,6 +550,15 @@ const CUE=[
 ];
 const FEM=["로판","로맨스판타지","BL","집착남","계략남","후회남","순정남","다정남","연하남","직진남","걸크러시","여주","육아물","계약연애","오피스로맨스","학원로맨스","첫사랑","짝사랑","궁중로맨스","서양","악녀","영애","공녀","황녀","황후","왕비","대공","빙의"];
 const MAL=["먼치킨","헌터","레벨업","무협","무림","천마","하렘","격투기","학원액션","싸움","참교육","게임판타지","능력자","남주","던전","용병","킬러","회귀자"];
+const GKO=["로맨스","판타지","액션","드라마","일상","개그","스릴러","무협/사극","감성","스포츠"];
+const GEN={PURE:"로맨스",ROMANCE:"로맨스",FANTASY:"판타지",ACTION:"액션",DRAMA:"드라마",DAILY:"일상",COMIC:"개그",THRILL:"스릴러",HISTORICAL:"무협/사극",SENSIBILITY:"감성",SPORTS:"스포츠"};
+function normGenre(x){
+  if(!x) return null; const t=String(x);
+  const up=t.toUpperCase(); for(const k in GEN) if(up.includes(k)) return GEN[k];
+  let best=null, at=1e9; GKO.forEach(g=>{ const i=t.indexOf(g==="무협/사극"?"무협":g); if(i>=0&&i<at){at=i;best=g;} });
+  if(!best && /사극|시대/.test(t)) best="무협/사극";
+  return best;
+}
 function autoFromText(w){
   const tags=w.tags||[], text=[w.n,w.syn||"",tags.join(" ")].join(" ");
   const g=AUTO_MED[w.g]?w.g:null, m=[...(AUTO_MED[g]||[6,6,6,6])], notes=[];
@@ -594,7 +603,7 @@ function compose(src,isNew){
   w._ed = !isNew && !src.pend && !!o && SKEYS.concat("cm").some(k=>o[k]!=null&&o[k]!=="");
   w._new = !!isNew;
   w.auto = !!src.auto && !(o && (o.ok || o.a!=null));   // 1차 자동 채점 — 편집 창에서 저장하면 확정
-  if(w.auto && (w.syn || (w.tags&&w.tags.length))){       // 네이버 줄거리·태그가 있으면 그 기준으로 다시 계산
+  if(w.auto){                                             // 1차 작품은 지금 가진 정보(장르·줄거리·태그·제목)로 항상 다시 계산
     const r=autoFromText(w); ["a","b","c","e","t","cm"].forEach(k=>w[k]=r[k]);
     if(o && o.t) w.t=o.t;
   }
@@ -1157,10 +1166,10 @@ async function pushInfo(){
        body:JSON.stringify({id:"__info__",data:{info:INFO},updated_at:new Date().toISOString()})}); }catch(e){}
 }
 function pendBarHTML(){
-  const P=W.filter(w=>w.a==null||w.auto), need=P.filter(w=>w.id && !w.syn && !(w.tags&&w.tags.length)), noid=P.filter(w=>!w.id).length;
+  const P=W.filter(w=>w.a==null||w.auto), need=P.filter(w=>w.id && !w.syn && !(w.tags&&w.tags.length) && !(INFO[w.n]&&INFO[w.n].src==="basic"&&BULK&&BULK.end)), noid=P.filter(w=>!w.id).length;
   if(BULK && !BULK.end) return `<b>네이버 정보 불러오는 중</b> ${BULK.done} / ${BULK.total}${BULK.fail?` · 실패 ${BULK.fail}`:""}<span class="spacer"></span><button class="btn sm" id="bulkStop">멈추기</button>`;
   return `<span>네이버에서 장르·줄거리·태그·화수를 불러오면 1차 점수·타겟·조회수 점수를 그 기준으로 다시 계산해요.</span>
-    <span class="spacer"></span><span>${need.length?`불러올 작품 <b>${need.length}</b>`:"모두 불러옴"}${noid?` · cid 없음 ${noid}`:""}${BULK&&BULK.end?` · 방금 ${BULK.done-BULK.fail}개 완료${BULK.fail?`, 실패 ${BULK.fail}`:""}`:""}</span>
+    <span class="spacer"></span><span>줄거리·태그 <b>${P.filter(w=>w.syn||(w.tags&&w.tags.length)).length}</b> · 장르만 ${P.filter(w=>INFO[w.n]&&INFO[w.n].src==="basic").length} · 미확인 ${P.filter(w=>!INFO[w.n]).length} · </span><span>${need.length?`불러올 작품 <b>${need.length}</b>`:"모두 불러옴"}${noid?` · cid 없음 ${noid}`:""}${BULK&&BULK.end?` · 방금 ${BULK.done-BULK.fail}개 완료${BULK.fail?`, 실패 ${BULK.fail}`:""}`:""}</span>
     <button class="btn sm prim" id="bulkGo"${need.length?"":" disabled"}>네이버 정보 일괄 불러오기</button>`;
 }
 function paintPendBar(){ const b=document.querySelector(".pendbar"); if(b) b.innerHTML=pendBarHTML(); }
@@ -1177,7 +1186,8 @@ async function bulkFetch(){
         if(!j||!j.ok) j=await apiGet(`cid=${w.id}`);          // 새 함수가 없으면 기존 함수로 (줄거리·태그 없음)
         if(!j||!j.ok) throw 0;
         const o=INFO[w.n]||(INFO[w.n]={});
-        if(j.genre) o.g=j.genre; if(j.ep!=null) o.ep=j.ep; if(j.age) o.ag=j.age;
+        const ng=normGenre(j.genre)||normGenre((j.tags||[]).join(" ")); if(ng) o.g=ng; if(j.ep!=null) o.ep=j.ep; if(j.age) o.ag=j.age;
+        o.src = j.synopsis||(j.tags&&j.tags.length) ? "info" : "basic";
         if(j.synopsis) o.syn=j.synopsis.slice(0,300); if(j.tags&&j.tags.length) o.tags=j.tags.slice(0,12);
         if(j.finished) o.fin=true;
         if(j.thumb){ o.th=j.thumb; THC[w.id]={u:j.thumb,t:Date.now()}; }
