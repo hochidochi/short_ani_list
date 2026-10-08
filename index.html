@@ -540,7 +540,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v30 · 2026-10-08";
+const BUILD = "v31 · 2026-10-08";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -788,6 +788,8 @@ async function authHdr(){
   return Object.assign({}, SB.hdr, t ? {Authorization:`Bearer ${t}`} : {});
 }
 let LASTPUSH=0, PULLING=false, LASTERR="";
+const APPV=31;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
+let OUTDATED=false, LOCAL0=null;
 function chip(state,txt){
   const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
   c.style.cursor = LASTERR ? "pointer" : "default";
@@ -797,6 +799,23 @@ document.addEventListener("click",(e)=>{
   alert(LASTERR ? `공유 저장소 오류\n\n${LASTERR}\n\n주소: ${SB.url}\n보드: ${board}`
                 : `공유 저장소 정상\n\n주소: ${SB.url}\n보드: ${board}\n키: ${SUPABASE_ANON_KEY.slice(0,24)}…`);
 });
+
+/* ── 이 브라우저에 남아 있던 기록 복구 ──
+   공유 저장소에서 판권 요청·우선순위·파이프라인 입력이 사라졌는데 이 브라우저에는 남아 있으면, 합쳐서 되살릴지 물어봄 */
+function recoverLocal(inc){
+  const L=LOCAL0||{}; let n=0;
+  const mp=JSON.parse(JSON.stringify(inc.pipe||{}));
+  Object.entries(L.pipe||{}).forEach(([k,v])=>{
+    const cur=mp[k]||(mp[k]={});
+    Object.entries(v||{}).forEach(([f,x])=>{ if(cur[f]===undefined && x!=null && x!=="" ){ cur[f]=x; n++; } });
+  });
+  const mr={...(inc.rights||{})}; Object.entries(L.rights||{}).forEach(([k,v])=>{ if(!mr[k]){ mr[k]=v; n++; } });
+  const ma={...(inc.agree||{})}; Object.entries(L.agree||{}).forEach(([k,v])=>{ if(!ma[k]){ ma[k]=v; n++; } });
+  if(!n) return;
+  if(confirm(`공유 저장소에 없는 판권 요청·우선순위·작가 동의 기록 ${n}건이 이 브라우저에 남아 있어요.\n공유 저장소에 다시 합쳐서 복구할까요?`)){
+    inc.pipe=mp; inc.rights=mr; inc.agree=ma; setTimeout(()=>{ READY=true; sbPush(); },300);
+  }
+}
 async function sbPull(first){
   if(!SB.on||PULLING) return;
   if(!first && Date.now()-LASTPUSH<6000) return;   // 내가 방금 고친 값은 덮어쓰지 않는다
@@ -809,10 +828,14 @@ async function sbPull(first){
     if(!Array.isArray(j)) throw new Error(`읽기 응답 형식 오류 — ${txt.slice(0,200)}`);
     if(j[0]&&j[0].data){
       const d=j[0].data;
+      if((d._v||0)>APPV){ OUTDATED=true; }
       const inc={flag:d.flag||{},own:d.own||{},score:d.score||{},add:Array.isArray(d.add)?d.add:[],agree:d.agree||{},rights:d.rights||{},pipe:d.pipe||{}};
+      if(first && LOCAL0) recoverLocal(inc);
       if(JSON.stringify(inc)!==JSON.stringify(payload())){ adopt(inc); seedLaunch(); render(); }
     }
-    LASTERR=""; chip("ok","공유 저장소 연결됨");
+    LASTERR="";
+    if(OUTDATED) chip("err","새 버전이 배포됐어요 — 새로고침해 주세요 (지금 화면은 저장되지 않아요)");
+    else chip("ok","공유 저장소 연결됨");
     READY=true;
   }catch(e){
     LASTERR=String(e.message||e);
@@ -822,12 +845,12 @@ async function sbPull(first){
   PULLING=false;
 }
 async function sbPush(){
-  if(!SB.on) return;
+  if(!SB.on || OUTDATED) return;
   LASTPUSH=Date.now();
   try{
     const r=await fetch(SB.url,{method:"POST",
       headers:{...(await authHdr()),Prefer:"resolution=merge-duplicates,return=minimal"},
-      body:JSON.stringify({id:board,data:payload(),updated_at:new Date().toISOString()})});
+      body:JSON.stringify({id:board,data:{...payload(),_v:APPV},updated_at:new Date().toISOString()})});
     if(!r.ok){ const t=await r.text(); throw new Error(`저장 ${r.status} — ${t.slice(0,200)}`); }
     LASTERR=""; chip("ok","저장됨 — 모두에게 반영");
   }catch(e){
@@ -1877,7 +1900,7 @@ async function startApp(){
   $g("who").textContent=(ME.name?ME.name+" · ":"")+(ME.email||"");
   $g("usersBtn").hidden=!ME.is_admin;
   await loadInfo();
-  load(); cleanOwn(); seedLaunch(); render(); jaNode(document.body);
+  load(); LOCAL0=JSON.parse(JSON.stringify(payload())); cleanOwn(); seedLaunch(); render(); jaNode(document.body);
   chip("ok","공유 저장소 불러오는 중"); sbPull(true); setInterval(()=>sbPull(false),15000);
 }
 
