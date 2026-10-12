@@ -310,6 +310,9 @@ body.mpipe .bar,body.mpipe #kpis,body.mpipe #cols{display:none}
 .psel.wait{background:color-mix(in srgb,var(--warn) 22%,transparent);border-color:color-mix(in srgb,var(--warn) 55%,transparent);color:var(--ink)}
 .psel.no{background:color-mix(in srgb,var(--crit) 14%,transparent);border-color:color-mix(in srgb,var(--crit) 45%,transparent);color:var(--crit)}
 .psel.p1{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ppin{width:46px;border:1px solid var(--grid);border-radius:6px;background:var(--surface-1);font:inherit;font-size:13px;font-weight:800;text-align:center;padding:3px 2px;color:var(--ink)}
+.ppin.set{border-color:var(--s1);color:var(--s1);background:color-mix(in srgb,var(--s1) 8%,transparent)}
+.ppin::placeholder{color:var(--axis);font-weight:400}
 .pmemo{width:100%;min-width:140px;border:1px solid transparent;background:transparent;font:inherit;font-size:11.5px;padding:3px 5px;border-radius:5px;color:var(--ink-2)}
 .pmemo:hover,.pmemo:focus{border-color:var(--axis);background:var(--surface-1)}
 .next{font-size:11px;font-weight:700;white-space:nowrap;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--s1) 10%,transparent);color:var(--s1)}
@@ -1732,7 +1735,7 @@ const PCLS={"1순위":"p1","애니 판권 유효":"ok","독점":"ok","1차 동�
   "확인 중":"wait","답변 대기 중":"wait","Hold":"wait","별도 협의 필요":"wait","2순위":"wait","비독점":"wait","지분투자":"wait",
   "불가":"no","보류":"no","비계약":"no"};
 const pget=(n)=>{ const p=PIPE[n]||{}; return {pr:p.pr||"미정", rs:p.rs||"확인 전", nw:p.nw||"미확인",
-  ag:p.ag||(AGREE[n]?"1차 동의":"미착수"), ct:p.ct||"N", st:p.st||"N", ln:lnOf(n), memo:p.memo||""}; };
+  ag:p.ag||(AGREE[n]?"1차 동의":"미착수"), ct:p.ct||"N", st:p.st||"N", ln:lnOf(n), memo:p.memo||"", pp:+p.pp>0?+p.pp:null}; };
 function nextStep(p){
   if(p.rs==="불가"||p.ag==="불가") return ["진행 불가 · 사유 확인","stop"];
   if(p.pr==="보류"||p.ag==="보류") return ["보류 중","stop"];
@@ -1753,6 +1756,7 @@ function pRow(w,cols){
     w:`<td><div class="pw">${th}<div class="nm"><a href="${link(w)}" target="_blank" rel="noopener" data-noi18n>${esc(dn(w))}</a>${chkBadge(w.n)}${w.auto?`<span class="bauto">1차</span>`:""}<div class="meta">${esc(meta)}</div></div></div></td>`,
     fit:`<td>${V==null?`<div class="fit na" data-edit="${esc(w.n)}">—</div>`:`<div class="fit" style="background:${fitVar(BASIS==="s4"?V+8:V)}" data-tip="${esc(w.n)}" data-edit="${esc(w.n)}">${V}</div>`}</td>`,
     own:`<td><select class="osel${ownerOf(w)!=="미정"?" set":""}" data-o="${esc(w.n)}">${OWNERS.concat(OWNERS.includes(ownerOf(w))?[]:[ownerOf(w)]).map(o=>`<option value="${esc(o)}"${o===ownerOf(w)?" selected":""}>${esc(o)}</option>`).join("")}<option value="__c">＋ 직접 입력…</option></select></td>`,
+    pp:`<td style="text-align:center"><input class="ppin${p.pp?" set":""}" type="number" min="1" max="999" data-pn="${esc(w.n)}" data-pk="pp" value="${p.pp??""}" placeholder="–" title="제작 우선순위 (1이 가장 먼저 · 비우면 미정)" aria-label="${esc(w.n)} 우선순위"></td>`,
     pr:`<td>${psel(w.n,"pr",p.pr)}</td>`, rs:`<td>${psel(w.n,"rs",p.rs)}</td>`, nw:`<td>${psel(w.n,"nw",p.nw)}</td>`,
     ag:`<td>${psel(w.n,"ag",p.ag)}</td>`, ct:`<td>${psel(w.n,"ct",p.ct)}</td>`, st:`<td>${psel(w.n,"st",p.st)}</td>`,
     ln:`<td style="text-align:center"><button type="button" class="lnb${p.ln.length===LANGS.length?" all":p.ln.length?" some":""}" data-ln="${esc(w.n)}" title="${esc(lnTitle(p.ln))}">${lnLabel(p.ln)}</button></td>`,
@@ -1762,7 +1766,7 @@ function pRow(w,cols){
   };
   return `<tr class="${nc==="stop"||FLAG[w.n]?"stuck":""}"${FLAG[w.n]?` title="이슈: ${esc(FLAG[w.n])}"`:""}>${cols.map(c=>cell[c]).join("")}</tr>`;
 }
-const PH={w:"작품",fit:"적합",own:"제작사",pr:"우선순위",rs:"판권 유효 현황",nw:"NW 보유 권한",ag:"작가 동의",ct:"계약 완료",st:"제작 시작",ln:"글로벌 런칭",next:"다음 할 일",memo:"비고",req:"요청일"};
+const PH={w:"작품",pp:"우선순위",fit:"적합",own:"제작사",pr:"우선순위",rs:"판권 유효 현황",nw:"NW 보유 권한",ag:"작가 동의",ct:"계약 완료",st:"제작 시작",ln:"글로벌 런칭",next:"다음 할 일",memo:"비고",req:"요청일"};
 const pTable=(arr,cols)=> arr.length
   ? `<table class="ptab"><thead><tr>${cols.map(c=>`<th>${PH[c]}</th>`).join("")}</tr></thead><tbody>${arr.map(w=>pRow(w,cols)).join("")}</tbody></table>`
   : `<div class="pempty">해당 작품이 없습니다</div>`;
@@ -1839,6 +1843,8 @@ function renderMode(){
   }else{
     const all=W.filter(inPipe), a=all.filter(qf).filter(w=>pfFilter(w,"pipe")).sort((x,y)=>(y.fit??-1)-(x.fit??-1));
     const sec=(g)=>a.filter(w=>ownGroup(w)===g);
+    const ppOrd=(arr)=>arr.slice().sort((x,y)=>{ const px=pget(x.n).pp, py=pget(y.n).pp;   // 우선순위 1 → 2 → … → 미정, 같으면 적합도 높은 순
+      if(px!=null&&py!=null&&px!==py) return px-py; if((px==null)!==(py==null)) return px==null?1:-1; return (y.fit??-1)-(x.fit??-1); });
     html=`<div class="phead"><h2>제작 파이프라인</h2><div class="sum">
       <span>내부제작 <b>${cnt(all,w=>ownGroup(w)==="내부제작")}</b></span><span>외부제작 <b>${cnt(all,w=>ownGroup(w)==="외부제작")}</b></span>
       <span>작가 동의 <b>${cnt(all,w=>pget(w.n).ag==="1차 동의")}</b></span><span>계약 완료 <b>${cnt(all,w=>pget(w.n).ct==="Y")}</b></span>
@@ -1846,7 +1852,7 @@ function renderMode(){
       <span class="spacer"></span><input type="search" id="pq" placeholder="작품명 검색" value="${esc(q)}"></div>
       <div class="hint" style="margin:-4px 0 8px">후보군 리스트에서 제작 담당을 내부제작 또는 외부 제작사로 지정하면 여기에 들어와요.</div>
       ${pfHTML(all,"pipe")}
-      <div class="psec">내부제작</div>${pTable(sec("내부제작"),["w","fit","rs","nw","ag","ct","st","ln","next","memo"])}
+      <div class="psec">내부제작</div>${pTable(ppOrd(sec("내부제작")),["w","pp","fit","rs","nw","ag","ct","st","ln","next","memo"])}
       <div class="psec">외부제작</div>${pTable(sec("외부제작"),["w","own","fit","rs","nw","ag","ct","st","ln","next","memo"])}`;
   }
   const had=document.activeElement&&document.activeElement.id==="pq";
@@ -1871,6 +1877,7 @@ PV.addEventListener("change",(e)=>{
   }
   const n=t.dataset.pn, k=t.dataset.pk; if(!n||!k) return;
   const p=PIPE[n]||(PIPE[n]={});
+  if(k==="pp"){ const v=parseInt(t.value,10); if(v>0) p.pp=Math.min(v,999); else delete p.pp; render(); return; }   // 바꾸면 순위대로 다시 정렬
   p[k] = k==="jp" ? t.checked : t.value;
   if(k==="ag"){ if(t.value==="1차 동의"){ if(!AGREE[n]) AGREE[n]=new Date().toISOString().slice(0,10); } else delete AGREE[n]; }
   render();
