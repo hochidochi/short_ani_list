@@ -367,6 +367,11 @@ body.mpipe .bar,body.mpipe #kpis,body.mpipe #cols{display:none}
 .xcard em{font-style:normal;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;color:var(--muted);border:1px solid var(--grid)}
 .xcard:has(input:checked){border-color:var(--crit);border-style:solid;background:color-mix(in srgb,var(--crit) 6%,var(--surface-1))}
 .xcard:has(input:checked) em{color:#fff;background:var(--crit);border-color:var(--crit)}
+.qmiss{margin:0 0 10px;padding:10px 12px;border:1px solid #e9c46a;background:#fff8e6;border-radius:8px;font-size:12.5px}
+.qmiss>b{display:block;margin-bottom:4px}
+.qmr{display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px dashed #eedc9a;flex-wrap:wrap}
+.qmn{font-weight:700} .qmw{color:var(--ink-2);flex:1;min-width:180px}
+.row.qflash{animation:qfl 2.2s ease} @keyframes qfl{0%,60%{background:#fff3c4}100%{}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head><body>
@@ -626,6 +631,10 @@ const enc = (o)=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/
 const SKEYS=["a","b","c","e","gs","ks"];            // 총 적합도에 들어가는 값
 const XKEYS=["cm","x","wx","mega","lm","ls"];             // 순위에 넣지 않는 값 (확장가치 · 일본 조회수)
 let W=[], byName={};
+/* 검색용 정규화: 대소문자·띄어쓰기·기호 무시 ('게임속바바리안' = '게임 속 바바리안') */
+const nrm=(s)=>String(s||"").toLowerCase().normalize("NFC").replace(/[\s\u00a0·・:：,，.。!！?？~～'"‘’“”「」『』()（）\[\]【】\-–—_/]/g,"");
+const qHit=(w,q)=>{ const k=nrm(q); return !k || nrm(w.n).includes(k) || nrm(JPN[w.n]||w.jn||"").includes(k); };
+let SHOWN=new Set();   // 이번 화면에 실제로 그려진 작품
 const PKEYS=["g","t","d","ep","ag","id","th","r19","wd","gw","kr","kr2","gw2","mo","vb","syn","tags","fin"];
 /* ── 1차 자동 채점 규칙 (네이버 줄거리·태그 기반) ───────────────────
    장르 중앙값(기존 채점 작품 기준)에서 출발 → 제목·줄거리·태그 단서로 ±1~2점 → 타겟 추정 */
@@ -921,6 +930,47 @@ const inCut=(w,scope)=>{
   return v<=(CUT[scope]||CUT.all);
 };
 
+/* 작품이 지금 화면에 안 보이는 이유 */
+function whyHidden(w){
+  if(w.mega && XF!=="mega") return "MEGA IP라서 숏애니 리스트에서 빠져 있어요";
+  if(!w.mega && XF==="mega") return "'MEGA IP만 보기' 필터가 켜져 있어요";
+  if(HIDE && FLAG[w.n]) return "이슈 작품이라 '이슈 숨기기'로 가려져 있어요";
+  if(HIDEAUTO && w.auto && T!=="pend") return "1차 자동 채점 작품이라 가려져 있어요";
+  const f=[]; if(G.size && !G.has(w.g||"미정")) f.push("장르"); if(O.size && !O.has(ownGroup(w))) f.push("담당");
+  if(YEAR && (!w.d || w.d < YEAR)) f.push("연도"); if(ONLYGEM && gem(w) < 15) f.push("숨은 보석"); if(ONLY100 && !LONG(w)) f.push("100화+");
+  if(XF && XF!=="mega"){ const x=XF==="on"?!!w.xb:XF==="off"?!(w.xb||w.wb):XF==="wx"?!!w.wb:true; if(!x) f.push("가산점"); }
+  if(ONLYCHK && !needChk(w.n)) f.push("판권 확인");
+  if(f.length) return `필터(${f.join("·")})에 가려져 있어요`;
+  if(w.a==null && !["pend","issue","edit"].includes(T)) return "아직 점수가 없어서 '검토 대기' 탭에만 있어요";
+  if((T==="남"||T==="여") && w.t!==T) return `${w.t==="남"?"남성향":w.t==="여"?"여성향":"타겟 미정"} 작품이라 이 탭엔 없어요`;
+  if(T==="split" && w.t!=="남" && w.t!=="여") return "타겟 미정 작품이라 '남/여 나눠 보기'엔 없어요";
+  if(T==="issue") return "이슈 작품이 아니에요"; if(T==="rights") return "판권 확보 요청 작품이 아니에요";
+  if(T==="agree") return "작가 동의 완료 작품이 아니에요"; if(T==="edit") return "변경한 작품이 아니에요";
+  return "다른 탭에 있어요";
+}
+/* 그 작품이 보이도록 탭·필터를 맞춤 */
+function reveal(n){
+  const w=byName[n]; if(!w) return;
+  const setChk=(id,v)=>{ const el=document.getElementById(id); if(el) el.checked=v; };
+  G.clear(); O.clear(); document.querySelectorAll("#genres .chip,#owners .chip").forEach(b=>b.setAttribute("aria-pressed","false"));
+  YEAR=""; const y=document.getElementById("year"); if(y) y.value="";
+  ONLYGEM=ONLY100=ONLYCHK=HIDEAUTO=false; ["onlyGem","only100","onlyChk","hideAuto"].forEach(id=>setChk(id,false));
+  if(FLAG[w.n]){ HIDE=false; setChk("hideFlag",false); }
+  XF=w.mega?"mega":""; const xf=document.getElementById("xf"); if(xf) xf.value=XF;
+  T=w.a==null?"pend":"all";
+  const seg=document.getElementById("segT"); if(seg) [...seg.children].forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.t===T)));
+  render();
+  const row=[...document.querySelectorAll("#cols .row")].find(r=>r.dataset.n===w.n);
+  if(row){ row.scrollIntoView({block:"center"}); row.classList.add("qflash"); setTimeout(()=>row.classList.remove("qflash"),2200); }
+}
+/* 작품 추가 때 '이미 있음'이면 어디 있는지 */
+function placeHint(w){
+  if(w.mega) return "MEGA IP라서 기본 리스트에선 빠져 있어요";
+  if(FLAG[w.n]) return "이슈 작품으로 표시돼 있어요";
+  if(w.a==null) return "아직 점수가 없어서 '검토 대기' 탭에 있어요";
+  return "리스트에 있어요";
+}
+
 /* ── 필터·정렬 ── */
 function view(){
   let a = W.filter(w=>{
@@ -934,7 +984,7 @@ function view(){
     if(XF==="wx"   && !w.wb) return false;
     if(XF==="mega" && !w.mega) return false;
     if(XF!=="mega" && w.mega) return false;          // MEGA IP는 숏애니 후보에서 제외
-    if(Q && !w.n.toLowerCase().includes(Q) && !(JPN[w.n]||"").toLowerCase().includes(Q)) return false;
+    if(Q && !qHit(w,Q)) return false;
     if(HIDE && FLAG[w.n]) return false;
     if(HIDEAUTO && w.auto && T!=="pend") return false;
     if(ONLYCHK && !needChk(w.n)) return false;
@@ -1011,6 +1061,7 @@ const HEAD = `<div class="row rhead"><div class="rk" title="해당 풀 안에서
   <div class="issh" title="판권 없음 등 이슈가 있는 작품을 표시합니다">이슈</div></div>`;
 
 function listHTML(arr,title,desc,scope){
+  arr.forEach(w=>SHOWN.add(w.n));
   const lbl=(scope==="남"?"남성향 30위":scope==="여"?"여성향 20위":"전체 50위")+(BASIS==="s4"?" · 제작 4축 기준":"");
   if(scope==="none") return `<div><div class="colh"><b>${title}</b><span>${desc}</span><span class="spacer"></span><button class="btn sm copyn" type="button" data-help="copyn">작품명 복사</button></div>
     ${HEAD}${arr.length?arr.map((w,i)=>rowHTML(w,i,"none")).join(""):`<div class="empty">해당 작품이 없습니다</div>`}</div>`;
@@ -1025,7 +1076,7 @@ function listHTML(arr,title,desc,scope){
 
 /* ── 렌더 ── */
 function render(){
-  build(); ranks();
+  build(); ranks(); SHOWN=new Set();
   const all = view();
   const cols = document.getElementById("cols");
   const label = (w)=> w.t==="남"?"남성향" : w.t==="여"?"여성향" : w.t==="여/남"?"여·남":"타겟 미정";
@@ -1063,6 +1114,10 @@ function render(){
     const a = (T==="all" ? all : all.filter(w=>w.t===T)).filter(w=>w.a!=null);
     const cn = CUT[sc]||CUT.all;
     cols.innerHTML = listHTML(a, T==="all"?"전체 라인업":label({t:T}), `${stat(a)} · 상위 ${cn}작품 강조`, sc);
+  }
+  if(Q){   // 검색어에 맞는데 이 화면에선 안 보이는 작품 → 어디 있는지 알려줌
+    const miss=W.filter(w=>qHit(w,Q)&&!SHOWN.has(w.n));
+    if(miss.length) cols.insertAdjacentHTML("afterbegin",`<div class="qmiss"><b>'${esc(Q)}' 검색 결과 중 이 화면에 안 보이는 작품 ${miss.length}개</b>${miss.slice(0,12).map(w=>`<div class="qmr"><span class="qmn" data-noi18n>${esc(w.n)}</span><span class="qmw">${esc(whyHidden(w))}</span><button class="btn sm" type="button" data-reveal="${esc(w.n)}">여기서 보기</button><button class="btn sm" type="button" data-edit="${esc(w.n)}">열기</button></div>`).join("")}</div>`);
   }
   // KPI
   const fl=Object.keys(FLAG).length, ed=W.filter(isDirty).length;
@@ -1420,8 +1475,9 @@ $("eOk").onclick=()=>{
   }
   const n=$("e_n").value.trim();
   if(!n) return $("eWarn").textContent="작품명은 반드시 입력해야 합니다.";
-  if(n!==EKEY && (BASE.some(w=>w.n===n)||ADD.some(w=>w.n===n)))
-    return $("eWarn").textContent="같은 이름의 작품이 이미 있습니다.";
+  { const dup=W.find(w=>w.n!==EKEY && nrm(w.n)===nrm(n));
+    if(dup){ $("eWarn").innerHTML=`같은 작품이 이미 있어요: <b data-noi18n>${esc(dup.n)}</b> — ${esc(placeHint(dup))} <button class="btn sm" type="button" id="eDupGo">그 작품 열기</button>`;
+      $("eDupGo").onclick=()=>{ const k=dup.n; closeEdit(); reveal(k); openEdit(k); }; return; } }
   if(AXK.concat(VWK).some(([k])=>sc[k]==null))
     return $("eWarn").textContent="점수 6개를 모두 입력해야 순위에 들어갑니다.";
   const num=(id)=>{const v=$(id).value.trim(); return v===""?null:Number(v);};
@@ -1619,7 +1675,8 @@ document.getElementById("genres").addEventListener("click",(e)=>{
   const g=b.dataset.g; G.has(g)?G.delete(g):G.add(g);
   b.setAttribute("aria-pressed",String(G.has(g))); render();
 });
-document.getElementById("q").oninput=(e)=>{Q=e.target.value.trim().toLowerCase();render();};
+document.getElementById("q").oninput=(e)=>{Q=e.target.value.trim();render();};
+document.getElementById("cols").addEventListener("click",(e)=>{ const b=e.target.closest("[data-reveal]"); if(b){ e.stopPropagation(); reveal(b.dataset.reveal); } },true);
 document.getElementById("sort").onchange=(e)=>{SORT=e.target.value;render();};
 document.getElementById("hideFlag").onchange=(e)=>{HIDE=e.target.checked;render();};
 document.getElementById("hideAuto").onchange=(e)=>{HIDEAUTO=e.target.checked;render();};
@@ -1764,7 +1821,7 @@ function renderMode(){
   const pv=document.getElementById("pview"); pv.hidden = MODE==="list";
   if(MODE==="list"){ pv.innerHTML=""; return; }
   const q=(document.getElementById("pq")||{}).value||"";
-  const qf=(w)=> !q || w.n.toLowerCase().includes(q.toLowerCase()) || (JPN[w.n]||w.jn||"").toLowerCase().includes(q.toLowerCase());
+  const qf=(w)=> qHit(w,q);
   const cnt=(arr,f)=>arr.filter(f).length;
   let html="";
   if(MODE==="rights"){
