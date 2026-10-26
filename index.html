@@ -624,6 +624,11 @@ table.eg thead th.op{width:64px} table.eg thead th.rd{width:56px}
 table.eg .cl .dt{font-size:12px} table.eg .cl .du{font-size:10px} table.eg .lenin{width:100%;font-size:11px}
 .pflag{display:inline-block;margin-top:3px;margin-right:3px;font-size:10px;font-weight:700;border-radius:6px;padding:0 5px} .pflag.pa{background:#FBEAF0;color:#993556} .pflag.pf{background:#E1F5EE;color:#085041}
 .pnote{display:block;margin-top:3px;font-size:10.5px;color:#854F0B;background:#FAEEDA;border-radius:5px;padding:1px 5px}
+.tzbox{padding:10px 14px;margin:8px 0;background:#FDF2F7;border:1px solid #F5B5D3} .tzhd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px} .tzhd label{font-size:12.5px;display:flex;align-items:center;gap:4px}
+table.tzt{width:100%;border-collapse:collapse;font-size:12.5px} table.tzt th{text-align:left;color:var(--ink2);font-weight:600;padding:3px 6px;border-bottom:1px solid #F5B5D3} table.tzt td{padding:4px 6px;border-bottom:1px solid #F8D5E5;vertical-align:middle}
+table.tzt tr.off td{opacity:.5} table.tzt td:nth-child(5){width:230px} table.tzt td:last-child{width:56px;white-space:nowrap} table.tzt td:first-child{width:36px;text-align:center}
+.card.tzbox{background:#FDF2F7} table.tzt .in{min-height:28px;padding:1px 6px;width:100%} table.tzt td:nth-child(3){width:150px} table.tzt td:nth-child(2){width:160px}
+.tzw{display:flex;flex-wrap:wrap;gap:4px} .tzc{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;border:1px solid var(--line);border-radius:12px;padding:1px 8px;background:#fff;cursor:pointer} .tzc.on{background:#D6458A;color:#fff;border-color:#D6458A} .tzc input{display:none}
 .cal .far{color:var(--ink2);font-weight:700;font-size:14px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;color:var(--ink2);margin:10px 0 0}
 .legend i{display:inline-block;width:18px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:6px}
@@ -2126,7 +2131,7 @@ function txApply(){
   });
 }
 function render(){ render0(); if(LANG==="ja") trNode(document.body); txApply(); }
-const BUILD="10.27-B";   // 배포 확인용: 화면 왼쪽 위 날짜 옆에 보여요
+const BUILD="10.27-C";   // 배포 확인용: 화면 왼쪽 위 날짜 옆에 보여요
 function render0(){
   DEFER=false;
   $("today").textContent=`오늘 ${ymd(TODAY)} (${WD[TODAY.getUTCDay()]}) · 버전 ${BUILD}`;
@@ -2260,8 +2265,8 @@ function renderOpen(){
       ${[...Array(NY)].map((_,i)=>`<th class="yr y1" colspan="12">${Y0+i}년</th>`).join("")}</tr><tr>`
     +months.map(({m},i)=>`<th class="mh${i===nowM?" now":""}${m===1?" y1":""}">${m}월</th>`).join("")+`</tr></thead><tbody>`;
   const yb=(i)=>months[i].m===1?" y1":"";
-  if(simST){ const TX=simST.tzx||{on:true,date:"2026-12-24"}; if(TX.on&&TX.date){ const ti=mi(D(TX.date)); const nm=(TX.works&&TX.works.length?TX.works:TZC().order);
-      h+=`<tr class="sum tzxr"><th class="rl">통합 티저 <span class="hint" style="font-weight:400">${nm.length}작품 묶음 예고편</span></th>`+months.map((_,i)=>i===ti?`<td class="c${yb(i)} tzxc" title="${esc(`${TX.date} 통합 티저 (1화 아님 · ${nm.join(" · ")})`)}"><b>${+TX.date.slice(8)}일</b><small>티저</small></td>`:`<td class="c${yb(i)} z"></td>`).join("")+`</tr>`; } }
+  if(simST){ simTzs(simST).filter(t=>t.on&&t.date).sort((a,b)=>a.date.localeCompare(b.date)).forEach(t=>{ const ti=mi(D(t.date)), nm=t.works||[];
+      h+=`<tr class="sum tzxr"><th class="rl">${esc(t.name||"티저")} <span class="hint" style="font-weight:400">${esc(t.memo||`${nm.length}작품`)}</span></th>`+months.map((_,i)=>i===ti?`<td class="c${yb(i)} tzxc" title="${esc(`${t.date} ${t.name||"티저"}${t.memo?` · ${t.memo}`:""} · ${nm.join(" · ")}`)}"><b>${+t.date.slice(8)}일</b><small>티저</small></td>`:`<td class="c${yb(i)} z"></td>`).join("")+`</tr>`; }); }
   h+=`<tr class="sum first"><th class="rl">신규 오픈</th>`+launchBy.map((a,i)=>`<td class="c${yb(i)}${a.length?" hot":" z"}" title="${a.map(x=>esc(x.w.n)).join(", ")}">${a.length||"–"}</td>`).join("")+`</tr>`;
   const COV=FORCE||OPEN_LINE!=="all"?null:coverageNow(), lowM=new Set((COV?COV.gaps:[]).map(x=>mi(x.t)));
   h+=`<tr class="sum last"><th class="rl">연재 중 <span class="hint" style="font-weight:400">${OPEN_LINE==="all"?`(빨강: ${MIN_ON_AIR}작품 미만인 주 있음)`:`(${LNLAB[OPEN_LINE]}만)`}</span></th>`+onAir.map((n,i)=>`<td class="c${yb(i)}${n?"":" z"}${lowM.has(i)?" low":""}" style="font-size:13px;font-weight:600;color:var(--ink2)" ${lowM.has(i)?`title="${MIN_ON_AIR}작품 미만인 주가 있습니다"`:""}>${n||"–"}</td>`).join("")+`</tr>`;
@@ -2461,11 +2466,16 @@ function renderSim(){
   let h=`<div class="simhd"><div><p class="lead">시뮬레이션</p><p class="lead-sub">제작 일정 탭 기준으로 공개 운영과 제작 가정을 바꿔 보는 화면이에요. 여기서 바꾼 값은 실제 일정에 반영되지 않아요.</p></div>
       <span class="simver"><span class="seg simreg" role="group" aria-label="지역">${SIMREGS.map(([k,l])=>`<button type="button" data-sreg="${k}" aria-pressed="${SIMREG===k}">${l}</button>`).join("")}</span>
         <span class="hint" id="simSaved">${SIMS_AT?`저장됨 · ${SIMS_AT.slice(5,16).replace("T"," ")}`:"바꾸면 자동 저장"}</span><button type="button" class="btn" id="simReset">처음으로</button></span></div>
-    <div class="simbase" style="background:#FCE7F3;border-color:#F5B5D3">${(()=>{ const TX=SIM.tzx||(SIM.tzx={on:true,date:"2026-12-24"}); const nm=(TX.works&&TX.works.length?TX.works:TZC().order);
-      return `<b>통합 티저</b> <span class="hint">${nm.length}작품을 묶은 예고편 (1화 아님)</span>
-      <label><input type="checkbox" id="tzxOn"${TX.on?" checked":""}> 공개</label> <input type="date" class="in" id="tzxDate" value="${esc(TX.date||"")}" style="min-height:28px;padding:1px 6px">
-      <span class="hint">${esc(nm.join(" · "))}</span>
-      <label style="margin-left:10px" title="끄면 4작품은 1화 선공개 없이 3화 동시 정규 런칭으로 계산돼요"><input type="checkbox" id="tz1On"${SIM.tz1!==false?" checked":""}${SIMREG==="GW"?" disabled":""}> 작품별 1화 선공개도 함께</label>`; })()}</div>
+    <div class="card tzbox"><div class="tzhd"><b>티저별 운영</b> <span class="hint">1화가 아닌 티저 · 예고편 · PV 공개 일정 · 여러 개 추가 가능 · 오픈 일정 탭에 줄로 표시</span><span class="sp"></span>
+      <label title="끄면 티저 작품은 1화 선공개 없이 3화 동시 정규 런칭으로 계산돼요"><input type="checkbox" id="tz1On"${SIM.tz1!==false?" checked":""}${SIMREG==="GW"?" disabled":""}> 작품별 1화 선공개도 함께</label></div>
+      <table class="tzt"><thead><tr><th>공개</th><th>티저 이름</th><th>공개일</th><th>대상 작품</th><th>내용 · 메모</th><th></th></tr></thead><tbody>
+      ${simTzs().map((t,ix)=>`<tr class="${t.on?"":"off"}"><td><input type="checkbox" data-tzi="${ix}" data-tzk="on"${t.on?" checked":""}></td>
+        <td><input class="in" data-tzi="${ix}" data-tzk="name" value="${esc(t.name||"")}" placeholder="예: 1차 프리티징"></td>
+        <td><input type="date" class="in" data-tzi="${ix}" data-tzk="date" value="${esc(t.date||"")}"></td>
+        <td class="tzw">${SIM_WL().filter(w=>w.n&&(LN(w)!=="e"||(t.works||[]).includes(w.n))).map(w=>`<label class="tzc${(t.works||[]).includes(w.n)?" on":""}"><input type="checkbox" data-tzi="${ix}" data-tzw="${esc(w.n)}"${(t.works||[]).includes(w.n)?" checked":""}>${esc(w.n)}</label>`).join("")}</td>
+        <td><input class="in" data-tzi="${ix}" data-tzk="memo" value="${esc(t.memo||"")}" placeholder="예: 묶음 PV 1 + 단독 PV 4 · SNS"></td>
+        <td><button type="button" class="btn danger" style="padding:1px 8px;font-size:12px" data-tzdel="${ix}">삭제</button></td></tr>`).join("")}
+      </tbody></table><button type="button" class="btn" id="tzAdd" style="margin-top:6px">+ 티저 추가</button></div>
     <div class="simbase">지역별 기본 설정 — <b>${esc((SIMREGS.find(x=>x[0]===SIMREG)||[])[1]||SIMREG)}</b> 값을 바꾸면 모두에게 공유되는 기본값으로 바로 저장돼요. 오픈 일정 탭 [시뮬레이션 일정]에서 KR · JP · GW를 바로 비교할 수 있어요.${SIMREG==="JP"?" · 티저: 12/28 나이트런부터 작품 순서대로 1주일마다 1화 선공개":SIMREG==="KR"?" · 티저: 1/25(1월 말) 나이트런부터 일본과 같은 순서로 1주일마다 1화 선공개":" · 글로벌은 티저 없이 정규 런칭"}</div>
         <div class="simv">${yv(2026)} · ${yv(2027)} · ${yv(2028)} 작품 오픈${hia?` · 휴재 합계 <b style="color:var(--hia)">${hia}주</b>`:" · 휴재 없음"}
       <span class="hint" style="font-size:12px">괄호 = 확정 일정 대비</span></div>
@@ -2552,8 +2562,10 @@ function renderSim(){
     <span><i style="background:repeating-linear-gradient(90deg,#E9EAE5 0 3px,#F6F6F3 3px 6px)"></i>쉼 (프리뷰 후·시즌 사이)</span><span><i style="background:var(--hia-bg)"></i>휴재 (제작이 못 따라옴)</span></div>`;
   h=h.slice(0,SIMCUT)+SIMNOTE;   // 월간표는 오픈 일정 탭에서만
   $("v-sim").innerHTML=h;
-  if($("tzxOn")) $("tzxOn").onchange=(e)=>{ SIM.tzx={...(SIM.tzx||{}),on:e.target.checked}; render(); };
-  if($("tzxDate")) $("tzxDate").onchange=(e)=>{ SIM.tzx={...(SIM.tzx||{}),date:e.target.value}; render(); };
+  document.querySelectorAll("#v-sim [data-tzk]").forEach(el=>el.onchange=()=>{ const t=simTzs()[+el.dataset.tzi]; if(!t) return; t[el.dataset.tzk]=el.type==="checkbox"?el.checked:el.value; render(); });
+  document.querySelectorAll("#v-sim [data-tzw]").forEach(el=>el.onchange=()=>{ const t=simTzs()[+el.dataset.tzi]; if(!t) return; const n=el.dataset.tzw; t.works=(t.works||[]).filter(x=>x!==n); if(el.checked) t.works.push(n); render(); });
+  document.querySelectorAll("#v-sim [data-tzdel]").forEach(b=>b.onclick=()=>{ const L=simTzs(), t=L[+b.dataset.tzdel]; if(!t||!confirm(`'${t.name||"티저"}'를 삭제할까요?`)) return; L.splice(+b.dataset.tzdel,1); render(); });
+  if($("tzAdd")) $("tzAdd").onclick=()=>{ const L=simTzs(), last=L[L.length-1]; L.push({id:"tz"+Date.now().toString(36),name:`티저 ${L.length+1}`,date:last&&last.date?key(addDays(D(last.date),7)):"2026-12-21",on:true,works:TZC().order.slice(),memo:""}); render(); };
   if($("tz1On")) $("tz1On").onchange=(e)=>{ SIM.tz1=e.target.checked; const T=TZC(); 
     if(SIM.tz1){ simTzAll(false); simBaseMode(); } else SIM_WL().forEach(w=>{ if((T.order||[]).includes(w.n)){ const r=SIM.rows[w.id]; if(r){ r.launchMode="auto"; r.openK=3; r.pgap=""; r.resK=1; } } });
     toast(SIM.tz1?"4작품 1화 선공개 다시 켰어요":"4작품은 1화 선공개 없이 3화 동시 런칭으로 바꿨어요"); render(); };
@@ -2615,6 +2627,10 @@ async function simVerLoad(){
   try{ const r=await sb("GET",T_CONF,"?id=eq.simsaves&select=data"); const d=r&&r.length&&r[0].data||{}; SIMSAVES=d.list||[]; SIMBASE=d.baseId||null; }catch(e){ SIMSAVES=SIMSAVES||[]; }
 }
 let SIMBASE=null, SIM_BASE_TRIED=false, SIMOPS_OPEN=true;
+/* 티저 여러 개 (티저별 운영) — 예전 통합 티저(SIM.tzx) 1개는 첫 줄로 옮김 */
+function simTzs(st){ st=st||SIM; if(!st) return []; if(!Array.isArray(st.tzs)){ const X=st.tzx||{on:true,date:"2026-12-24"};
+    st.tzs=[{id:"tz"+Date.now().toString(36),name:"통합 티저",date:X.date||"2026-12-24",on:X.on!==false,works:(X.works&&X.works.length?X.works:TZC().order).slice(),memo:"4작품 묶음 예고편"}]; }
+  return st.tzs; }
 /* 지역별 시뮬레이션 (KR · JP · GW) — 버전 불러오기 대신 지역마다 '기본 설정값' 하나를 공유 저장 (바꾸면 자동 저장) */
 const SIMREGS=[["JP","일본 JP"],["KR","한국 KR"],["GW","글로벌 GW"]];
 let SIMREG=(()=>{ try{ return localStorage.getItem("anime_simreg")||"JP"; }catch(e){ return "JP"; } })();
