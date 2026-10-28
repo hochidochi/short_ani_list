@@ -620,7 +620,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v41 · 2026-10-28";
+const BUILD = "v42 · 2026-10-28";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -879,7 +879,7 @@ async function authHdr(){
   return Object.assign({}, SB.hdr, t ? {Authorization:`Bearer ${t}`} : {});
 }
 let LASTPUSH=0, PULLING=false, LASTERR="";
-const APPV=41;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
+const APPV=42;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
 let OUTDATED=false, LOCAL0=null;
 function chip(state,txt){
   const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
@@ -1961,7 +1961,11 @@ document.getElementById("segM").addEventListener("click",(e)=>{
   render(); window.scrollTo({top:0});
 });
 const PV=document.getElementById("pview");
-PV.addEventListener("input",(e)=>{ if(e.target.id==="pq") renderMode(); });
+// 한글 입력 중(자모 조합 중)에는 화면을 다시 그리지 않음 — 다시 그리면 입력창이 새로 만들어져 'ㄱㅓㅁ'처럼 자모가 풀림
+let PQ_COMPOSING=false;
+PV.addEventListener("compositionstart",(e)=>{ if(e.target.id==="pq") PQ_COMPOSING=true; });
+PV.addEventListener("compositionend",(e)=>{ if(e.target.id==="pq"){ PQ_COMPOSING=false; renderMode(); } });
+PV.addEventListener("input",(e)=>{ if(e.target.id==="pq" && !PQ_COMPOSING && !e.isComposing) renderMode(); });
 PV.addEventListener("change",(e)=>{
   const t=e.target;
   if(t.id==="rShowFlag"){ RSHOWFLAG=t.checked; renderMode(); return; }
