@@ -2304,7 +2304,7 @@ function txApply(){
   });
 }
 function render(){ render0(); if(LANG==="ja") trNode(document.body); txApply(); }
-const BUILD="11.02-G";   // 배포 확인용: 화면 왼쪽 위 날짜 옆에 보여요
+const BUILD="11.02-H";   // 배포 확인용: 화면 왼쪽 위 날짜 옆에 보여요
 function render0(){
   DEFER=false;
   $("today").textContent=`오늘 ${ymd(TODAY)} (${WD[TODAY.getUTCDay()]}) · 버전 ${BUILD}`;
@@ -3502,7 +3502,7 @@ function renderStd(){
   const VK=["ih","ia","eh","ea"];
   // 1화 기준 합계: 병렬·동시 시작·제작 시작과 함께 하는 단계는 빼고, 첫 묶음 기간으로 계산
   const tot=(v)=>{ const w0={line:v[0]==="e"?"ext":"int",voice:v[1]==="a"?"ai":"human",n:""};
-    return st.filter(x=>x.k!=="contract"&&!FB3_OLD.includes(x.k)&&!x.par&&!concOf(x,w0,1)&&!(x.atStart&&x.atStart[v[0]]))
+    return st.filter(x=>x.k!=="contract"&&x.gate!=="info"&&!FB3_OLD.includes(x.k)&&!x.par&&!concOf(x,w0,1)&&!(x.atStart&&x.atStart[v[0]]))
       .reduce((a,x)=>a+(+(x.vf&&x.vf[v]!=null?x.vf[v]:x.v[v])||0),0); };
   let h=`<h2>회차당 공정 (영업일 · 주말·한국 공휴일 제외)</h2>
   <div class="card"><p class="hint" style="margin:0 0 10px">작품마다 <b>제작 라인(내부/외부)</b>과 <b>성우(인간/AI)</b>에 맞는 열이 적용됩니다. 기본은 인간 성우이고, 제작 일정 탭에서 작품별로 AI 성우를 고를 수 있어요. 0은 그 프로세스에 없는 단계예요.</p>
