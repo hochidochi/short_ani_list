@@ -1105,6 +1105,26 @@ td.mlc{white-space:normal!important} td.mlc *{white-space:normal} td.mlc .mld{wi
 .vce b{font-weight:700;color:#1A4FA0} .vce:hover{background:#EEF3FB!important}
 .vce.au{color:#5F6368!important} .vce.au b{color:#3C4043}
 .vcmore{font-size:11.5px!important;color:#70757A!important;padding-left:4px}
+
+/* 공정 기준 표: 공정 요약 문서 스타일 (내부 파랑 · 외부 주황 · 구간 줄) */
+table.std.stdx{max-width:none;font-size:13px;background:#fff;border:1px solid #E3E6EC;border-radius:14px;border-collapse:separate;border-spacing:0;overflow:hidden}
+table.std.stdx thead th{background:#F5F7FA;color:#4A5263;font-weight:700;font-size:12px;padding:9px 10px;border-bottom:1px solid #E3E6EC}
+table.std.stdx thead tr.sgrp th{text-align:center;border-bottom:0;padding:8px 10px 2px}
+table.std.stdx th.gi{background:#EAF1FC!important;color:#2B6FD0!important;text-align:center!important}
+table.std.stdx th.ge{background:#FCF1E3!important;color:#B5651D!important;text-align:center!important}
+table.std.stdx tbody td{padding:8px 10px;border-bottom:1px solid #EEF0F4;vertical-align:middle}
+table.std.stdx tbody td:nth-child(3),table.std.stdx tbody td:nth-child(4){background:#F7FAFE;text-align:center}
+table.std.stdx tbody td:nth-child(5),table.std.stdx tbody td:nth-child(6){background:#FFFAF3;text-align:center}
+table.std.stdx tbody td:first-child{font-weight:700;color:#121826;white-space:normal;min-width:200px}
+table.std.stdx tbody td:first-child .hint{font-weight:400;font-size:11.5px;color:#8A91A0;margin-top:1px}
+table.std.stdx tr.sph td{background:#FAFBFC!important;font-weight:800;font-size:12px;color:#4A5263;padding:10px 10px 6px;border-bottom:1px solid #E3E6EC;text-align:left!important}
+table.std.stdx td:nth-child(n+3):nth-child(-n+6) input.in.n{border:1px solid transparent;background:transparent;text-align:center;font-weight:700;font-size:13.5px;color:#121826}
+table.std.stdx td:nth-child(n+3):nth-child(-n+6) input.in.n:hover{border-color:#D5DAE3;background:#fff} table.std.stdx td:nth-child(n+3):nth-child(-n+6) input.in.n:focus{border-color:#2B6FD0;background:#fff;outline:none}
+table.std.stdx td:nth-child(n+3):nth-child(-n+6) input.in.n[value="0"]{color:#C3C8D1;font-weight:400}
+table.std.stdx td input.in:not(.n){border:1px solid transparent;background:transparent;color:#4A5263}
+table.std.stdx td input.in:not(.n):hover{border-color:#D5DAE3;background:#fff}
+table.std.stdx tfoot td{background:#121826;color:#fff;font-weight:800;border-top:0;padding:10px}
+table.std.stdx tfoot td:nth-child(n+3){text-align:center;font-size:15px}
 </style>
 </head>
 <body>
@@ -2282,7 +2302,7 @@ function txApply(){
   });
 }
 function render(){ render0(); if(LANG==="ja") trNode(document.body); txApply(); }
-const BUILD="11.02-D";   // 배포 확인용: 화면 왼쪽 위 날짜 옆에 보여요
+const BUILD="11.02-F";   // 배포 확인용: 화면 왼쪽 위 날짜 옆에 보여요
 function render0(){
   DEFER=false;
   $("today").textContent=`오늘 ${ymd(TODAY)} (${WD[TODAY.getUTCDay()]}) · 버전 ${BUILD}`;
@@ -3484,10 +3504,13 @@ function renderStd(){
       .reduce((a,x)=>a+(+(x.vf&&x.vf[v]!=null?x.vf[v]:x.v[v])||0),0); };
   let h=`<h2>회차당 공정 (영업일 · 주말·한국 공휴일 제외)</h2>
   <div class="card"><p class="hint" style="margin:0 0 10px">작품마다 <b>제작 라인(내부/외부)</b>과 <b>성우(인간/AI)</b>에 맞는 열이 적용됩니다. 기본은 인간 성우이고, 제작 일정 탭에서 작품별로 AI 성우를 고를 수 있어요. 0은 그 프로세스에 없는 단계예요.</p>
-  <table class="std"><thead><tr><th>단계</th><th>담당 부서</th>${VK.map(k=>`<th class="r">${VAR_LABEL[k]}</th>`).join("")}<th>진행 단위</th><th title="비우면 전 회차">적용 회차</th><th title="다음 단계를 막지 않고 동시에 진행 — 자막 최종 영상본 전까지만 끝나면 됨">병렬</th><th title="앞 단계와 같은 날 시작">동시 시작</th></tr></thead><tbody>`;
+  <table class="std stdx"><thead><tr class="sgrp"><th colspan="2"></th><th class="gi" colspan="2">내부 제작</th><th class="ge" colspan="2">외부 제작</th><th colspan="4"></th></tr><tr><th>단계</th><th>담당 부서</th>${VK.map(k=>`<th class="r ${k[0]==="i"?"gi":"ge"}">${k[1]==="h"?"인간 성우":"AI 성우"}</th>`).join("")}<th>진행 단위</th><th title="비우면 전 회차">적용 회차</th><th title="다음 단계를 막지 않고 동시에 진행 — 자막 최종 영상본 전까지만 끝나면 됨">병렬</th><th title="앞 단계와 같은 날 시작">동시 시작</th></tr></thead><tbody>`;
+  const PH_OF=(k)=>["contract","preP","preRv"].includes(k)?"준비":(k==="prod1"||k==="imgcut")?"영상 제작":["fb3","fix3","author","intAppr","ratingFb","prodF"].includes(k)?"1~3화 검수":["burn","rating"].includes(k)?"마감":"번역 · 사운드";
+  let lastPh="";
   st.forEach((s,i)=>{
+    const ph=PH_OF(s.k); if(ph!==lastPh){ h+=`<tr class="sph"><td colspan="10">${ph}</td></tr>`; lastPh=ph; }
     const num=(k)=>`<input class="in n" style="width:58px" type="number" min="0" max="120" data-i="${i}" data-c="v" data-var="${k}" value="${s.v[k]}">`;
-    h+=`<tr><td>${esc(s.n)}${s.k==="prod1"?`<div class="hint">작품별 설정이 우선 · 새 작품 기본값</div>`:s.k==="contract"?`<div class="hint">제작 시작 N영업일 전까지 (일정 영향 없음)</div>`:s.k==="casting"?`<div class="hint">내부: 첫 묶음만 +2일 · 외부: 제작 시작과 함께 3일 (일정 영향 없음)</div>`:s.k==="dub"?`<div class="hint">외부: '더빙·믹싱' 통으로 · 한 번에 한 묶음씩 · 5화 미만 묶음은 비례 단축</div>`:s.k==="imgcut"?`<div class="hint">외부 1화만 · 1일째 공유 + 1일 피드백 (영상 1차와 동시)</div>`:s.k==="dubchk"?`<div class="hint">외부 1화만 · 첫 묶음 사운드 6일차 공유 + 3일 피드백</div>`:s.k==="burn"?`<div class="hint">외부: 사운드 납품 후 당사가 회차당 1일씩 (자막 번역·입히기)</div>`:s.k==="trans"?`<div class="hint">외부: 제작사가 대사·녹음 대본 준비 (0일)</div>`:s.k==="fb3"?`<div class="hint">내부·외부: 1~3화 영상 1차가 다 나오면 한 번에 피드백 (작가·내부 승인·등급 피드백 포함)</div>`:s.k==="fix3"?`<div class="hint">내부·외부 (외부는 제작사): 피드백 반영해 1~3화 한 번에 수정</div>`:FB3_OLD.includes(s.k)?`<div class="hint">1~3화는 '회차별'로 둔 작품만 적용${s.k==="intAppr"?" · 외부는 4화부터 회차별로 계속":s.k==="prodF"?" · 외부 4화부터는 아래 체크를 켤 때만":""}</div>`:s.k==="rating"&&s.from?`<div class="hint"><b>${s.from.slice(2,4)}.${+s.from.slice(5,7)} 이후 공개분부터</b> 적용 (광고 모델) · 그 전 공개 회차는 0일</div>`:s.k==="vtrans"?`<div class="hint">대사 번역과 동시 시작 · 영상 속 글자 번역·번인 · <b>기간 미정</b>(0이면 일정 영향 없음, 업체 정해지면 일수 입력)</div>`:""}</td>
+    h+=`<tr><td>${esc(s.n)}${s.k==="prod1"?`<div class="hint">작품별 설정이 우선 · 새 작품 기본값</div>`:s.k==="contract"?`<div class="hint">제작 시작 N영업일 전까지 (일정 영향 없음)</div>`:s.k==="casting"?`<div class="hint">작품 1회 · 첫 묶음 전</div>`:s.k==="dub"?`<div class="hint">내부 · 외부 같은 일정 (5화 묶음)</div>`:s.k==="imgcut"?`<div class="hint">외부 1화만 · 영상 1차 전 (각색 · 연출 보고와 병렬)</div>`:s.k==="dubchk"?`<div class="hint">현재 사용 안 함 (0일)</div>`:s.k==="burn"?`<div class="hint">외부: 사운드 납품 후 당사가 회차당 1일씩 (자막 번역·입히기)</div>`:s.k==="trans"?`<div class="hint">내부 · 외부 같은 일정</div>`:s.k==="fb3"?`<div class="hint">내부·외부: 1~3화 영상 1차가 다 나오면 한 번에 피드백 (작가·내부 승인·등급 피드백 포함)</div>`:s.k==="fix3"?`<div class="hint">내부·외부 (외부는 제작사): 피드백 반영해 1~3화 한 번에 수정</div>`:FB3_OLD.includes(s.k)?`<div class="hint">1~3화는 '회차별'로 둔 작품만 적용${s.k==="intAppr"?" · 외부는 4화부터 회차별로 계속":s.k==="prodF"?" · 외부 4화부터는 아래 체크를 켤 때만":""}</div>`:s.k==="rating"&&s.from?`<div class="hint"><b>${s.from.slice(2,4)}.${+s.from.slice(5,7)} 이후 공개분부터</b> 적용 (광고 모델) · 그 전 공개 회차는 0일</div>`:s.k==="vtrans"?`<div class="hint">대사 번역과 동시 시작 · 영상 속 글자 번역·번인 · <b>기간 미정</b>(0이면 일정 영향 없음, 업체 정해지면 일수 입력)</div>`:""}</td>
       <td><input class="in" style="width:130px" data-i="${i}" data-c="team" value="${esc(s.team)}" aria-label="${esc(s.n)} 담당 부서"></td>
       ${VK.map(k=>`<td class="r">${num(k)}${s.vf&&s.vf[k]!=null?`<div class="hint" style="white-space:nowrap">첫 묶음 <input class="in n" style="width:46px;min-height:24px;padding:1px 4px" type="number" min="0" max="120" data-i="${i}" data-c="vf" data-var="${k}" value="${s.vf[k]}"></div>`:""}</td>`).join("")}
       <td>${s.sc==="grp"?`<span class="hint">1~${s.grp||3}화 한번에</span>`:s.k==="contract"?`<span class="hint">작품 1회 · 기한</span>`:s.k==="prod1"?`<span class="hint">회차별 · 순차</span>`:`<select class="in" data-i="${i}" data-c="sc">${Object.entries(SC_LABEL).map(([v,t])=>`<option value="${v}"${s.sc===v?" selected":""}>${t}</option>`).join("")}</select>`}</td>
@@ -3498,7 +3521,7 @@ function renderStd(){
   h+=`</tbody><tfoot><tr><td>1화 기준 합계</td><td class="hint">병렬·동시 진행 제외 · 첫 묶음 기준</td>${VK.map(k=>`<td class="r">${tot(k)}</td>`).join("")}<td colspan="4"></td></tr></tfoot></table>
     <p class="hint" style="margin:10px 0 0">
     <b>영상 등급분류</b>는 광고 모델 적용으로 <b>27.10 이후 공개분부터 15영업일</b>이에요. 그 전에 공개되는 회차는 0일로 계산돼요.<br>
-    <b>사운드 (내부)</b>: 대사집 확정 7 + 성우 더빙 18 + 믹싱 5 = 30일(5회차씩), 첫 묶음에만 성우 캐스팅 2일. <b>사운드 (외부)</b>: 더빙·믹싱 통으로 첫 묶음 30일 · 이후 20일, 한 번에 한 묶음씩(앞 묶음 납품 후 시작), 캐스팅은 제작 시작 1~3일차. AI 성우는 믹싱 2일만 있어요.<br>
+    <b>사운드 (내부)</b>: 대사집 확정 7 + 성우 더빙 18 + 믹싱 5 = 30일(5회차씩), 첫 묶음에만 성우 캐스팅 2일. <b>사운드 (외부)</b>: 11/2부터 내부와 같은 일정 (대사 번역 5 · 대사집 7 · 더빙 18 · 믹싱 5, 5화 묶음). AI 성우는 믹싱 2일만 있어요.<br>
     <b>병렬</b>: 뒤 단계를 막지 않고 동시에 진행하며, 자막 최종 영상본 전까지만 끝나면 됩니다 (자막 번역).<br>
     <b>동시 시작</b>: 1~3화는 작가 승인과 같은 날 시작해서 추가 기간이 없어요. 등급 분류 피드백(1~3화만)과 외부 제작의 내부 승인(4화부터는 2일)이 여기에 해당해요.<br>
     <b>적용 회차</b>: 작가 승인·등급 피드백은 1~3화만. 내부 승인과 영상 최종 수정은 내부 제작 1~3화만, 외부 제작은 전 회차. <b>${BATCH}회차씩</b>: 묶음 안 모든 회차가 준비돼야 시작하고 묶음 전체가 같은 날 끝납니다.</p></div>
