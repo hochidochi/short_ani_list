@@ -1227,20 +1227,20 @@ const DEFAULT_CONF={
     {k:"imgcut",  n:"1화 키컷 이미지 공유", s:"1화 키컷",   team:"제작사 공유 · 당사 피드백", v:{ih:0,ia:0,eh:2,ea:2}, sc:"work", gate:"info", anchor:{stage:"preRv",offset:0}, tx:"영상 1차 전 · 각색·연출 보고와 병렬"},   // 11/02: 1화 키컷 확인 OK → 영상 1차 시작   // 11/02: 이미지 컷 확인 삭제 → 1화 영상 공유로 대체   // 외부: 1화 1일째 주요 컷 3~5장 공유 → 1일 내 피드백 (일정 영향 없음)
     {k:"fb3",     n:"1~3화 통합 피드백", s:"통합 피드백", team:"작가·내부관계자",  v:{ih:10,ia:10,eh:10,ea:10}, sc:"grp",   grp:3},   // 내부·외부: 1~3화 영상 1차가 다 나오면 한 번에 피드백 (작가·내부 승인·등급 피드백 포함)
     {k:"fix3",    n:"1~3화 통합 수정",   s:"통합 수정",   team:"내부 제작팀",      v:{ih:10,ia:10,eh:10,ea:10}, sc:"grp",   grp:3, tx:"외부 제작사"},   // 내부·외부: 피드백 반영해 1~3화 한 번에 수정
-    {k:"author",  n:"작가 승인",         s:"작가 승인",   team:"작가",             v:{ih:5, ia:5, eh:10,ea:10}, sc:"ep",    upto:3},      // 내부: 작가+내부 = 10
-    {k:"intAppr", n:"내부 승인",         s:"내부 승인",   team:"내부관계자",       v:{ih:5, ia:5, eh:2, ea:2},  sc:"ep",    upto:{i:3,e:0}, conc:"ext"},   // 내부: 작가+내부 = 10 (1~3화) · 외부: 1~3화 병렬, 4화부터 2일   // 내부: 1~3화만 · 외부: 전 회차 (1~3화는 작가 승인과 병렬)
+    {k:"author",  n:"작가 승인",         s:"작가 승인",   team:"작가",             v:{ih:10, ia:10, eh:10,ea:10}, sc:"ep",    upto:3},      // 내부: 작가+내부 = 10
+    {k:"intAppr", n:"내부 승인",         s:"내부 승인",   team:"내부관계자",       v:{ih:10, ia:10, eh:2, ea:2},  sc:"ep",    upto:{i:3,e:0}, conc:"author"},   // 11/02: 내부는 작가 승인과 묶어서 10일 (동시 진행)   // 내부: 작가+내부 = 10 (1~3화) · 외부: 1~3화 병렬, 4화부터 2일   // 내부: 1~3화만 · 외부: 전 회차 (1~3화는 작가 승인과 병렬)
     {k:"ratingFb",n:"등급 분류 피드백",   s:"등급 피드백", team:"내부관계자",       v:{ih:2, ia:2, eh:2, ea:2},  sc:"ep",    upto:3, conc:"author"},   // 1~3화만 · 승인과 병렬 (추가 기간 없음)
     {k:"prodF",   n:"영상 최종 수정",     s:"영상 최종",   sx:"영상 수정", team:"내부 제작팀", tx:"외부 제작사", v:{ih:5, ia:5, eh:3, ea:3},  sc:"ep",    upto:{i:3,e:0}},   // 외부: 4화부터 내부 승인 뒤 3영업일 안에 수정   // 내부: 1~3화만 · 외부: 전 회차
     {k:"enshare", n:"EN 컨텐츠 공유",     s:"EN 공유",     team:"CSOP", v:{ih:0,ia:0,eh:0,ea:0}, sc:"batch", mirror:["script","dub"], gate:"info"},   // 공유만 · 일본어 녹음 보내는 묶음·날짜를 그대로 표시 (일정 영향 없음)
-    {k:"trans",   n:"대사 번역",         s:"대사 번역",   team:"CSOP",       v:{ih:5, ia:5, eh:0, ea:0},  sc:"batch"},  // 5회차씩 · 외부: 제작사가 대사·녹음 대본 준비 → 없음
+    {k:"trans",   n:"대사 번역",         s:"대사 번역",   team:"CSOP",       v:{ih:5, ia:5, eh:5, ea:5},  sc:"batch"},  // 5회차씩 · 외부: 제작사가 대사·녹음 대본 준비 → 없음
     {k:"vtrans",  n:"영상 번역 (번인)",   s:"영상 번역",   team:"미정 (업체 선정 중)", v:{ih:0,ia:0,eh:0,ea:0}, sc:"batch", conc:true, par:true, tbdDur:true},   // 대사 번역과 동시 시작 · 기간 미정 (업체 정해지면 공정 기준에서 일수 입력)
-    {k:"script",  n:"성우 대사집 확정",   s:"대사집 확정", team:"외부 성우 사무소",  v:{ih:7, ia:0, eh:0, ea:0},  sc:"batch"},  // ┐ 외부는 '더빙·믹싱'에 포함
-    {k:"subtr",   n:"자막 번역",         s:"자막 번역",   team:"CSOP",       v:{ih:2, ia:2, eh:0, ea:0},  sc:"batch", par:true},   // │ 병렬 (5회차씩)
-    {k:"casting", n:"성우 캐스팅",       s:"성우 캐스팅", team:"외부 성우 사무소",  v:{ih:2, ia:0, eh:3, ea:0},  sc:"work",  gate:"next", atStart:{e:true}, tx:"제작사 후보 · 당사 피드백 2일"},   // │ 사운드 통으로 30 + 최초 묶음만 캐스팅 2일
+    {k:"script",  n:"성우 대사집 확정",   s:"대사집 확정", team:"외부 성우 사무소",  v:{ih:7, ia:0, eh:7, ea:0},  sc:"batch"},  // ┐ 외부는 '더빙·믹싱'에 포함
+    {k:"subtr",   n:"자막 번역",         s:"자막 번역",   team:"CSOP",       v:{ih:2, ia:2, eh:2, ea:2},  sc:"batch", par:true},   // │ 병렬 (5회차씩)
+    {k:"casting", n:"성우 캐스팅",       s:"성우 캐스팅", team:"외부 성우 사무소",  v:{ih:2, ia:0, eh:2, ea:0},  sc:"work",  gate:"next"},   // │ 사운드 통으로 30 + 최초 묶음만 캐스팅 2일
     {k:"castFb",  n:"작가 피드백 · 성우 캐스팅", s:"작가 피드백", team:"PMO 취합 (작가)", v:{ih:3, ia:0, eh:3, ea:0}, sc:"work", gate:"next", tx:"캐스팅 안 작가 확인 · 최초 1회"},   // 10/27 작가 피드백 (성우 캐스팅 최초 1회)
-    {k:"dub",     n:"성우 더빙",         s:"성우 더빙",   team:"외부 성우 사무소",  v:{ih:18,ia:0, eh:20,ea:0}, vf:{eh:30}, sc:"batch", seq:{i:false,e:true}, sx:"더빙·믹싱", tx:"제작사 (자체 진행)", scale:{e:true}},  // │ 외부: 첫 묶음 30 · 이후 20 · 한 묶음씩
-    {k:"dubchk",  n:"1화 더빙본 확인",    s:"더빙본 확인", team:"제작사 공유 · 당사 피드백 3일", v:{ih:0,ia:0,eh:4,ea:0}, sc:"work", gate:"info", anchor:{stage:"dub",offset:5}},   // 외부: 첫 묶음 사운드 6일차 공유 → 3일 내 피드백 → 믹싱 (일정 영향 없음)
-    {k:"mix",     n:"사운드 믹싱 최종본", s:"믹싱 최종본", team:"외부 성우 사무소",  v:{ih:5, ia:2, eh:0, ea:0},  sc:"batch"},  // ┘ 외부 AI 성우: 별도 사운드 과정 없음 (AI 성우는 믹싱 2일만)
+    {k:"dub",     n:"성우 더빙",         s:"성우 더빙",   team:"외부 성우 사무소",  v:{ih:18,ia:0, eh:18,ea:0}, sc:"batch"},   // 11/02: 외부도 내부와 같은 번역·사운드 일정  // │ 외부: 첫 묶음 30 · 이후 20 · 한 묶음씩
+    {k:"dubchk",  n:"1화 더빙본 확인",    s:"더빙본 확인", team:"제작사 공유 · 당사 피드백 3일", v:{ih:0,ia:0,eh:0,ea:0}, sc:"work", gate:"info", anchor:{stage:"dub",offset:5}},   // 외부: 첫 묶음 사운드 6일차 공유 → 3일 내 피드백 → 믹싱 (일정 영향 없음)
+    {k:"mix",     n:"사운드 믹싱 최종본", s:"믹싱 최종본", team:"외부 성우 사무소",  v:{ih:5, ia:2, eh:5, ea:2},  sc:"batch"},  // ┘ 외부 AI 성우: 별도 사운드 과정 없음 (AI 성우는 믹싱 2일만)
     {k:"mixFb",   n:"작가 피드백 · 믹싱 최종본", s:"작가 피드백", team:"PMO 취합 (작가)", v:{ih:3, ia:3, eh:3, ea:3}, sc:"ep", upto:3, tx:"1~3화 믹싱 최종본 작가 확인"},   // 10/27 작가 피드백 (믹싱 최종본 1~3화)
     {k:"burn",    n:"자막 최종 영상본",   s:"자막 최종본", team:"내부 제작팀",      v:{ih:1, ia:1, eh:1, ea:1},  sc:"ep", seq:{i:false,e:true}, sx:"자막 (당사)", tx:"당사 · 자막 번역·입히기"},   // 외부: 사운드 납품 후 회차당 1일씩
     {k:"rating",  n:"영상 등급분류",     s:"등급분류",    team:"영등위",           v:{ih:15,ia:15,eh:15,ea:15}, sc:"batch", from:"2027-10-01"},   // 광고 모델 적용: 27.10 이후 공개분부터
@@ -1677,6 +1677,15 @@ function runMigrations0(){
       l.push({date:"2026-12-28",text:"⚑ 1화 티징 공개",done:false,goal:true});
       edit(w.id,[{p:["cev"],v:l}],true); }
     CONF.migr.push("nightrun-tease-1019"); dirty=true;
+  }
+  if(!has("snd-same-1102")){   // 11/02: 외부 번역·사운드 = 내부와 동일 · 내부 작가 승인 + 내부 승인 묶어서 10일
+    const S=(k)=>CONF.stages.find(x=>x.k===k);
+    ["trans","script","subtr","casting","castFb","dub","dubchk","mix","mixFb"].forEach(k=>{ const st=S(k); if(!st) return; st.v={...st.v,eh:st.v.ih,ea:st.v.ia}; });
+    const dub=S("dub"); if(dub){ dub.vf=null; dub.seq=false; dub.scale=null; dub.sx=""; dub.tx=""; }
+    const cs=S("casting"); if(cs){ cs.atStart=null; }
+    const au=S("author"); if(au) au.v={...au.v,ih:10,ia:10};
+    const ia=S("intAppr"); if(ia){ ia.v={...ia.v,ih:10,ia:10}; ia.conc="author"; }
+    CONF.migr.push("snd-same-1102"); dirty=true; if(MIG) MIG.conf=true;
   }
   if(dirty) saveConf();
 }
@@ -2273,7 +2282,7 @@ function txApply(){
   });
 }
 function render(){ render0(); if(LANG==="ja") trNode(document.body); txApply(); }
-const BUILD="11.02-C";   // 배포 확인용: 화면 왼쪽 위 날짜 옆에 보여요
+const BUILD="11.02-D";   // 배포 확인용: 화면 왼쪽 위 날짜 옆에 보여요
 function render0(){
   DEFER=false;
   $("today").textContent=`오늘 ${ymd(TODAY)} (${WD[TODAY.getUTCDay()]}) · 버전 ${BUILD}`;
