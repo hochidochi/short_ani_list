@@ -236,10 +236,10 @@ const cand0=x=>x.cat!=="제작 중"&&!chk(x);
 const BIG=["신화급 귀속 아이템을 손에 넣었다","사신소년","똑 닮은 딸"];   // 일본 설정 이슈 큼 → 진행 후순위
 const isBig=x=>BIG.includes(x.name);
 const cat2=x=>isBig(x)?"big":x.v==="X"?"npref":x.v==="V"?"pref":"neval";
-const OPT={pref:true,neval:true,npref:false,big:false,chk:false,sec:true,md:{"상":true,"중":true,"하":true,"":true}};   // 기본: 남성향 숏리스트 후보군(내부 제작 선호 + 제작팀 제작 후순위, 판권 확인 중 제외) 활성
+const OPT={pref:true,neval:true,npref:false,big:false,chk:false,sec:false,md:{"상":true,"중":true,"하":true,"":true}};   // 기본: 남성향 숏리스트 후보군(내부 제작 선호 + 제작팀 제작 후순위, 판권 확인 중 제외) 활성
 const OPTL=[["pref","내부 제작 선호","내부제작 V"],["neval","제작팀 제작 후순위",""],["npref","내부 제작 비선호","내부제작 X"],["big","설정 이슈 큰 작품","진행 후순위"]];
-const OPTX=[["chk","판권 확인 중 포함"],["sec","작가 동의 확보 포함"]];
-const active=x=>OPT[cat2(x)]&&(!chk(x)||OPT.chk)&&(!secured(x)||OPT.sec)&&OPT.md[x.md||""];
+const OPTX=[["chk","판권 확인 중 포함"],["sec","기존 후보(작가 동의 확보) 포함"]];
+const active=x=>OPT[cat2(x)]&&(!chk(x)||OPT.chk)&&((!secured(x)&&x.cat!=="기존 후보")||OPT.sec)&&OPT.md[x.md||""];   // 기존 후보는 기본 비활성
 const FILTERS=[["mix","라인업 조합",x=>x.cat!=="제작 중"],["pref","내부 제작 선호 라인업",x=>cand0(x)&&x.v==="V"],["npref","내부 제작 비선호 라인업",x=>cand0(x)&&x.v!=="V"],["chk","현재 판권 확인 중 라인업",chk],["all","전체 라인업",()=>true]];
 const topOK=x=>okSet(x)&&noIss(x);   // 설정집 원작 유지 · 한국 설정 + 이슈 없음
 let F="mix", Q="";
