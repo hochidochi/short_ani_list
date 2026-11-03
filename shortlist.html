@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>숏리스트 검토 · 숏애니 작품 제작 리스트</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--ink:#121826;--ink2:#4A5263;--mute:#8A91A0;--line:#E7E9EE;--soft:#F7F8FA;--blue:#2B6FD0;--blue-bg:#E4EDFB;--green:#1D6B3F;--green-bg:#E3F3E7;--yellow:#8A5A00;--yellow-bg:#FDF1D3;--amber:#8C4A0B;--amber-bg:#FCE6CF;--red:#A12626;--red-bg:#FBE4E4;--pink:#A83268;--pink-bg:#FBE3EE;--sky:#185FA5;--sky-bg:#DDEEFB;--violet:#5B3A9C;--violet-bg:#EEE6FA}
+*{box-sizing:border-box}
+body{margin:0;background:#F1F2F0;color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:13.5px;line-height:1.5}
+.wrap{max-width:1840px;margin:0 auto;padding:28px 24px 56px}
+.head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.head h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chips button{border:1px solid #E1E4EA;background:#fff;border-radius:16px;padding:5px 12px;font:inherit;font-size:13px;color:#3A4152;cursor:pointer}
+.chips button b{margin-left:3px;color:#1B2230}
+.chips button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)} .chips button[aria-pressed="true"] b{color:#fff}
+.chips button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.sep{width:1px;height:20px;background:#E1E4EA;margin:0 4px}
+.q{margin-left:auto;min-width:200px;border:1px solid #E1E4EA;border-radius:10px;padding:7px 10px;font:inherit}
+.desc{font-size:12.5px;color:#7A8293;margin:10px 4px 14px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.ct{font-size:12.5px;color:#7A8293;margin-bottom:10px}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:#EEF0F4;gap:2px}.bar i{display:block;height:100%}
+.leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;font-size:12.5px;color:#3A4152}
+.leg span{display:inline-flex;align-items:center;gap:5px}.leg i{width:9px;height:9px;border-radius:2px;display:inline-block}.leg em{font-style:normal;color:#9AA1AE}
+.rule{background:#EAF0FA;border-radius:12px;padding:10px 16px;margin-bottom:12px;font-size:13px;color:#1B2230}
+.tw{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--soft);color:#7A8293;font-weight:600;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;z-index:1}
+tbody td{padding:7px 12px;border-bottom:1px solid #F0F2F5;vertical-align:middle}
+tbody tr:hover td{background:#FAFBFD} tbody tr:last-child td{border-bottom:0}
+tr.gap td{height:18px;padding:0;border:0;background:#F1F2F0!important}
+tr.grp td{background:#fff!important;padding:14px 14px 10px;border-top:1px solid var(--line);border-bottom:2px solid var(--ink)}
+tr.grp td .gt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+tr.grp td .gt b{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+tr.grp td .gt .gn{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 8px;border-radius:11px;background:var(--ink);color:#fff;font-size:12px;font-weight:800}
+tr.grp td .gt span.gd{font-size:12.5px;color:var(--ink2);font-weight:500}
+tr.grp.g0 td{border-bottom-color:var(--green)} tr.grp.g0 .gn{background:var(--green)}
+tr.grp.g1 td{border-bottom-color:var(--blue)} tr.grp.g1 .gn{background:var(--blue)}
+tr.grp.g3 td{border-bottom-color:#D04A4A} tr.grp.g3 .gn{background:#D04A4A}
+tr.grp.g4 td{border-bottom-color:#A12626} tr.grp.g4 .gn{background:#A12626}
+tr.grp.lT td{border-bottom-color:var(--green)} tr.grp.lT .gn{background:var(--green)} tr.grp.lB td{border-bottom-color:#D04A4A} tr.grp.lB .gn{background:#D04A4A}
+tr.grp.cA td{border-bottom-color:#D04A4A} tr.grp.cA .gn{background:#D04A4A} tr.grp.cB td{border-bottom-color:#8A5A00} tr.grp.cB .gn{background:#8A5A00}
+.chips button.chkb{border-style:dashed} .chips button.chkb[aria-pressed="true"]{background:#8A5A00;border-color:#8A5A00;border-style:solid}
+td.iss.hot{color:#A12626;font-weight:600}
+tr.prio td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
+tr.out td{opacity:.55}
+.nm{min-width:250px} .nm b{font-size:13.5px;font-weight:700;white-space:nowrap;line-height:1.3} .nm small{display:block;color:#8A91A0;font-size:11px;margin-top:1px;white-space:nowrap}
+tbody td{padding:5px 10px!important} thead th{padding:10px 10px!important} td .p{padding:3px 11px;font-size:12px}
+table{min-width:1180px}
+.p{display:inline-flex;align-items:center;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.t-m{background:var(--sky-bg);color:var(--sky)}.t-f{background:var(--pink-bg);color:var(--pink)}.t-mf{background:var(--violet-bg);color:var(--violet)}.t-n{background:#F0F2F5;color:#9AA1AE}
+.c-new{background:var(--ink);color:#fff}.c-low{background:var(--amber-bg);color:var(--amber)}.c-prod{background:var(--green-bg);color:var(--green)}
+.r-ok{background:var(--green-bg);color:var(--green)}.r-chk{background:var(--yellow-bg);color:var(--yellow)}.r-none{background:#F0F2F5;color:#5B6372}
+.s-kr{background:var(--blue-bg);color:#1E4F9E}.s-org{background:var(--green-bg);color:var(--green)}.s-jp{background:var(--red-bg);color:var(--red)}.s-na{background:var(--yellow-bg);color:var(--yellow)}
+.v-y{background:var(--green-bg);color:var(--green)}.v-x{background:var(--red-bg);color:var(--red)}.v-n{color:#B0B6C2;font-weight:500}
+.iss{max-width:400px;color:#3A4152;font-size:12.5px} .iss.none{color:#B0B6C2}
+.memo{max-width:300px;color:var(--ink2);font-size:12px}
+.flag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:0 6px;margin-left:6px;vertical-align:1px}
+.f-ok{background:var(--green-bg);color:var(--green)}.f-out{background:#F0F2F5;color:#6B7280}
+.foot{font-size:12px;color:var(--mute);margin:10px 4px 0}
+@media (max-width:900px){.cards{grid-template-columns:1fr}.q{margin-left:0}}
+
+th.sq,td.sq{width:44px;text-align:center;color:#8A91A0;font-weight:700;font-variant-numeric:tabular-nums}
+tr.grp.lS td{border-bottom-color:#8A91A0} tr.grp.lS .gn{background:#8A91A0}
+tr.grp.aP td{border-bottom-color:var(--green)} tr.grp.aP .gn{background:var(--green)} tr.grp.aN td{border-bottom-color:#5B6372} tr.grp.aN .gn{background:#5B6372}
+tr.grp.aC td{border-bottom-color:#8A5A00} tr.grp.aC .gn{background:#8A5A00} tr.grp.aM td{border-bottom-color:var(--blue)} tr.grp.aM .gn{background:var(--blue)}
+
+.mixbar{display:flex;flex-direction:column;gap:10px}
+.mixopt{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tog{display:inline-flex;align-items:center;gap:7px;border:1.5px solid #C9D2E3;background:#fff;border-radius:12px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;color:#9AA1AE;cursor:pointer}
+.tog i{width:30px;height:17px;border-radius:9px;background:#D5DAE3;position:relative;flex:none;transition:background .15s}
+.tog i::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:left .15s}
+.tog[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)} .tog[aria-pressed="true"] i{background:var(--green)} .tog[aria-pressed="true"] i::after{left:15px}
+.tog b{color:inherit} .tog small{font-weight:500;color:#9AA1AE;font-size:11.5px}
+.tog[data-o="big"][aria-pressed="true"] i{background:#D04A4A}
+.chkx{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink2);cursor:pointer}
+.mixsum{display:flex;align-items:center;gap:12px;font-size:13px} .mixsum b{font-size:16px}
+.btn{border:1px solid #D5DAE3;background:#fff;border-radius:9px;padding:5px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+tr.off td{opacity:.32} tr.off .nm b{text-decoration:line-through}
+tr.on td:first-child{box-shadow:inset 3px 0 0 var(--green)}
+tr.grp.pref td{border-bottom-color:var(--green)} tr.grp.pref .gn{background:var(--green)} tr.grp.neval td{border-bottom-color:#5B6372} tr.grp.neval .gn{background:#5B6372}
+tr.grp.npref td{border-bottom-color:#A12626} tr.grp.npref .gn{background:#A12626} tr.grp.big td{border-bottom-color:#D04A4A} tr.grp.big .gn{background:#D04A4A}
+@media (prefers-reduced-motion:reduce){.tog i,.tog i::after{transition:none}}
+
+td.game{min-width:320px;max-width:440px;font-size:12px;color:var(--ink2);line-height:1.45}
+td.game.hi{color:var(--green);font-weight:700} td.game.lo{color:#9AA1AE}
+table{min-width:1460px}
+
+td.mdc{min-width:300px;max-width:420px} td.mdc .mdn{display:block;font-size:12px;color:var(--ink2);margin-top:3px;line-height:1.45}
+.md-h{background:var(--green-bg);color:var(--green)} .md-m{background:var(--yellow-bg);color:var(--yellow)} .md-l{background:#F0F2F5;color:#8A91A0}
+.mdl{font-size:12.5px;font-weight:700;color:var(--ink2);margin-right:2px} .hint2{font-size:12px;color:#9AA1AE}
+.tog.md[data-md="상"][aria-pressed="true"] i{background:var(--green)} .tog.md[data-md="중"][aria-pressed="true"] i{background:#D9A520} .tog.md[data-md="하"][aria-pressed="true"] i{background:#8A91A0}
+table{min-width:1780px}
+
+th.ck,td.ck{width:36px;text-align:center;padding-left:12px!important;padding-right:0!important}
+td.ck input,th.ck input{width:16px;height:16px;cursor:pointer;accent-color:#121826}
+tr.sel td{background:#FFF8E1!important}
+.selbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 14px;margin-bottom:10px;font-size:13px;position:sticky;top:8px;z-index:3}
+.selbar b{font-size:15px} .btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)} .btn[disabled]{opacity:.4;cursor:default}
+
+.back{font-size:12.5px;color:var(--ink2);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px;background:#fff}
+.back:hover{background:var(--soft)}
+.who{font-size:12px;color:var(--mute);margin-left:auto}
+.sync{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--ink2)}
+.sync[data-s=ok]{background:var(--green-bg);color:var(--green)} .sync[data-s=err]{background:var(--red-bg);color:var(--red)}
+th.vh{text-align:center;white-space:nowrap} th.vp{min-width:44px;background:#F3F5FB}
+td.vt{text-align:center;background:#FAFBFE} td.vt input{width:17px;height:17px;cursor:pointer;accent-color:var(--blue)}
+tr.off td.vt input{opacity:1}
+td.vc{text-align:center}
+.vn{display:inline-block;min-width:24px;font-weight:800;color:var(--mute)} .vn.on{color:#fff;background:var(--blue);border-radius:999px;padding:1px 7px}
+.votebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 14px;margin:8px 0}
+.votebar .vl{font-weight:800;font-size:13px}
+.votebar .vs{font-size:12.5px;padding:2px 9px;border-radius:999px;background:var(--blue-bg);color:var(--sky)} .votebar .vs b{color:var(--ink)}
+.gate{max-width:420px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px;text-align:center}
+.gate h2{margin:0 0 8px;font-size:18px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <a class="back" href="./">← 작품 제작 리스트</a><h1>숏리스트 검토</h1><span class="who" id="who"></span><span class="sync" id="sync"></span>
+    <div class="chips" id="fChips"></div>
+    <input class="q" id="q" placeholder="작품명 검색" aria-label="작품명 검색">
+  </div>
+  <p class="desc">롱리스트(제작팀 · 사업실 · CSOP 의견) 기준 · 제작 중 5작품은 제외 · 각 라인업은 <b>설정집 원작 유지 · 한국 설정(이슈 없음)</b>을 위에, <b>일본판 설정 · 설정집 이슈 있는 작품</b>을 아래에 정리</p>
+  <div class="cards" id="cards"></div>
+  <div class="rule" id="rule"></div>
+  <div class="votebar" id="votebar"></div>
+  <div class="selbar" id="selbar"></div>
+  <div class="tw"><table>
+    <thead><tr><th class="ck"><input type="checkbox" id="ckAll" aria-label="보이는 작품 모두 선택"></th><th class="sq">No.</th><th>타겟</th><th>작품</th><th>구분</th><th>판권 확보</th><th>일본판 설정</th><th>내부제작</th><th>일본 설정 이슈</th><th>제작팀 평가 · 비고</th><th>게임화 가능성</th><th>MD 사업성</th><th class="vh">선호</th><th class="vh vp">유기</th><th class="vh vp">다운</th><th class="vh vp">민수</th><th class="vh vp">도경</th><th class="vh vp">윤정</th></tr></thead>
+    <tbody id="tb"></tbody>
+  </table></div>
+  <p class="foot">일본판 설정: 한국 설정(한국 배경 그대로) · 원작 유지 · 일본 설정(배경 · 이름 등 일본으로 변경) · 내부제작: V = 내부 제작 가능, X = 어려움(제작팀 평가), – = 제작팀 제작 후순위</p>
+</div>
+<script>
+// [번호, 구분, 작품명, 장르, 판권, 일본판 설정, 일본 설정 이슈, 내부제작, 제작팀 평가·비고, 타겟, 시트 회색(제외)]
+const MDV={"1": ["하", "팬덤이 견고한 편이지만 상품 구매가 활발하지 않은 남성 팬덤 위주 · 작화 특성상 상품화에 적합하지 않고 기존 피규어 판매 성과 저조"], "2": ["하", ""], "3": ["하", "MD 전개하기엔 까다로운 소재 · 기존 상품 전개 시 판매 저조"], "4": ["상", "연재 초반 사업 성과가 긍정적이었던 편 · 애니화 시 반응 좋을 것으로 예상"], "5": ["하", "스토리는 매력적이나 캐릭터 매력도가 떨어져 굿즈화 소재 적음"], "6": ["상", "남성향으로 인기 있는 TS 소재 매력도 높음 · 애니 오타쿠향 스토리, 캐릭터 다양해 상품화 전개 유리 · 아이돌물이라 애니 OST가 고퀄로 들어가면 좋을 듯"], "7": ["중", "초반 스토리 몰입도로 1차 MD 성과 긍정적 · 2차 진행 후 스토리 반응 저조로 상품 성과도 저조"], "8": ["중", "웹소설 · 웹툰 글로벌 팬덤이 있는 편 · 기존 사업 성과가 매우 높진 않았으나 애니화 성공 시 가능성 고려"], "9": ["중", "남주 매력도가 높아 상품화 시도 가능성 있음"], "10": ["중", "일본에서의 긍정적 작품 성과를 고려해 일본 현지 원작 상품화 전개 검토 중"], "11": ["상", "커뮤니티 팬덤 견고 · 기존 팝업 성과로 사업성 검증 완료 · MD화하기 적합한 작화 · 세계관 보유"], "12": ["하", "상품화 매력 높지 않음 · 기존 MD 성과 저조"], "13": ["하", "상품화 매력 높지 않음"], "14": ["중", "잘생긴 남주의 매력과 삼각관계 스토리 몰입도 좋음 · 기존 사업 성과 긍정적인 편"], "15": ["중", "작품 팬덤 있는 편 · 남주 매력 높음"], "16": ["하", "흑백"], "17": ["하", "스릴러 장르물 매력도는 높으나 상품화 전개 난이도 높음"], "18": ["상", "애니화되었을 때 매력이 높을 것으로 예상 · 소재 · 캐릭터 다양성 면에서 MD화 가능성 높은 편"], "19": ["하", ""], "20": ["상", "남성향 하렘물로 원작 상품화 판매 성과 좋은 것으로 확인 (저작사 직접 MD 진행 건)"], "21": ["상", "스토리 · 캐릭터 매력도 높음 · 애니화 그림체가 상품화에 더 적합하게 수정되길 희망"], "22": ["하", ""], "23": ["하", ""], "24": ["중", "…아직 팬덤 확인 안 됨 · 상품화에 매력 있는 캐릭터는 부족하나 후반부 남성향 서비스 작화 늘어남"], "25": ["중", "…애매한 편으로 애니화 시 작화가 수정된다면 장르적 매력도는 있을 것으로 예상 · 더그림 기대작"], "26": ["하", ""], "27": ["하", ""], "28": ["하", ""], "29": ["하", ""], "30": ["하", ""], "31": ["하", ""], "32": ["하", ""], "33": ["상", "기존 MD 성과 긍정적 · 추가 MD 진행 예정"], "34": ["하", ""], "35": ["하", ""]};
+const GAME={"1": "대상 작품으로 게임화 2건 계약, 1건 출시(다에리소프트) · 캐릭터가 많고 진영 대립 구도가 뚜렷해 대전 · 수집형 게임으로 이어지기 좋음 · 현재는 한국 집중 조회수, 숏애니로 글로벌 확장되면 …", "2": "대상 작품으로 게임화 1건 출시(스튜디오리코) 후 종료 · 일본 설정에 하렘 요소까지 있어 JP 시장과 궁합이 가장 좋은 편 · 다만 한국 외 시장 노출 · 반응이 떨어짐 · 게임화에 맞는 IP지만 글로벌 조회수 필요", "3": "오컬트 컨셉이 독특해 차별화가 분명하지만 전투 컨셉에 제한이 있음", "4": "글로벌 독자가 더 필요 · 여성 타겟 캐주얼 게임으로 소화 가능", "5": "드라마 장르라 게임화하기 어려움", "6": "글로벌 독자가 더 필요 · 여성 타겟 캐주얼 게임으로 소화 가능", "7": "글로벌 독자가 더 필요 · 남성향이지만 소재 특성상 캐주얼 게임 …", "8": "글로벌 독자가 더 필요 · 여성 타겟 캐주얼 게임으로 소화 가능", "11": "글로벌 독자가 더 필요 · 캐주얼 게임 정도는 시도해볼 수 있음", "12": "일상 로맨스라 게임화 포인트가 약해 우선순위 낮음", "15": "가족 드라마 성격이 강해 게임화 적합도 낮음", "18": "지원사업 계약 건으로 최근 1건 런칭 · 오프라인 부스 등 진행 시 한국에서도 버징이 약했음", "20": "작품 자체 완성도가 아쉬워 원작만으로는 팬덤 확대 범위가 제한됨 …", "21": "게임화 최우선순위", "22": "게임화에 적합하지만 트래픽이 낮음", "23": "게임화 우선순위가 높지만 글로벌 트래픽이 더 필요", "24": "서브컬처류로 게임화에 적합 · 회차 축적과 글로벌 트래픽이 더 필요", "25": "게임화에 적합하지만 트래픽이 낮음", "26": "게임화에 적합하지만 트래픽이 낮음", "28": "스토리 부족(신작), 캐릭터 부족", "32": "지원사업으로 1건 계약 · 개발 중 (26년 말~27년 초 런칭 예정) · 게임화에는 적합하나 트래픽이 아쉬움", "33": "트래픽이 아쉬움", "35": "수인 코드로 게임화에 적합 · 숏애니로 트래픽을 확보하면 게임 추진 …", "36": "캐릭터는 귀엽지만 한국 외 지역 인지도가 없음 (디자인은 동양권에서 선호)", "38": "용돌 게임 1건 서비스 중 · 고정 팬덤은 있으나 볼륨이 작고 한국 집중형", "39": "SF 장르라 팬덤이 제한적 · 작화 호불호와 초반 몰입 난이도가 높음", "40": "비주류 장르 · 한국 위주 트래픽"};
+const D=[
+[1,"기존 후보","초인의 시대","액션","작가 동의 확보","한국 설정","폭발 장면(버섯 구름) 크롭 처리 (182화)","","","남성향",0],
+[2,"기존 후보","신화급 귀속 아이템을 손에 넣었다","판타지","작가 동의 확보","일본 설정","원작의 일본 등장 장면 → 일본판에서는 일본 내 지역으로 의역 (일본 연합 → 서일본 등)","V","","남성향",0],
+[3,"기존 후보","샤MONEY즘","판타지","작가 동의 확보","한국 설정","","V","","남성향",0],
+[4,"기존 후보","하루만 네가 되고 싶어","로맨스","작가 동의 확보","원작 유지","없음","","","여성향",1],
+[5,"신규 후보","상남자","드라마","","일본 설정","","","","남성향",0],
+[6,"신규 후보","오늘의 한요일은 여자다","드라마","","한국 설정","","","","남성향",0],
+[7,"신규 후보","내 최애는 막차를 탄다","로맨스","","한국 설정","실재 음악가 이름 복자 처리 다수 (예: 스티 X바이, B틀즈)","V","","남성향",0],
+[8,"신규 후보","울어 봐, 빌어도 좋고","로맨스","확인 중","원작 유지","없음","X","아트 스타일이 매우 뚜렷해 고도화하기 어려운 작품","여성향",0],
+[9,"신규 후보","이기적 연애론","로맨스","확인 중","일본 설정","","","","여성향",0],
+[10,"신규 후보","미스 펜들턴","로맨스","확인 중","원작 유지","학교명 등 실재 용어는 일본판에서 변경 (옥X퍼드 등)","","","여성향",1],
+[11,"신규 후보","우리 길드 아이돌","로맨스","확인 중","한국 설정","없음","","","여성향",1],
+[12,"신규 후보","속아주고싶어","로맨스","확인 중","한국 설정","무한도전 패러디 일부 삭제 (8화)","","","여성향",1],
+[13,"신규 후보","다정한 침입자","로맨스","확인 중","한국 설정","일부 캐릭터 이름 변경 (홍다은 → ホン・ダヒ)","","","여성향",1],
+[14,"신규 후보","해시태그는 첫사랑","로맨스","확인 중","일본 설정","캐릭터명 일본 이름 외 없음 · 지역명(서울)은 도시 등으로 번역","","","여성향",0],
+[15,"신규 후보","시월드가 내게 집착한다","로맨스","확인 중","원작 유지","없음","","","여성향",0],
+[16,"신규 후보","제물 투표","스릴러","","일본 설정","","V","","여·남",0],
+[17,"신규 후보","똑 닮은 딸","스릴러","확인 중","일본 설정","캐릭터명 · 지역 일본으로 모두 변경 · 한복 등장 장면 삭제 · 군대 언급 장면 의역","V","","여성향",0],
+[18,"신규 후보","사신소년","액션","","일본 설정","이순신 영혼 등장 · 일본군 대사 삭제 · 실재 영혼 다수 복자 처리 · 캐릭터명 일본 이름 · 수학여행 배경 변경","","","남성향",0],
+[19,"신규 후보","나쁜사람","액션","","일본 설정","","","","남성향",0],
+[20,"신규 후보","아카데미에서 살아남기","판타지","","원작 유지","없음","","","남성향",1],
+[21,"신규 후보","오늘만 사는 기사","판타지","","원작 유지","없음","X","전투 연출이 이펙트 없이 묵직한 물리 타격감 위주라 현재 제작력 · 기술로는 어렵다고 판단","남성향",0],
+[22,"신규 후보","66666년 만에 환생한 흑마법사","판타지","","원작 유지","","V","","남성향",0],
+[23,"신규 후보","회귀한 용병은 다 계획이 있다","판타지","","원작 유지","없음","V","","남성향",0],
+[24,"신규 후보","악당들의 후원자가 되었다","판타지","","원작 유지","없음","","","남성향",1],
+[25,"신규 후보","양치기 마법사","판타지","","원작 유지","없음","","","남성향",0],
+[26,"신규 후보","마왕인데 용사가 너무 많음","판타지","","원작 유지","","","","남성향",0],
+[27,"신규 후보","내가 죽인 드래곤과 결혼했다","판타지","","원작 유지","없음","","","남성향",1],
+[28,"신규 후보","세상에 나쁜 영애는 없다","판타지","","원작 유지","없음","","","남성향",1],
+[29,"신규 후보","검술명가의 네크로맨서","판타지","","원작 유지","없음","V","","남성향",0],
+[30,"신규 후보","어느 마법사의 식당","판타지","","원작 유지","없음","","","남성향",0],
+[31,"기존 후보","심해수","판타지","작가 동의 확보","한국 설정","없음","V","","남성향",0],
+[32,"기존 후보","잔불의 기사","판타지","작가 동의 확보","원작 유지","없음","V","","남성향",0],
+[33,"기존 후보","작두","판타지","작가 동의 확보","한국 설정","저작권 이슈 삭제 처리: 도라에몽(32화), 보노보노(19화)","V","","여·남",0],
+[34,"기존 후보","악당의 사연","개그","작가 동의 확보","일본 런칭 예정 없음","","","","남성향",0],
+[35,"기존 후보","어느 날 해출링이 되었다","판타지","작가 동의 확보","원작 유지","저작권 이슈 삭제 처리: 별의 커비(10화) · 번역본에서 해출링 용어 정리","","","남성향",1],
+[36,"제작 중","냐한 남자","로맨스","작가 동의 확보","","","V","","여성향",0],
+[37,"제작 중","소녀바둑","드라마","작가 동의 확보","","","V","","여성향",0],
+[38,"제작 중","용사가 돌아왔다","판타지","작가 동의 확보","","","V","","남성향",0],
+[39,"제작 중","나이트런","판타지","작가 동의 확보","","","V","","남성향",0],
+[40,"제작 중","쪽팔려 게임","스릴러","작가 동의 확보","","","V","","여성향",0]
+].map(r=>({no:r[0],cat:r[1],name:r[2],genre:r[3],rights:r[4],set:r[5],iss:r[6],v:r[7],memo:r[8],tgt:r[9],out:r[10],game:GAME[r[0]]||"",md:(MDV[r[0]]||["",""])[0],mdn:(MDV[r[0]]||["",""])[1]}));
+const okSet=x=>x.set==="한국 설정"||x.set==="원작 유지";
+const prio=x=>x.cat!=="제작 중"&&okSet(x)&&x.v==="V";
+const secured=x=>/작가 동의/.test(x.rights);
+const noIss=x=>!x.iss||x.iss==="없음";
+const clean=x=>prio(x)&&noIss(x);   // 이슈 없고 모두 충족: 한국 설정 · 원작 유지 + 일본 설정 이슈 없음 + 내부제작 V
+const GROUP=x=>x.cat==="제작 중"?"g5":clean(x)?"g0":prio(x)?"g1":x.set==="일본 설정"?"g3":x.v==="X"?"g4":x.set==="일본 런칭 예정 없음"?"g6":"g2";
+const GL={pref:["내부 제작 선호","내부제작 V"],neval:["제작팀 제작 후순위","내부제작 V · X 표시 없음"],npref:["내부 제작 비선호","내부제작 X"],big:["설정 이슈 큰 작품","일본판 설정 변경이 커서 진행 후순위"],lS:["작가 동의 확보","이미 동의를 받은 작품 · 1차 동의 요청에서 제외"],aP:["내부 제작 선호 라인업","내부제작 V"],aN:["내부 제작 비선호 라인업","내부제작 X 또는 제작팀 제작 후순위"],aC:["현재 판권 확인 중 라인업","판권 확인 전"],aM:["제작 중","이미 제작 진행"],lT:["설정집 원작 유지 · 한국 설정","일본판 설정 이슈 없음 · 우선순위"],lB:["일본판 설정 · 설정집 이슈 있음","배경 · 이름 변경 또는 장면 처리 필요 · 일본 런칭 예정 없음 포함"],cA:["설정집 이슈 있음","일본판 설정 변경 또는 장면 · 이름 처리 필요"],cB:["설정집 이슈 없음","판권 확인만 끝나면 검토 가능"],g0:["이슈 없음 · 모두 충족","한국 설정 · 원작 유지 + 일본 설정 이슈 없음 + 내부제작 V"],g1:["우선순위 · 이슈 있음","한국 설정 · 원작 유지 + 내부제작 V · 일부 장면 처리 필요"],g2:["제작팀 제작 후순위","한국 설정 · 원작 유지 · 내부제작 V 표시 없음"],g3:["일본 설정","배경 · 이름 등 일본판 변경 필요"],g4:["내부제작 어려움","제작팀 평가 X"],g6:["일본 런칭 예정 없음",""],g5:["제작 중","이미 제작 진행"]};
+const lowInt=x=>x.cat!=="제작 중"&&x.v!=="V";   // 내부제작 후순위: 평가 X 또는 미평가
+const chk=x=>(x.rights||"").trim()==="확인 중";   // 판권 확인 중 → 별도 탭
+const setIss=x=>x.set==="일본 설정"||!noIss(x);
+const cand0=x=>x.cat!=="제작 중"&&!chk(x);
+const BIG=["신화급 귀속 아이템을 손에 넣었다","사신소년","똑 닮은 딸"];   // 일본 설정 이슈 큼 → 진행 후순위
+const isBig=x=>BIG.includes(x.name);
+const cat2=x=>isBig(x)?"big":x.v==="X"?"npref":x.v==="V"?"pref":"neval";
+const OPT={pref:true,neval:true,npref:false,big:false,chk:false,sec:true,md:{"상":true,"중":true,"하":true,"":true}};   // 기본: 남성향 숏리스트 후보군(내부 제작 선호 + 제작팀 제작 후순위, 판권 확인 중 제외) 활성
+const OPTL=[["pref","내부 제작 선호","내부제작 V"],["neval","제작팀 제작 후순위",""],["npref","내부 제작 비선호","내부제작 X"],["big","설정 이슈 큰 작품","진행 후순위"]];
+const OPTX=[["chk","판권 확인 중 포함"],["sec","작가 동의 확보 포함"]];
+const active=x=>OPT[cat2(x)]&&(!chk(x)||OPT.chk)&&(!secured(x)||OPT.sec)&&OPT.md[x.md||""];
+const FILTERS=[["mix","라인업 조합",x=>x.cat!=="제작 중"],["pref","내부 제작 선호 라인업",x=>cand0(x)&&x.v==="V"],["npref","내부 제작 비선호 라인업",x=>cand0(x)&&x.v!=="V"],["chk","현재 판권 확인 중 라인업",chk],["all","전체 라인업",()=>true]];
+const topOK=x=>okSet(x)&&noIss(x);   // 설정집 원작 유지 · 한국 설정 + 이슈 없음
+let F="mix", Q="";
+const SEL=new Set();   // 왼쪽 체크박스로 고른 작품 (번호)
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const P=(cls,t)=>`<span class="p ${cls}">${esc(t)}</span>`;
+function bar(title,items){ const tot=items.reduce((a,b)=>a+b[1],0)||1; return `<div class="card"><div class="ct">${title}</div><div class="bar">${items.filter(i=>i[1]).map(([l,n,c])=>`<i style="width:${n/tot*100}%;background:${c}"></i>`).join("")}</div><div class="leg">${items.map(([l,n,c])=>`<span><i style="background:${c}"></i>${l} <b>${n}</b> <em>${Math.round(n/tot*100)}%</em></span>`).join("")}</div></div>`; }
+function draw(){
+  const base=D;
+  document.getElementById("fChips").innerHTML=FILTERS.map(([k,l,f])=>(k==="chk"?`<span class="sep"></span>`:"")+`<button type="button" data-f="${k}" aria-pressed="${F===k}"${k==="chk"?' class="chkb"':""}>${l} <b>${D.filter(f).length}</b></button>`).join("");
+  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{ F=b.dataset.f; draw(); });
+  const cand=F==="mix"?D.filter(x=>x.cat!=="제작 중"&&active(x)):D.filter(FILTERS.find(z=>z[0]===F)[2]);
+  document.getElementById("cards").innerHTML=
+    bar("일본판 설정",[["한국 설정",cand.filter(x=>x.set==="한국 설정").length,"#2B6FD0"],["원작 유지",cand.filter(x=>x.set==="원작 유지").length,"#2E9B6A"],["일본 설정",cand.filter(x=>x.set==="일본 설정").length,"#D04A4A"],["일본 런칭 없음",cand.filter(x=>x.set==="일본 런칭 예정 없음").length,"#E5C44F"]])+
+    bar("내부제작 평가",[["V 가능",cand.filter(x=>x.v==="V").length,"#2E9B6A"],["X 어려움",cand.filter(x=>x.v==="X").length,"#D04A4A"],["제작 후순위",cand.filter(x=>!x.v).length,"#B8BFCC"]])+
+    bar("타겟",[["남성향",cand.filter(x=>x.tgt==="남성향").length,"#3B8FD9"],["여성향",cand.filter(x=>x.tgt==="여성향").length,"#D6458A"],["여·남",cand.filter(x=>x.tgt==="여·남").length,"#7F56C2"],["미정",cand.filter(x=>!x.tgt).length,"#B8BFCC"]]);
+  const f=FILTERS.find(z=>z[0]===F)[2];
+  const L=D.filter(f).filter(x=>!Q||x.name.replace(/\s/g,"").includes(Q.replace(/\s/g,""))).filter(x=>!VOTE_ONLY||vcount(x.name)>0);
+  const RULE={pref:"내부제작 V 작품 · 설정집 원작 유지 · 한국 설정 → 일본판 설정 · 설정집 이슈 있음 → 작가 동의 확보(요청 제외) 순서",npref:"내부제작 X 또는 제작팀 제작 후순위 작품 · 같은 기준으로 구분 · 작가 동의 확보 작품은 맨 아래",all:"롱리스트 40작품 전체 · 선호 → 비선호 → 판권 확인 중 → 제작 중 순서",clean:"한국 설정 · 원작 유지 + 일본 설정 이슈 없음 + 내부제작 V를 모두 충족하는 작품 (판권 확인 중 작품 제외)",all:"판권 확인 중 작품을 뺀 롱리스트 전체 · 묶음별로 정리",chk:"판권 확인이 끝나지 않은 작품 · 이번 신규 확정 대상과 분리 · 설정집(일본판 설정) 이슈가 있는 작품을 먼저 보여줌",jp:"일본판에서 배경 · 캐릭터 이름 등을 일본으로 바꿔야 하는 작품",low:"내부제작 X 또는 제작팀 제작 후순위 작품"};
+  if(F==="mix"){ const pool=D.filter(x=>x.cat!=="제작 중"), act=pool.filter(active);
+    document.getElementById("rule").innerHTML=`<div class="mixbar"><div class="mixopt">${OPTL.map(([k,l,s])=>`<button type="button" class="tog" data-o="${k}" aria-pressed="${OPT[k]}"><i></i>${l} <b>${pool.filter(x=>cat2(x)===k).length}</b>${s?`<small>${s}</small>`:""}</button>`).join("")}<span class="sep"></span>${OPTX.map(([k,l])=>`<label class="chkx"><input type="checkbox" data-o="${k}"${OPT[k]?" checked":""}> ${l}</label>`).join("")}</div>
+      <div class="mixopt"><span class="mdl">MD 사업성</span>${["상","중","하"].map(m=>`<button type="button" class="tog md" data-md="${m}" aria-pressed="${OPT.md[m]}"><i></i>MD ${m} <b>${pool.filter(x=>x.md===m).length}</b></button>`).join("")}<span class="hint2">끄면 해당 MD 등급 작품이 비활성 · 제작 중 작품은 MD 평가 없음</span></div>
+      <div class="mixsum"><span>활성 <b>${act.length}</b>작품 · 비활성 ${pool.length-act.length}작품</span><button type="button" class="btn" id="cpy">활성 작품 복사 (동의 확보 제외 ${act.filter(x=>!secured(x)).length})</button></div></div>`;
+    document.querySelectorAll(".tog[data-o]").forEach(b=>b.onclick=()=>{ OPT[b.dataset.o]=!OPT[b.dataset.o]; draw(); });
+    document.querySelectorAll(".chkx input[data-o]").forEach(c=>c.onchange=()=>{ OPT[c.dataset.o]=c.checked; draw(); });
+    document.querySelectorAll(".tog[data-md]").forEach(b=>b.onclick=()=>{ OPT.md[b.dataset.md]=!OPT.md[b.dataset.md]; draw(); });
+    document.getElementById("cpy").onclick=()=>{ const txt=act.filter(x=>!secured(x)).sort((a,b)=>["pref","neval","npref","big"].indexOf(cat2(a))-["pref","neval","npref","big"].indexOf(cat2(b))||(topOK(b)-topOK(a))||(a.no-b.no)).map(x=>"* "+x.name).join("\n"); navigator.clipboard&&navigator.clipboard.writeText(txt).then(()=>{ const b=document.getElementById("cpy"); const tt=b.textContent; b.textContent="복사했어요"; setTimeout(()=>b.textContent=tt,1500); return; const t0=b.textContent; setTimeout(()=>b.textContent=t0,1500); }); };
+  } else document.getElementById("rule").innerHTML=`<b>${FILTERS.find(z=>z[0]===F)[1]} ${L.length}작품</b> · ${RULE[F]}`;
+  const order=F==="mix"?["pref","neval","npref","big"]:F==="all"?["aP","aN","aC","aM"]:F==="chk"?["cA","cB"]:["lT","lB","lS"]; let h="", seq=0;
+  const GRP=x=>F==="mix"?cat2(x):F==="all"?(x.cat==="제작 중"?"aM":chk(x)?"aC":x.v==="V"?"aP":"aN"):F==="chk"?(setIss(x)?"cA":"cB"):(secured(x)?"lS":topOK(x)?"lT":"lB");
+  const SO=x=>x.set==="원작 유지"?0:x.set==="한국 설정"?1:x.set==="일본 설정"?2:3;
+  order.forEach(g=>{ const rows=L.filter(x=>GRP(x)===g).sort((a,b)=>(F==="all"?(topOK(b)-topOK(a)):0)||(secured(a)-secured(b))||(SO(a)-SO(b))||(a.no-b.no)); if(!rows.length) return;   // 미확인(신규) 먼저, 작가 동의 확보는 아래
+    if(h) h+=`<tr class="gap"><td colspan="18"></td></tr>`;
+    h+=`<tr class="grp ${g}"><td colspan="18"><div class="gt"><b>${GL[g][0]}</b><span class="gn">${rows.length}</span>${GL[g][1]?`<span class="gd">${GL[g][1]}</span>`:""}</div></td></tr>`;
+    rows.forEach(x=>{ const tc=x.tgt==="남성향"?"t-m":x.tgt==="여성향"?"t-f":x.tgt==="여·남"?"t-mf":"t-n";
+      const cc=x.cat==="신규 후보"?"c-new":x.cat==="기존 후보"?"c-low":"c-prod";
+      const rc=/작가 동의/.test(x.rights)?"r-ok":/확인/.test(x.rights)?"r-chk":"r-none";
+      const sc=x.set==="한국 설정"?"s-kr":x.set==="원작 유지"?"s-org":x.set==="일본 설정"?"s-jp":x.set?"s-na":"";
+      const vv=x.v==="V"?P("v-y","V"):x.v==="X"?P("v-x","X"):`<span class="v-n">–</span>`;
+      const flag=isBig(x)?`<span class="flag" style="background:var(--red-bg);color:var(--red)">설정 이슈 큼 · 후순위</span>`:(F==="mix"&&secured(x)?`<span class="flag f-ok">동의 확보</span>`:"")+(F==="mix"&&chk(x)?`<span class="flag" style="background:var(--yellow-bg);color:var(--yellow)">판권 확인 중</span>`:"");
+      seq++;
+      const off=F==="mix"&&!active(x);
+      h+=`<tr class="${off?"off":F==="mix"?"on":F!=="chk"&&F!=="all"&&topOK(x)?"prio":""}${SEL.has(x.no)?" sel":""}"><td class="ck"><input type="checkbox" data-ck="${x.no}"${SEL.has(x.no)?" checked":""} aria-label="${esc(x.name)} 선택"></td><td class="sq">${seq}</td><td>${P(tc,x.tgt||"미정")}</td>
+        <td class="nm"><b>${esc(x.name)}</b>${flag}<small>${esc(x.genre)} · ${x.no}번</small></td>
+        <td>${P(cc,x.cat)}</td><td>${P(rc,x.rights||"미확인")}</td><td>${sc?P(sc,x.set):`<span class="v-n">–</span>`}</td><td>${vv}</td>
+        <td class="iss${!x.iss||x.iss==="없음"?" none":""}${F==="chk"&&setIss(x)&&!noIss(x)?" hot":""}">${esc(x.iss||"–")}</td><td class="memo">${esc(x.memo||"")}</td><td class="game${/최우선|우선순위가 높/.test(x.game)?" hi":/어려|우선순위 낮음|적합도 낮음/.test(x.game)?" lo":""}">${esc(x.game||"–")}</td><td class="mdc">${x.md?`<span class="p md-${x.md==="상"?"h":x.md==="중"?"m":"l"}">${x.md}</span>`:`<span class="v-n">–</span>`}${x.mdn?`<span class="mdn">${esc(x.mdn)}</span>`:""}</td>${voteCells(x)}</tr>`; }); });
+  window.__ORDER=[]; L.length&&order.forEach(g=>L.filter(x=>GRP(x)===g).sort((a,b)=>(F==="all"?(topOK(b)-topOK(a)):0)||(secured(a)-secured(b))||(SO(a)-SO(b))||(a.no-b.no)).forEach(x=>window.__ORDER.push(x)));
+  setTimeout(()=>{ selBar(); syncAll(); },0);
+  voteBar();
+  document.getElementById("tb").innerHTML=h||`<tr><td colspan="18" style="text-align:center;color:var(--mute);padding:20px">해당 작품이 없어요</td></tr>`;
+}
+function selBar(){ const n=SEL.size, el=document.getElementById("selbar");
+  el.innerHTML=`<span><b>${n}</b>작품 선택</span><button type="button" class="btn pri" id="cpySel"${n?"":" disabled"}>선택 작품 복사</button><button type="button" class="btn" id="clrSel"${n?"":" disabled"}>선택 해제</button><span class="hint2">왼쪽 체크박스로 고르면 고른 작품만 '* 작품명' 목록으로 복사돼요</span>`;
+  el.querySelector("#cpySel").onclick=()=>{ const all=D.slice().sort((a,b)=>{ const o=window.__ORDER||[]; const ia=o.indexOf(a), ib=o.indexOf(b); return (ia<0?1e4+a.no:ia)-(ib<0?1e4+b.no:ib); });
+    const txt=all.filter(x=>SEL.has(x.no)).map(x=>"* "+x.name).join("\n"); const b=el.querySelector("#cpySel");
+    const ok=()=>{ b.textContent="복사했어요"; setTimeout(()=>selBar(),1400); };
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok,()=>{ const t=document.createElement("textarea"); t.value=txt; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); ok(); });
+    else { const t=document.createElement("textarea"); t.value=txt; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); ok(); } };
+  el.querySelector("#clrSel").onclick=()=>{ SEL.clear(); draw(); };
+}
+document.getElementById("tb").addEventListener("change",e=>{ const c=e.target.closest("input[data-ck]"); if(!c) return; const n=+c.dataset.ck; if(c.checked) SEL.add(n); else SEL.delete(n); c.closest("tr").classList.toggle("sel",c.checked); selBar(); syncAll(); });
+function syncAll(){ const cs=[...document.querySelectorAll("#tb input[data-ck]")], a=document.getElementById("ckAll"); a.checked=cs.length&&cs.every(c=>c.checked); a.indeterminate=!a.checked&&cs.some(c=>c.checked); }
+document.getElementById("ckAll").addEventListener("change",e=>{ document.querySelectorAll("#tb input[data-ck]").forEach(c=>{ const n=+c.dataset.ck; if(e.target.checked) SEL.add(n); else SEL.delete(n); }); draw(); });
+document.getElementById("q").oninput=e=>{ Q=e.target.value; draw(); };
+
+/* ═══ 팀 선호 투표 (유기 · 다운 · 민수 · 도경 · 윤정) ═══════════════════════
+   작품 제작 리스트와 같은 로그인·공유 저장소를 씁니다. 저장 위치: candidate_issues 의 '__votes__' 행
+   사람별로 따로 저장해서(한 사람 칸만 보냄) 여러 명이 동시에 체크해도 서로 덮어쓰지 않아요. */
+const VOTERS=["유기","다운","민수","도경","윤정"];
+const SB_URL="https://znbuabcfjvlzulxnvuux.supabase.co", SB_KEY="sb_publishable_V5IW1OvGcyHDAC4OtjhR6g_Y2a8nT8t";
+let sbc=null, VOTES={}, VOTE_ONLY=false, LASTVP=0;
+async function hdr(){ const t=sbc?(await sbc.auth.getSession()).data.session?.access_token:null;
+  return Object.assign({apikey:SB_KEY,"Content-Type":"application/json"}, t?{Authorization:`Bearer ${t}`}:{}); }
+const vset=(p)=>VOTES[p]||(VOTES[p]={});
+const vcount=(name)=>VOTERS.filter(p=>VOTES[p]&&VOTES[p][name]).length;
+function voteCells(x){
+  const n=vcount(x.name), who=VOTERS.filter(p=>VOTES[p]&&VOTES[p][x.name]);
+  return `<td class="vc"><span class="vn${n?" on":""}" title="${esc(who.join(", ")||"선호 없음")}">${n||"–"}</span></td>`+
+    VOTERS.map(p=>`<td class="vt"><input type="checkbox" data-vp="${p}" data-vn="${esc(x.name)}"${VOTES[p]&&VOTES[p][x.name]?" checked":""} aria-label="${p} 선호 ${esc(x.name)}"></td>`).join("");
+}
+function voteBar(){
+  const el=document.getElementById("votebar"); if(!el) return;
+  el.innerHTML=`<span class="vl">팀 선호</span>${VOTERS.map(p=>`<span class="vs">${p} <b>${Object.keys(VOTES[p]||{}).length}</b></span>`).join("")}
+    <label class="chkx"><input type="checkbox" id="voteOnly"${VOTE_ONLY?" checked":""}> 선호 표시된 작품만 보기</label>
+    <span class="hint2">각자 이름 칸에 선호하는 작품을 체크해 주세요 · 체크는 팀 전체에 바로 공유돼요</span>`;
+  document.getElementById("voteOnly").onchange=(e)=>{ VOTE_ONLY=e.target.checked; draw(); };
+}
+async function loadVotes(){
+  if(!sbc) return;
+  try{ const r=await fetch(`${SB_URL}/rest/v1/candidate_issues?id=eq.__votes__&select=data`,{headers:await hdr()});
+       const j=await r.json(); if(!Array.isArray(j)) throw new Error(JSON.stringify(j).slice(0,120));
+       const d=(j[0]&&j[0].data)||{}; const next={}; VOTERS.forEach(p=>next[p]=d[p]||{});
+       if(JSON.stringify(next)!==JSON.stringify(VOTES)){ VOTES=next; draw(); }
+       setSync("ok","공유 저장소 연결됨"); }
+  catch(e){ setSync("err","선호 불러오기 실패 — 새로고침해 주세요"); }
+}
+async function saveVote(p){
+  LASTVP=Date.now();
+  try{ const r=await fetch(`${SB_URL}/rest/v1/candidate_issues`,{method:"POST",
+         headers:{...(await hdr()),Prefer:"resolution=merge-duplicates,return=minimal"},
+         body:JSON.stringify({id:"__votes__",data:{[p]:VOTES[p]||{}},updated_at:new Date().toISOString()})});   // 내 칸만 보냄 → 다른 사람 칸은 DB가 그대로 유지
+       if(!r.ok) throw new Error(r.status); setSync("ok","저장됨 — 모두에게 반영"); }
+  catch(e){ setSync("err","저장 실패 — 다시 체크해 주세요"); }
+}
+function setSync(k,t){ const el=document.getElementById("sync"); if(el){ el.dataset.s=k; el.textContent=t; } }
+document.getElementById("tb").addEventListener("change",e=>{
+  const c=e.target.closest("input[data-vp]"); if(!c) return;
+  const p=c.dataset.vp, n=c.dataset.vn, m=vset(p);
+  if(c.checked) m[n]=new Date().toISOString().slice(0,10); else delete m[n];
+  saveVote(p); draw();
+});
+(async()=>{
+  if(!window.supabase){ setSync("err","로그인 모듈을 불러오지 못했어요"); return; }
+  sbc=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+  const s=(await sbc.auth.getSession()).data.session;
+  if(!s){ document.querySelector(".wrap").innerHTML=`<div class="gate"><h2>로그인이 필요해요</h2><p>작품 제작 리스트에서 로그인한 뒤 다시 열어주세요.</p><a class="btn pri" href="./">작품 제작 리스트로 이동</a></div>`; return; }
+  document.getElementById("who").textContent=s.user.email;
+  await loadVotes(); setInterval(()=>{ if(Date.now()-LASTVP>5000) loadVotes(); },20000);
+})();
+draw();
+</script>
+</body>
+</html>
