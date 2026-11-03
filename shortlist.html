@@ -120,7 +120,7 @@ td.vc{text-align:center}
 .gate h2{margin:0 0 8px;font-size:18px}
 
 /* 화면 폭에 맞춰 잘리지 않게: 전체 폭 사용 · 긴 칸은 줄바꿈 · 가로 스크롤 최소화 */
-.wrap{max-width:none!important;padding:20px 20px 48px!important}
+.wrap{max-width:1440px!important;margin:0 auto;padding:22px 20px 48px!important}
 table{min-width:0!important;table-layout:auto}
 .tw{overflow-x:auto}
 thead th{white-space:nowrap!important;font-size:11.5px;line-height:1.3}
@@ -135,7 +135,7 @@ th.vh{width:44px}
 td,th{vertical-align:middle}
 @media(max-width:1400px){ td.game,td.mdc{font-size:11.5px} .iss,.memo{font-size:11.5px} }
 
-@media(max-width:1600px){
+@media(min-width:0px){
   td.game,td.mdc{min-width:130px!important}
   .iss{min-width:110px} .memo{min-width:90px} .nm{min-width:140px!important}
   td .p{padding:2px 7px!important;font-size:11px!important}
@@ -145,7 +145,16 @@ td,th{vertical-align:middle}
 
 td .p{white-space:nowrap!important}
 td.game,td.mdc,td.iss,td.memo{word-break:keep-all;overflow-wrap:anywhere}
-@media(max-width:1600px){ td.game,td.mdc{min-width:110px!important} .iss{min-width:90px} .memo{min-width:70px} }
+
+
+td.memo,td.game,td.mdc{min-width:0!important;max-width:none!important;white-space:nowrap;text-align:center}
+th.ev,thead th{ }
+.p.has{cursor:help}
+.p .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.55;vertical-align:2px;margin-left:2px}
+.ev-1{background:var(--green-bg);color:var(--green)} .ev-2{background:#EEF0F4;color:#5A6273} .ev-3{background:var(--red-bg);color:var(--red)}
+.g-n{background:#EEF0F4;color:#5A6273}
+#tipbox{position:fixed;z-index:50;max-width:380px;background:#121826;color:#fff;font-size:12.5px;line-height:1.55;border-radius:8px;padding:9px 11px;box-shadow:0 6px 20px rgba(0,0,0,.2);pointer-events:none;opacity:0;transition:opacity .08s}
+#tipbox.on{opacity:1}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -162,10 +171,10 @@ td.game,td.mdc,td.iss,td.memo{word-break:keep-all;overflow-wrap:anywhere}
   <div class="votebar" id="votebar"></div>
   <div class="selbar" id="selbar"></div>
   <div class="tw"><table>
-    <thead><tr><th class="ck"><input type="checkbox" id="ckAll" aria-label="보이는 작품 모두 선택"></th><th class="sq">No.</th><th>타겟</th><th>작품</th><th>구분</th><th>판권 확보</th><th>일본판 설정</th><th>내부제작</th><th>일본 설정 이슈</th><th>제작팀 평가 · 비고</th><th>게임화 가능성</th><th>MD 사업성</th><th class="vh">선호</th><th class="vh vp">유기</th><th class="vh vp">다운</th><th class="vh vp">민수</th><th class="vh vp">도경</th><th class="vh vp">윤정</th></tr></thead>
+    <thead><tr><th class="ck"><input type="checkbox" id="ckAll" aria-label="보이는 작품 모두 선택"></th><th class="sq">No.</th><th>타겟</th><th>작품</th><th>구분</th><th>판권 확보</th><th>일본판 설정</th><th>내부제작</th><th>일본 설정 이슈</th><th>제작팀 평가</th><th>게임화</th><th>MD</th><th class="vh">선호</th><th class="vh vp">유기</th><th class="vh vp">다운</th><th class="vh vp">민수</th><th class="vh vp">도경</th><th class="vh vp">윤정</th></tr></thead>
     <tbody id="tb"></tbody>
   </table></div>
-  <p class="foot">일본판 설정: 한국 설정(한국 배경 그대로) · 원작 유지 · 일본 설정(배경 · 이름 등 일본으로 변경) · 내부제작: V = 내부 제작 가능, X = 어려움(제작팀 평가), – = 제작팀 제작 후순위</p>
+  <p class="foot">제작팀 평가: 우선순위(내부제작 V) · 후순위(평가 없음) · 비선호(내부제작 X) · 게임화·MD: 상·중·하 · 점(•)이 있는 배지는 마우스를 올리면 코멘트가 보여요<br>일본판 설정: 한국 설정(한국 배경 그대로) · 원작 유지 · 일본 설정(배경 · 이름 등 일본으로 변경) · 내부제작: V = 내부 제작 가능, X = 어려움(제작팀 평가), – = 제작팀 제작 후순위</p>
 </div>
 <script>
 // [번호, 구분, 작품명, 장르, 판권, 일본판 설정, 일본 설정 이슈, 내부제작, 제작팀 평가·비고, 타겟, 시트 회색(제외)]
@@ -276,7 +285,7 @@ function draw(){
       h+=`<tr class="${off?"off":F==="mix"?"on":F!=="chk"&&F!=="all"&&topOK(x)?"prio":""}${SEL.has(x.no)?" sel":""}"><td class="ck"><input type="checkbox" data-ck="${x.no}"${SEL.has(x.no)?" checked":""} aria-label="${esc(x.name)} 선택"></td><td class="sq">${seq}</td><td>${P(tc,x.tgt||"미정")}</td>
         <td class="nm"><b>${esc(x.name)}</b>${flag}<small>${esc(x.genre)} · ${x.no}번</small></td>
         <td>${P(cc,x.cat)}</td><td>${P(rc,x.rights||"미확인")}</td><td>${sc?P(sc,x.set):`<span class="v-n">–</span>`}</td><td>${vv}</td>
-        <td class="iss${!x.iss||x.iss==="없음"?" none":""}${F==="chk"&&setIss(x)&&!noIss(x)?" hot":""}">${esc(x.iss||"–")}</td><td class="memo">${esc(x.memo||"")}</td><td class="game${/최우선|우선순위가 높/.test(x.game)?" hi":/어려|우선순위 낮음|적합도 낮음/.test(x.game)?" lo":""}">${esc(x.game||"–")}</td><td class="mdc">${x.md?`<span class="p md-${x.md==="상"?"h":x.md==="중"?"m":"l"}">${x.md}</span>`:`<span class="v-n">–</span>`}${x.mdn?`<span class="mdn">${esc(x.mdn)}</span>`:""}</td>${voteCells(x)}</tr>`; }); });
+        <td class="iss${!x.iss||x.iss==="없음"?" none":""}${F==="chk"&&setIss(x)&&!noIss(x)?" hot":""}">${esc(x.iss||"–")}</td><td class="memo">${evalBadge(x)}</td><td class="game">${grade(GG[x.no],x.game)}</td><td class="mdc">${grade(x.md,x.mdn)}</td>${voteCells(x)}</tr>`; }); });
   window.__ORDER=[]; L.length&&order.forEach(g=>L.filter(x=>GRP(x)===g).sort((a,b)=>(F==="all"?(topOK(b)-topOK(a)):0)||(secured(a)-secured(b))||(SO(a)-SO(b))||(a.no-b.no)).forEach(x=>window.__ORDER.push(x)));
   setTimeout(()=>{ selBar(); syncAll(); },0);
   voteBar();
@@ -296,6 +305,24 @@ function syncAll(){ const cs=[...document.querySelectorAll("#tb input[data-ck]")
 document.getElementById("ckAll").addEventListener("change",e=>{ document.querySelectorAll("#tb input[data-ck]").forEach(c=>{ const n=+c.dataset.ck; if(e.target.checked) SEL.add(n); else SEL.delete(n); }); draw(); });
 document.getElementById("q").oninput=e=>{ Q=e.target.value; draw(); };
 
+
+/* ── 제작팀 평가 · 게임화 · MD: 배지만 보이고 코멘트는 마우스를 올리면 표시 ── */
+const GG={"1": "상", "2": "중", "3": "중", "4": "중", "5": "하", "6": "중", "7": "중", "8": "중", "11": "하", "12": "하", "15": "하", "18": "중", "20": "하", "21": "상", "22": "중", "23": "상", "24": "중", "25": "중", "26": "중", "28": "하", "32": "상", "33": "중", "35": "중", "36": "하", "38": "중", "39": "하", "40": "하"};   // 게임화 가능성 — 게임화 코멘트 내용을 기준으로 상·중·하 판단
+const EV=(x)=> x.v==="V" ? ["우선순위","ev-1"] : x.v==="X" ? ["비선호","ev-3"] : ["후순위","ev-2"];   // 내부제작 V = 우선순위 · 표시 없음 = 후순위 · X = 비선호
+function evalBadge(x){ const [t,c]=EV(x); return `<span class="p ${c}${x.memo?" has":""}"${x.memo?` data-tip="${esc(x.memo)}"`:""}>${t}${x.memo?' <i class="dot"></i>':""}</span>`; }
+function grade(g,txt){
+  if(!g) return txt?`<span class="p g-n has" data-tip="${esc(txt)}">의견 <i class="dot"></i></span>`:`<span class="v-n">–</span>`;
+  const c=g==="상"?"h":g==="중"?"m":"l";
+  return `<span class="p md-${c}${txt?" has":""}"${txt?` data-tip="${esc(txt)}"`:""}>${g}${txt?' <i class="dot"></i>':""}</span>`;
+}
+const TIPEL=document.createElement("div"); TIPEL.id="tipbox"; document.body.appendChild(TIPEL);
+document.addEventListener("mouseover",(e)=>{ const t=e.target.closest("[data-tip]"); if(!t) return;
+  TIPEL.textContent=t.dataset.tip; TIPEL.classList.add("on");
+  const r=t.getBoundingClientRect(), w=TIPEL.getBoundingClientRect();
+  let x=r.left+r.width/2-w.width/2, y=r.bottom+8; if(x+w.width>innerWidth-8) x=innerWidth-8-w.width; if(x<8) x=8; if(y+w.height>innerHeight-8) y=r.top-w.height-8;
+  TIPEL.style.left=x+"px"; TIPEL.style.top=y+"px"; });
+document.addEventListener("mouseout",(e)=>{ if(e.target.closest("[data-tip]")) TIPEL.classList.remove("on"); });
+document.addEventListener("scroll",()=>TIPEL.classList.remove("on"),true);
 /* ═══ 팀 선호 투표 (유기 · 다운 · 민수 · 도경 · 윤정) ═══════════════════════
    작품 제작 리스트와 같은 로그인·공유 저장소를 씁니다. 저장 위치: candidate_issues 의 '__votes__' 행
    사람별로 따로 저장해서(한 사람 칸만 보냄) 여러 명이 동시에 체크해도 서로 덮어쓰지 않아요. */
