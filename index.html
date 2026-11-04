@@ -2,6 +2,7 @@
 <html lang="ko"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>숏애니 작품 제작 리스트</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" rx="15" fill="%231f5fae"/%3E%3Crect x="15" y="17" width="34" height="7" rx="3.5" fill="%23fff"/%3E%3Crect x="15" y="28.5" width="26" height="7" rx="3.5" fill="%23fff" fill-opacity=".72"/%3E%3Crect x="15" y="40" width="17" height="7" rx="3.5" fill="%23fff" fill-opacity=".45"/%3E%3Ccircle cx="45" cy="43.5" r="4.5" fill="%237fd3c0"/%3E%3C/svg%3E">
 <style>
 :root{
   color-scheme:light;
@@ -560,6 +561,13 @@ td .lp+small{margin-top:2px}
 .e2s circle.on{fill:#2a78d6} .e2s circle.off{stroke:#2a78d6}
 .slr input{accent-color:#2a78d6}
 .ed4{border-bottom:1px dashed currentColor}
+
+/* 위쪽 사이트 제목·부제는 숨기고 롱리스트 카드 제목을 대표 제목으로 */
+.top .tl{display:none!important}
+.top{justify-content:flex-end}
+.llttl{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.llttl h1{margin:0;font-size:22px;letter-spacing:-.01em}
+.llttl .ver{font-size:11px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head><body>
@@ -763,7 +771,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v54 · 2026-11-04";
+const BUILD = "v55 · 2026-11-04";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -1026,7 +1034,7 @@ async function authHdr(){
   return Object.assign({}, SB.hdr, t ? {Authorization:`Bearer ${t}`} : {});
 }
 let LASTPUSH=0, PULLING=false, LASTERR="";
-const APPV=54;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
+const APPV=55;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
 let OUTDATED=false, LOCAL0=null;
 function chip(state,txt){
   const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
@@ -2529,7 +2537,7 @@ function secB(){
 }
 function shell(pv){
   const L=LF;
-  pv.innerHTML=`<div class="llhero"><h2>숏애니 원작 후보 선정 로직 · 롱리스트</h2><p>KW 정식 연재작 전체(2021-01 이후 열람 기록 ${TOTAL_KW.toLocaleString()}개 작품) 대상 · GW 정식 연재작 전체 및 LM 정식 연재작 일부 함께 고려 · <span class="mut">${esc(POOL.period)}</span></p>
+  pv.innerHTML=`<div class="llhero"><div class="llttl"><h1>숏애니 원작 후보 선정 로직 · 롱리스트</h1><span class="ver" id="llver"></span></div><p>KW 정식 연재작 전체(2021-01 이후 열람 기록 ${TOTAL_KW.toLocaleString()}개 작품) 대상 · GW 정식 연재작 전체 및 LM 정식 연재작 일부 함께 고려 · <span class="mut">${esc(POOL.period)}</span></p>
      <div class="llnav">${[["A","선정 로직"],["B","변수 조정"],["C","롱리스트 구성"],["D","1차 결과"],["D2","2차 결과"],["E","확정 작품"],["E2","장르 분포"],["F","별도 관리"],["G","국가별 와일드카드"],["H","항목별 와일드카드"]].map(([k,t])=>`<a href="#ll${k}"><b>${k.replace("2","-2")}</b> ${t}</a>`).join("")}<span class="spacer"></span><a class="btn sm" href="shortlist.html">숏리스트 검토 ↗</a><button type="button" class="btn sm" data-llact="copy">확정 리스트 복사</button></div></div>
     ${secA()}${secB()}
     ${SEC("C","C","롱리스트 구성",`· 롱리스트 ${LV("llN")}개`,`<div class="llctl">${llSel("c","",[["ll","와일드카드 제외 (롱리스트만)"],["all","와일드카드 포함"]],L.c).replace('data-lf="c."','data-lf="c"')}</div>`)}
@@ -2547,6 +2555,7 @@ let LLPREV=null;
 function llRender(pv){
   if(!POOL){ pv.innerHTML=`<div class="pempty">롱리스트 데이터를 불러오지 못했어요. '롱리스트 선정 데이터' SQL 4개가 모두 실행됐는지 확인해 주세요.</div>`; return; }
   if(!document.getElementById("llA")) shell(pv);
+  { const v=document.getElementById("ver"), lv=document.getElementById("llver"); if(v&&lv) lv.innerHTML=v.innerHTML; }
   const R=llCompute(); LLR=R; window.__LL=R; const C=LLC, S=R.stat, L=LF;
   const wsum=LLAX.reduce((p,[k])=>p+(+C.w[k]||0),0)||1;
   const ids=R.LL.map(x=>x.n).join("|"); let diff="롱리스트 구성 변화 없음";
