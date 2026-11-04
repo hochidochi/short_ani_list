@@ -283,7 +283,7 @@ label.tg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var
 .utab .st.ok{color:#fff;background:var(--good)} .utab .st.wait{color:var(--ink);background:color-mix(in srgb,var(--warn) 35%,transparent)}
 
 /* 화면 전환 (후보군 · 판권 · 파이프라인) */
-.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.modes{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
 .modes .mlink{border:1px dashed var(--axis);background:var(--surface-1);border-radius:10px;padding:10px 14px;text-decoration:none;font-size:14px;font-weight:700;color:var(--ink-2)}
 .modes .mlink:hover{border-color:var(--s1);color:var(--s1)}
 .modes .mlink small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:2px}
@@ -426,6 +426,47 @@ body.mpipe .bar,body.mpipe #kpis,body.mpipe #cols{display:none}
 .ptab th.psort{cursor:pointer;user-select:none}
 .ptab th.psort:hover{color:var(--ink)}
 .ptab th.psort.on{color:var(--s1)}
+
+/* ── 롱리스트 선정 ── */
+.llsummary{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 10px}
+.llsummary span{font-size:11.5px;padding:4px 10px;border-radius:999px;background:var(--surface-1);border:1px solid var(--grid);color:var(--ink-2)}
+.llcfg{display:grid;grid-template-columns:1.1fr 1.2fr 1.1fr 1.2fr;gap:8px;margin-bottom:12px}
+@media(max-width:1200px){.llcfg{grid-template-columns:1fr 1fr}}
+.llcfg .pfc{display:flex;flex-direction:column;gap:6px}
+.llcfg .ck{font-size:12px;display:inline-flex;align-items:center;gap:5px;margin-right:6px}
+.lrow{font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.lrow .gl{min-width:118px;color:var(--muted)}
+.llin{font:inherit;font-size:12px;border:1px solid var(--axis);border-radius:6px;padding:3px 6px;text-align:right;background:var(--surface-1)}
+.slr{display:grid;grid-template-columns:70px 1fr 26px;align-items:center;gap:8px;font-size:12px}
+.slr input{width:100%;accent-color:var(--ink)} .slr b{text-align:right}
+.llsum{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.llsum span{background:var(--surface-1);border:1px solid var(--ring);border-radius:10px;padding:8px 14px;font-size:12px;color:var(--muted)}
+.llsum b{display:block;font-size:20px;color:var(--ink);font-weight:800;margin-top:2px}
+.cbr{display:grid;grid-template-columns:118px 30px 90px 1fr;align-items:center;gap:6px;font-size:11.5px;margin-top:4px}
+.cbr b{text-align:right} .cbr s{text-decoration:none;color:var(--muted);font-size:10.5px}
+.cbt{position:relative;height:8px;border-radius:999px;background:var(--band)} .cbt i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--ink-2)}
+.cbt em{position:absolute;top:-3px;bottom:-3px;border-left:2px dashed var(--crit)}
+.lltabs{display:flex;gap:6px;align-items:center;margin:12px 0 8px;flex-wrap:wrap}
+.lltabs button{font:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--ring);background:var(--surface-1);border-radius:999px;padding:6px 14px;cursor:pointer;color:var(--ink-2)}
+.lltabs button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.llwrap{overflow-x:auto}
+.lltab td.c{text-align:center;white-space:nowrap} .lltab td small{display:block;font-size:10px;color:var(--muted)}
+.lltab td.num{text-align:right;white-space:nowrap}
+.lltab td.rk2{text-align:center;white-space:nowrap} .lltab td.rk2 b{font-size:14px}
+.lltab td.rk2 small.up{color:var(--good)} .lltab td.rk2 small.dn{color:var(--crit)}
+.lltab tr.conf td{background:color-mix(in srgb,var(--warn) 14%,var(--surface-1))}
+.lltab tr.exc td{opacity:.5} .lltab tr.exc .nm a{text-decoration:line-through}
+.lltab .fit{display:inline-grid;place-items:center;min-width:46px;height:28px;border-radius:7px;color:#fff;font-weight:800;font-size:13px}
+.six{display:grid;grid-template-columns:repeat(6,14px);gap:3px;height:30px;align-items:end}
+.six i{display:block;height:100%;background:var(--band);border-radius:3px;position:relative;overflow:hidden}
+.six i b{position:absolute;left:0;right:0;bottom:0;height:var(--v);background:var(--c);border-radius:3px}
+.ax4{font-weight:800} .ax4 sup{font-size:9px;color:var(--s2);margin-left:2px}
+.llk{display:inline-block;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:999px;margin-left:6px;vertical-align:1px}
+.llk.cn{color:#0b6a8a;background:color-mix(in srgb,#3aa7b8 15%,transparent);border:1px solid color-mix(in srgb,#3aa7b8 45%,transparent)}
+.llk.it{color:#6b3fb0;background:color-mix(in srgb,#8a5cd1 12%,transparent);border:1px solid color-mix(in srgb,#8a5cd1 40%,transparent)}
+.llc{display:inline-block;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:999px;margin-left:6px;background:var(--warn);color:#3a2a00}
+.llf{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;margin-left:4px;background:var(--ink);color:#fff}
+.cfx{white-space:nowrap} .cfx .ck{font-size:11.5px;display:inline-flex;gap:4px;align-items:center} .cfx .pmemo{width:90px;min-width:0;margin-left:4px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head><body>
@@ -495,7 +536,8 @@ body.mpipe .bar,body.mpipe #kpis,body.mpipe #cols{display:none}
 </div>
 
 <div class="modes" id="segM">
-  <button data-m="list">후보군 리스트<small>전체 후보 채점·컷</small></button>
+  <button data-m="ll">롱리스트 선정<small>재미도 6축 · 쿼터 · 와일드카드 · 제작 4축 반영</small></button>
+  <button data-m="list">후보군 리스트<small>제작 4축 채점 · 전체 후보 · 컷</small></button>
   <button data-m="rights">판권 확보 우선순위 <b id="mRights">0</b><small>판권 요청한 작품의 판권·작가 동의 진행</small></button>
   <button data-m="pipe">제작 파이프라인 <b id="mPipe">0</b><small>내부·외부 제작사가 정해진 작품의 계약·제작 진행</small></button>
   <a class="mlink" href="shortlist.html">숏리스트 검토 <span>↗</span><small>숏리스트 후보 라인업 · 팀 선호 투표</small></a>
@@ -587,7 +629,7 @@ const JPN = {"멸망 이후의 세계": "滅亡後の世界", "세레나": "セ�
 const JPURL = {"멸망 이후의 세계": "https://manga.line.me/product/periodic?id=Z0002057", "세레나": "https://manga.line.me/product/periodic?id=Z0002717", "66666년 만에 환생한 흑마법사": "https://manga.line.me/product/periodic?id=Z0001670", "작두": "https://manga.line.me/product/periodic?id=Z0003829", "참교육": "https://manga.line.me/product/periodic?id=Z0001147", "나노마신": "https://manga.line.me/product/periodic?id=Z0000948", "신화급 귀속 아이템을 손에 넣었다": "https://manga.line.me/product/periodic?id=Z0002494", "파브르 in 사천당가": "https://manga.line.me/product/periodic?id=Z0003703", "입학용병": "https://manga.line.me/product/periodic?id=Z0001139", "왕의 힘으로 회귀한다": "https://manga.line.me/product/periodic?id=Z0003336", "시한부 천재 암흑기사": "https://manga.line.me/product/periodic?id=Z0003144", "귀촌리": "https://manga.line.me/product/periodic?id=Z0003951", "아카데미 플레이어를 죽였다": "https://manga.line.me/product/periodic?id=Z0003487", "잔불의 기사": "https://manga.line.me/product/periodic?id=Z0001459", "어느 마법사의 식당": "https://manga.line.me/product/periodic?id=Z0003359", "망나니 소교주로 환생했다": "https://manga.line.me/product/periodic?id=Z0001695", "할배무사와 지존 손녀": "https://manga.line.me/product/periodic?id=Z0003295", "1등급 싸움과외": "https://manga.line.me/product/periodic?id=Z0003469", "천마는 조용히 살고싶다": "https://manga.line.me/product/periodic?id=Z0003857", "귀환했는데 입대 전날이다": "https://manga.line.me/product/periodic?id=Z0003217", "샤MONEY즘": "https://manga.line.me/product/periodic?id=Z0004426", "회귀한 공작가의 막내도련님은 암살자": "https://manga.line.me/product/periodic?id=Z0003424", "스터디그룹": "https://manga.line.me/product/periodic?id=Z0000819", "똑 닮은 딸": "https://manga.line.me/product/periodic?id=Z0001841", "99강화나무몽둥이": "https://manga.line.me/product/periodic?id=Z0002214", "게임 최강 트롤러": "https://manga.line.me/product/periodic?id=Z0002809", "사시미 한 자루로 아카데미를 씹어먹음": "https://manga.line.me/product/periodic?id=Z0003682", "멸망한 가문의 회귀자": "https://manga.line.me/product/periodic?id=Z0003474", "사형집행관": "https://manga.line.me/product/periodic?id=Z0003507", "플레이어가 과거를 숨김": "https://manga.line.me/product/periodic?id=Z0003115", "염라강림": "https://manga.line.me/product/periodic?id=Z0003321", "상남자": "https://manga.line.me/product/periodic?id=Z0001100", "종말에서 살아남기": "https://manga.line.me/product/periodic?id=Z0003604", "화산귀환": "https://manga.line.me/product/periodic?id=Z0001753", "사신소년": "https://manga.line.me/product/periodic?id=Z0001692", "마도전생기": "https://manga.line.me/product/periodic?id=Z0003037", "용사보다 너무 강해서 힘을 숨김": "https://manga.line.me/product/periodic?id=Z0003500", "괴력 난신": "https://manga.line.me/product/periodic?id=Z0003353", "나만 보는 탑 공략집": "https://manga.line.me/product/periodic?id=Z0003476", "풍작이에요, 마왕님!": "https://manga.line.me/product/periodic?id=Z0003880", "기기괴괴2": "https://manga.line.me/product/periodic?id=Z0003548", "사천당가의 검신급 소가주가 되었다": "https://manga.line.me/product/periodic?id=Z0003939", "가족같은 XX": "https://manga.line.me/product/periodic?id=Z0002208", "대마법사 커리큘럼": "https://manga.line.me/product/periodic?id=Z0004371", "재혼 황후": "https://manga.line.me/product/periodic?id=Z0000705", "흔한 빙의물인 줄 알았다": "https://manga.line.me/product/periodic?id=Z0003022", "빌런투킬": "https://manga.line.me/product/periodic?id=Z0001387", "나태 공자, 노력 천재 되다": "https://manga.line.me/product/periodic?id=Z0001508", "초인의 시대": "https://manga.line.me/product/periodic?id=Z0001251", "온리호프": "https://manga.line.me/product/periodic?id=Z0002781", "이세계 캠핑으로 힐링 라이프": "https://manga.line.me/product/periodic?id=Z0003615", "플레이어": "https://manga.line.me/product/periodic?id=Z0000964", "저 그런 인재 아닙니다": "https://manga.line.me/product/periodic?id=Z0002859", "천재 무림 트레이너": "https://manga.line.me/product/periodic?id=Z0003601", "절대군림": "https://manga.line.me/product/periodic?id=Z0003834", "용사가 돌아왔다": "https://manga.line.me/product/periodic?id=Z0001505", "내 분신이 거물이 되어간다": "https://manga.line.me/product/periodic?id=Z0003713", "구세라": "https://manga.line.me/product/periodic?id=Z0003739", "사자의 서": "https://manga.line.me/product/periodic?id=Z0003574", "이직로그": "https://manga.line.me/product/periodic?id=Z0004101", "백수세끼": "https://manga.line.me/product/periodic?id=Z0004002", "이섭의 연애": "https://manga.line.me/product/periodic?id=Z0003142", "못 잡아먹어서 안달": "https://manga.line.me/product/periodic?id=Z0003322", "언니, 이번 생엔 내가 왕비야": "https://manga.line.me/product/periodic?id=Z0002371", "시월드가 내게 집착한다": "https://manga.line.me/product/periodic?id=Z0002005", "악녀는 조용히 살고 싶을 뿐인데!": "https://manga.line.me/product/periodic?id=Z0003564", "나 혼자 탑에서 농사": "https://manga.line.me/product/periodic?id=Z0003053", "절대검감": "https://manga.line.me/product/periodic?id=Z0002725", "아카데미에 위장취업당했다": "https://manga.line.me/product/periodic?id=Z0002490", "나쁜사람": "https://manga.line.me/product/periodic?id=Z0000988", "집구석 절대자": "https://manga.line.me/product/periodic?id=Z0003718", "빌드업": "https://manga.line.me/product/periodic?id=Z0001077", "디펜스 게임의 폭군이 되었다": "https://manga.line.me/product/periodic?id=Z0002655", "환생좌": "https://manga.line.me/product/periodic?id=Z0003386", "강철을 먹는 플레이어": "https://manga.line.me/product/periodic?id=Z0003766", "소년법칙": "https://manga.line.me/product/periodic?id=Z0003678", "오늘의 한요일은 여자다": "https://manga.line.me/product/periodic?id=Z0003878", "신수 유치원": "https://manga.line.me/product/periodic?id=Z0003770", "만남어플 중독": "https://manga.line.me/product/periodic?id=Z0003993", "신체": "https://manga.line.me/product/periodic?id=Z0004312", "울어 봐, 빌어도 좋고": "https://manga.line.me/product/periodic?id=Z0003224", "배트맨: 웨인 패밀리 어드벤처": "https://manga.line.me/product/periodic?id=Z0001750", "문제적 왕자님": "https://manga.line.me/product/periodic?id=Z0002806", "현실퀘스트": "https://manga.line.me/product/periodic?id=Z0002205", "악당 가족이 독립을 반대한다": "https://manga.line.me/product/periodic?id=Z0003287", "버림받은 왕녀의 은밀한 침실": "https://manga.line.me/product/periodic?id=Z0002369", "고수, 후궁으로 깨어나다": "https://manga.line.me/product/periodic?id=Z0003152", "규격 외 혈통 천재": "https://manga.line.me/product/periodic?id=Z0002660", "일타강사 백사부": "https://manga.line.me/product/periodic?id=Z0001959", "백투더찬비": "https://manga.line.me/product/periodic?id=Z0003990", "어느날 갑자기 서울은": "https://manga.line.me/product/periodic?id=Z0003245", "연우의 순정": "https://manga.line.me/product/periodic?id=Z0001664", "황제의 검": "https://manga.line.me/product/periodic?id=Z0003298", "아포칼립스에 집을 숨김": "https://manga.line.me/product/periodic?id=Z0003660", "가공낙원": "https://manga.line.me/product/periodic?id=Z0003700", "이기적 연애론": "https://manga.line.me/product/periodic?id=Z0003620", "소녀의 세계": "https://manga.line.me/product/periodic?id=Z0000199", "날 닮은 아이": "https://manga.line.me/product/periodic?id=Z0003432", "김부장": "https://manga.line.me/product/periodic?id=Z0003430", "회귀한 용병은 다 계획이 있다": "https://manga.line.me/product/periodic?id=Z0003860", "엄마를 만나러 가는 길": "https://manga.line.me/product/periodic?id=Z0003930", "내향남녀": "https://manga.line.me/product/periodic?id=Z0003278", "천마육성": "https://manga.line.me/product/periodic?id=Z0001851", "백XX": "https://manga.line.me/product/periodic?id=Z0002947", "내 남편과 결혼해줘": "https://manga.line.me/product/periodic?id=Z0001993", "문스트럭": "https://manga.line.me/product/periodic?id=Z0004079", "탑아이돌의 막내 멤버가 되었다": "https://manga.line.me/product/periodic?id=Z0003579", "죽지 않으려면": "https://manga.line.me/product/periodic?id=Z0001592", "천마는 평범하게 살 수 없다": "https://manga.line.me/product/periodic?id=Z0001629", "아포칼립스에 물류센터를 숨김": "https://manga.line.me/product/periodic?id=Z0003690", "암호는 002!": "https://manga.line.me/product/periodic?id=Z0003751", "사내연애 사절!": "https://manga.line.me/product/periodic?id=Z0003242", "살아남은 로맨스": "https://manga.line.me/product/periodic?id=Z0001436", "돌아온 천재 검성": "https://manga.line.me/product/periodic?id=S146679", "수요웹툰의 나강림": "https://manga.line.me/product/periodic?id=Z0002934", "킬러 배드로": "https://manga.line.me/product/periodic?id=Z0003254", "쓰레기의 법칙": "https://manga.line.me/product/periodic?id=Z0003790", "연애리뷰": "https://manga.line.me/product/periodic?id=Z0003876", "개짓": "https://manga.line.me/product/periodic?id=Z0003802", "가장 썩은 것을 줄게": "https://manga.line.me/product/periodic?id=Z0003494", "속아주고싶어": "https://manga.line.me/product/periodic?id=Z0004161", "심해수": "https://manga.line.me/product/periodic?id=Z0004045", "우렉 마지노": "https://manga.line.me/product/periodic?id=Z0003995", "종말이 찾아왔다": "https://manga.line.me/product/periodic?id=Z0003887", "천재는 평범하게 살기로 했더": "https://manga.line.me/product/periodic?id=Z0003813", "권왕환생": "https://manga.line.me/product/periodic?id=Z0003975", "잘 헤어지는 방법": "https://manga.line.me/product/periodic?id=Z0003717", "네가 사는 그 집": "https://manga.line.me/product/periodic?id=Z0004267", "그레이마크": "https://manga.line.me/product/periodic?id=Z0003614", "아수라": "https://manga.line.me/product/periodic?id=Z0003616", "냐한 남자": "https://manga.line.me/product/periodic?id=Z0000225", "베이비 폭군": "https://manga.line.me/product/periodic?id=Z0002968", "별정직 공무원": "https://manga.line.me/product/periodic?id=Z0003580", "킬러경찰": "https://manga.line.me/product/periodic?id=Z0003026", "소년교도소": "https://manga.line.me/product/periodic?id=Z0003691", "여우놀이": "https://manga.line.me/product/periodic?id=Z0001873", "왕과의 야행": "https://manga.line.me/product/periodic?id=Z0003343", "고대동물기": "https://manga.line.me/product/periodic?id=Z0003926", "오빠세끼": "https://manga.line.me/product/periodic?id=Z0001844", "귀공자": "https://manga.line.me/product/periodic?id=Z0003661", "내 남편의 정부에게": "https://manga.line.me/product/periodic?id=Z0003197", "캐슬2:만인지상": "https://manga.line.me/product/periodic?id=Z0003003", "세상에 나쁜 영애는 없다": "https://manga.line.me/product/periodic?id=Z0004409", "용사 카리엘": "https://manga.line.me/product/periodic?id=Z0004248", "소녀바둑": "https://manga.line.me/product/periodic?id=Z0004278", "남편은 한 명으로 족하다": "https://manga.line.me/product/periodic?id=Z0003551", "백작가의 비밀스런 시녀님": "https://manga.line.me/product/periodic?id=Z0003706", "상사불상사": "https://manga.line.me/product/periodic?id=Z0003290", "청춘 러브썸": "https://manga.line.me/product/periodic?id=Z0003630", "중간에서 만나": "https://manga.line.me/product/periodic?id=Z0003111", "왕따가 격투기를 너무 잘함": "https://manga.line.me/product/periodic?id=Z0003039", "축구천재로 오해받는 중입니다": "https://manga.line.me/product/periodic?id=Z0003805", "칼에 취한 밤을 걷다": "https://manga.line.me/product/periodic?id=Z0002659", "하는 사이": "https://manga.line.me/product/periodic?id=Z0003794", "나를 바꿔줘": "https://manga.line.me/product/periodic?id=Z0000985", "피폐물을 힐링물로 만드는 방법": "https://manga.line.me/product/periodic?id=Z0003578", "재벌집 막내아들": "https://manga.line.me/product/periodic?id=Z0002589", "삼이는 재생한다": "https://manga.line.me/product/periodic?id=Z0003612", "A.I. 닥터": "https://manga.line.me/product/periodic?id=Z0001774", "여자사람친구": "https://manga.line.me/product/periodic?id=Z0003899", "레드셔츠": "https://manga.line.me/product/periodic?id=Z0003986", "스캔들 메이커가 돌아왔다": "https://manga.line.me/product/periodic?id=Z0004381", "그 기사가 레이디로 사는 법": "https://manga.line.me/product/periodic?id=Z0001366", "완벽한 계약": "https://manga.line.me/product/periodic?id=Z0003863", "나를 미워하던 남편이 기억을 잃었다": "https://manga.line.me/product/periodic?id=Z0003191", "다정한 침입자": "https://manga.line.me/product/periodic?id=Z0004160", "검은머리 영국의사": "https://manga.line.me/product/periodic?id=Z0004274", "펜홀더": "https://manga.line.me/product/periodic?id=Z0003398", "성스러운 작가생활": "https://manga.line.me/product/periodic?id=Z0003042", "수희0(tngmlek0)": "https://manga.line.me/product/periodic?id=Z0001769", "몬스터": "https://manga.line.me/product/periodic?id=Z0001523", "흑요석의 신부": "https://manga.line.me/product/periodic?id=Z0003190", "하렘의 남자들": "https://manga.line.me/product/periodic?id=Z0001141", "낫오버": "https://manga.line.me/product/periodic?id=Z0003629"};
 const JPPROV = new Set(["덴마", "사람의 탈", "쿠베라", "부활소년", "멸귀수도전", "쪽팔려게임", "다 때려치고 콜라 팝니다", "장인의 거리", "생존지상주의", "아포칼립스를 걷는 우체부", "철과 얼음의 여정", "겟라이프", "미로 인 메모리", "아카데미 편의점으로 힐링할게요", "청부입학", "까맣지만 새하얀", "제물 투표", "나이트런", "악당의 사연", "법법궤궤", "눈에 밟힌 발걸음", "갓 오브 킬러즈", "저세상 클라스!", "레사 시즌1", "좋아하면 멍청해진다", "애드립의 신", "흑화 폭군의 집착이 멈추지 않습니다"]);
 const dn = (w)=> LANG==="ja" ? (JPN[w.n]||w.jn||w.n) : w.n;
-const JA_PH = {"조회수를 빼고 제작 난이도·각색 여지만으로 본 순위입니다": "閲覧数を除き、制作難易度と脚色の余地だけで見た順位です", "시트에서 온 원본 작품입니다. 점수·확장가치·일본 조회수·코멘트만 고칠 수 있고, 원본 값은 그대로 보존됩니다.": "シート由来の元作品です。スコア・拡張価値・日本閲覧数・コメントのみ修正でき、元の値はそのまま保持されます。", "cid(네이버 titleId)를 넣고 불러오기를 누르면 제목·장르·화수·연령·표지를 자동으로 채웁니다.": "cid（NAVER titleId）を入力して「読み込み」を押すと、タイトル・ジャンル・話数・年齢区分・表紙を自動入力します。", "4축 합 + GW + 한국 + 확장가치 (일본 조회수 미포함)": "4軸合計 + GW + 韓国 + 拡張価値（日本閲覧数は含まない）", "점수를 고쳤거나 직접 추가한 작품": "スコアを修正した作品、または直接追加した作品", "위 필터와 정렬이 그대로 적용됩니다": "上のフィルターと並び順がそのまま適用されます", "클릭하면 점수를 고칠 수 있습니다": "クリックするとスコアを修正できます", "작가 동의 체크를 해제할까요?": "作家同意のチェックを外しますか？", "컷 집계에서 제외됩니다": "選定集計から除外されます", "해당 작품이 없습니다": "該当する作品はありません", "공유 저장소 미설정 — 수정 내용이 나에게만 보입니다": "共有ストレージ未設定 — 変更は自分にだけ表示されます", "저장됨 — 모두에게 반영": "保存済み — 全員に反映", "읽기 실패 — 눌러서 원인 보기": "読み込み失敗 — クリックで原因を表示", "저장 실패 — 눌러서 원인 보기": "保存失敗 — クリックで原因を表示", "공유 저장소 불러오는 중": "共有ストレージ読み込み中", "공유 저장소 연결됨": "共有ストレージ接続済み", "표지·자동입력 API 미연결": "表紙・自動入力API未接続", "링크를 복사했습니다": "リンクをコピーしました", "MD·게임 등 부가사업 확장가치 있음": "MD・ゲームなど付加事業の拡張価値あり", "Mega IP 포트폴리오 20선": "Mega IP ポートフォリオ20選", "숏애니 작품 제작 리스트": "ショートアニメ制作作品リスト", "부가사업 확장가치": "付加事業の拡張価値", "작가 동의를 받으면 체크": "作家の同意を得たらチェック", "작가 동의를 받은 작품": "作家の同意を得た作品", "클릭해 점수 수정": "クリックでスコア修正", "이슈 표시 / 해제": "課題の表示 / 解除", "확장가치 있음 (+3점)": "拡張価値あり (+3点)", "MEGA IP 20선만": "MEGA IP 20選のみ", "MEGA IP 20선": "MEGA IP 20選", "평가 기준 순": "評価基準順", "원석 지수 순": "原石指数順", "GW 조회수 순": "GW閲覧数順", "한국 조회수 순": "韓国閲覧数順", "확장가치 순": "拡張価値順", "회차 많은 순": "話数が多い順", "최신 런칭 순": "ローンチが新しい順", "시트 순위": "シート順位", "확장가치 전체": "拡張価値すべて", "확장가치 없음": "拡張価値なし", "확장가치 체크": "拡張価値あり", "런칭 전체": "ローンチ時期すべて", "작품명 검색": "作品名で検索", "이슈 숨기기": "課題を非表示", "원석만": "原石のみ", "데이터 내보내기": "データ書き出し", "링크 복사": "リンクをコピー", "작품 추가": "作品追加", "작가 동의 완료": "作家同意済み", "작가 동의": "作家同意", "전체 라인업": "全ラインナップ", "변경한 작품": "変更した作品", "이슈 작품": "課題のある作品", "총 적합도": "総合適合度", "제작 4축만": "制作4軸のみ", "제작 4축": "制作4軸", "성적 (GW·한국)": "実績 (GW・韓国)", "성적": "実績", "성적 기준": "実績基準", "10점 만점": "10点満点", "4축 합": "4軸合計", "① ~ ④ 합": "①〜④合計", "총 후보": "候補総数", "평가 기준": "評価基準", "전체 컷": "全体ライン", "남성향 컷": "男性向けライン", "여성향 컷": "女性向けライン", "이슈 표시": "課題あり", "작품 제외": "作品除外", "작품 확보": "作品確保", "작품 강조": "作品を強調", "작품 삭제": "作品を削除", "점 만점": "点満点", "점 이상": "点以上", "점 적용": "点適用", "화 이상": "話以上", "화 미만": "話未満", "년 이후": "年以降", "개 작품": "作品", "전체의": "全体の", "전체 이용가": "全年齢", "세 이용가": "歳以上", "남성향": "男性向け", "여성향": "女性向け", "여·남": "女性・男性", "나란히": "並べて表示", "타겟 미정": "ターゲット未定", "공유 저장소": "共有ストレージ", "설정됨": "設定済み", "미설정": "未設定", "장르 미정": "ジャンル未定", "판타지": "ファンタジー", "로맨스": "ロマンス", "액션": "アクション", "드라마": "ドラマ", "무협/사극": "武侠/時代劇", "스릴러": "スリラー", "스포츠": "スポーツ", "일상": "日常", "감성": "感性", "개그": "ギャグ", "내부제작": "内部制作", "외부제작": "外部制作", "엠스토리허브": "Mストーリーハブ", "회원 승인": "会員承認", "한국·월": "韓国·月", "LINE망가": "LINEマンガ", "GW 없음": "GWなし", "숏리스트 검토": "ショートリスト検討", "숏리스트 후보 라인업 · 팀 선호 투표": "ショートリスト候補ラインナップ · チームの推し投票", "눌러서 정렬 (내림차순 → 오름차순 → 기본)": "クリックで並べ替え（降順 → 昇順 → 既定）", "후순위": "後順位", "작가 동의 완료 · 제작사 미정": "作家同意済み · 制作会社未定", "제작사 미정": "制作会社未定", "후보군 리스트에서 제작 담당을 내부제작 또는 외부 제작사로 지정하거나, 작가 동의를 체크하면 여기에 들어와요.": "候補リストで制作担当を内部制作または外部制作会社に指定するか、作家同意にチェックするとここに入ります。", "일본 런칭 예정": "日本ローンチ予定", "런칭 예정": "ローンチ予定", "확인 필요": "要確認", "일본 미런칭": "日本未ローンチ", "일본 런칭": "日本ローンチ", "내부제작 제외": "内部制作を除外", "작품 · 장르 · 담당 · 화수": "作品 · ジャンル · 担当 · 話数", "눌러서 점수·정보 보기": "クリックでスコア・情報を表示", "MEGA IP라 빠진 작품": "MEGA IPのため除外された作品", "(MEGA IP를 해제하면 다시 보여요)": "（MEGA IPを解除すると再表示されます）", "샘플 테스트 제작사 — 여러 곳 선택 가능": "サンプルテスト制作会社 — 複数選択可", "제작사 직접 추가": "制作会社を直接追加", "＋ 샘플 테스트": "＋ サンプルテスト", "샘플 테스트 진행": "サンプルテスト進行", "샘플 테스트 제작사 · 상태": "サンプルテスト制作会社 · 状態", "샘플 테스트": "サンプルテスト", "진행 중": "進行中", "선정": "選定", "탈락": "脱落", "편집": "編集", "테스트": "テスト", "곳": "社", "켜면 숏애니 후보 리스트·순위·판권 화면에서 빠져요. 'MEGA IP만 보기'에서 다시 볼 수 있어요": "オンにするとショートアニメ候補リスト・順位・版権画面から外れます。「MEGA IPのみ表示」で再表示できます", "4축 합 + GW + 한국 + MD 확장 + 세계관 확장 (일본 조회수 미포함)": "4軸合計 + GW + 韓国 + MD拡張 + 世界観拡張（日本閲覧数は含まない）", "MEGA IP · 리스트 제외": "MEGA IP · リスト除外", "가산점 — 해당하면 켜주세요": "加点 — 該当すればオンに", "MD · 부가사업 확장": "MD・付加事業の拡張", "굿즈·게임·이모티콘 등 상품화 가능성": "グッズ・ゲーム・スタンプなど商品化の可能性", "세계관 확장": "世界観の拡張", "스핀오프·후속 시즌으로 풀어낼 이야기가 많음": "スピンオフ・続編で展開できる物語が多い", "리스트 제외": "リスト除外", "MEGA IP (롱애니·대형 IP 전용)": "MEGA IP（長編アニメ・大型IP専用）", "제외": "除外", "가산점 전체": "加点すべて", "MD 확장 있음 (+5점)": "MD拡張あり (+5点)", "세계관 확장 있음 (+3점)": "世界観拡張あり (+3点)", "가산점 없음": "加点なし", "MEGA IP만 보기 (리스트 제외작)": "MEGA IPのみ表示（リスト除外作）", "가산점": "加点", "세계관": "世界観", "이슈가 표시된 작품은 자동으로 빠져요.": "課題が付いた作品は自動的に除外されます。", "작품도 보기": "作品も表示", "이슈로 제외된": "課題で除外された", "판권 확인 필요만": "版権確認が必要な作品のみ", "판권 확인": "版権確認", "기계약 시트 대조 결과": "既契約シート照合結果", "이슈로 확정": "課題として確定", "문제없음": "問題なし", "해외 연재": "海外連載", "9개국 연재": "9か国連載", "글로벌": "グローバル", "걸러보는 중": "絞り込み中", "전체 보기": "すべて表示", "진행 단계": "進行段階", "판권·동의 전": "版権・同意前", "제작 중": "制作中", "불가·보류": "不可・保留", "타겟 미정": "ターゲット未定", "글로벌 런칭": "グローバルローンチ", "9개국 완료": "9か国完了", "9개국 런칭 완료": "9か国ローンチ完了", "국가별 런칭": "国別ローンチ", "전체 선택": "すべて選択", "모두 해제": "すべて解除", "닫기": "閉じる", "미런칭": "未ローンチ", "9개국": "9か国", "공개 중": "公開中", "개국": "か国", "런칭": "ローンチ", "후보군 리스트에서 '판권 요청'을 체크하면 여기에 들어와요. 우선순위 → 적합도 순으로 정렬돼요.": "候補リストで「版権リクエスト」にチェックするとここに入ります。優先順位 → 適合度の順に並びます。", "후보군 리스트에서 제작 담당을 내부제작 또는 외부 제작사로 지정하면 여기에 들어와요.": "候補リストで制作担当を内部制作または外部の制作会社に指定するとここに入ります。", "진행 불가·보류": "進行不可・保留", "또는": "または", "만 보는 중": "のみ表示中", "전체 보기": "すべて表示", "판권 유효": "版権有効", "제작 진행": "制作進行", "제작사": "制作会社", "후보군 리스트": "候補リスト", "판권 확보 우선순위": "版権確保の優先順位", "제작 파이프라인": "制作パイプライン", "전체 후보 채점·컷": "全候補の採点・選定ライン", "판권 요청한 작품의 판권·작가 동의 진행": "版権リクエスト作品の版権・作家同意の進行", "내부·외부 제작사가 정해진 작품의 계약·제작 진행": "制作会社が決まった作品の契約・制作の進行", "판권 유효 현황": "版権の有効状況", "NW 보유 권한": "NW保有権限", "계약 완료": "契約完了", "제작 시작": "制作開始", "일본 런칭": "日本ローンチ", "다음 할 일": "次のアクション", "애니 판권 유효": "アニメ版権有効", "별도 협의 필요": "別途協議が必要", "확인 전": "確認前", "확인 중": "確認中", "답변 대기 중": "回答待ち", "1차 동의": "一次同意", "미착수": "未着手", "독점": "独占", "비독점": "非独占", "지분투자": "出資", "비계약": "未契約", "미확인": "未確認", "판권 확인": "版権確認", "판권 협의": "版権協議", "작가 동의 요청": "作家同意の依頼", "작가 답변 대기": "作家の回答待ち", "계약 진행": "契約進行", "계약 조율 중": "契約調整中", "제작 착수": "制作着手", "제작 진행 중": "制作進行中", "진행 불가 · 사유 확인": "進行不可 · 理由確認", "보류 중": "保留中", "비고 입력": "備考を入力", "요청일": "依頼日", "우선순위": "優先順位", "1순위": "1位", "2순위": "2位", "3순위": "3位", "1차 채점 숨기기": "一次採点を非表示", "검토 대기": "レビュー待ち", "1차 채점": "一次採点", "1차": "一次", "채점 대기": "採点待ち", "네이버 정보 일괄 불러오기": "NAVER情報を一括読み込み", "멈추기": "停止", "1차 자동 채점": "一次自動採点", "작품명 복사": "作品名をコピー", "월평균 기준": "月平均基準", "2년 합계 기준": "2年合計基準", "2년 · 월": "2年 · 月", "판권 확보 요청": "版権確保リクエスト", "판권 요청 체크를 해제할까요?": "版権リクエストのチェックを外しますか？", "판권 확보를 요청할 작품이면 체크": "版権確保をリクエストする作品ならチェック", "판권 요청": "版権リクエスト", "작품 요청": "作品リクエスト", "판권": "版権", "요청": "リクエスト", "한국·2년": "韓国·2年", "GW·2년": "GW·2年", "2년 합계": "2年合計", "월평균": "月平均", "GW·월": "GW·月", "월평균 조회수": "月平均閲覧数", "로그아웃": "ログアウト", "직접 입력": "直接入力", "내부제작이 아닌 곳으로 지정된 작품": "内部制作以外に指定された作品", "판권 없음": "版権なし", "원작사 협의 중": "原作元と協議中", "작가 협의 불가": "作家と協議不可", "내부 보류": "社内保留", "기타": "その他", "채점 대기": "採点待ち", "점수 수정됨": "スコア修正済み", "직접 추가": "直接追加", "데이터 없음": "データなし", "데이터 입고 예정": "データ入荷予定", "생성안정성": "生成安定性", "원작재현·각색고도화": "原作再現・脚色高度化", "원작재현·각색": "原作再現・脚色", "원작재현": "原作再現", "서사압축": "物語圧縮", "서사 압축": "物語圧縮", "모션임팩트": "モーションインパクト", "모션 임팩트": "モーションインパクト", "생성": "生成", "안정성": "安定性", "원작": "原作", "재현": "再現", "서사": "物語", "압축": "圧縮", "모션": "動き", "임팩트": "迫力", "제작 담당": "制作担当", "이슈 사유": "課題の理由", "이슈 해제": "課題を解除", "점수 원복": "スコアを元に戻す", "조회수 점수": "閲覧数スコア", "미반영": "未反映", "부가사업": "付加事業", "포함 작품": "に含まれる作品", "코멘트": "コメント", "네이버": "NAVER", "라인망가": "LINEマンガ", "불러오기": "読み込み", "작품명": "作品名", "장르": "ジャンル", "타겟": "ターゲット", "런칭일": "ローンチ日", "화수": "話数", "연령": "年齢区分", "조회수": "閲覧数", "한국": "韓国", "일본": "日本", "순위": "順位", "평균": "平均", "상위": "上位", "적합도": "適合度", "적합": "適合", "제작": "制作", "담당": "担当", "작가": "作家", "동의": "同意", "확장가치": "拡張価値", "확장": "拡張", "회차": "話数", "점수": "スコア", "수정": "修正", "추가": "追加", "검색": "検索", "작품": "作品", "전체": "全体", "변경": "変更", "이슈": "課題", "기준": "基準", "만점": "満点", "미정": "未定", "없음": "なし", "있음": "あり", "저장": "保存", "취소": "キャンセル", "확인": "確認", "각 ": "各", "컷": "ライン", "미포함": "含まない"};
+const JA_PH = {"조회수를 빼고 제작 난이도·각색 여지만으로 본 순위입니다": "閲覧数を除き、制作難易度と脚色の余地だけで見た順位です", "시트에서 온 원본 작품입니다. 점수·확장가치·일본 조회수·코멘트만 고칠 수 있고, 원본 값은 그대로 보존됩니다.": "シート由来の元作品です。スコア・拡張価値・日本閲覧数・コメントのみ修正でき、元の値はそのまま保持されます。", "cid(네이버 titleId)를 넣고 불러오기를 누르면 제목·장르·화수·연령·표지를 자동으로 채웁니다.": "cid（NAVER titleId）を入力して「読み込み」を押すと、タイトル・ジャンル・話数・年齢区分・表紙を自動入力します。", "4축 합 + GW + 한국 + 확장가치 (일본 조회수 미포함)": "4軸合計 + GW + 韓国 + 拡張価値（日本閲覧数は含まない）", "점수를 고쳤거나 직접 추가한 작품": "スコアを修正した作品、または直接追加した作品", "위 필터와 정렬이 그대로 적용됩니다": "上のフィルターと並び順がそのまま適用されます", "클릭하면 점수를 고칠 수 있습니다": "クリックするとスコアを修正できます", "작가 동의 체크를 해제할까요?": "作家同意のチェックを外しますか？", "컷 집계에서 제외됩니다": "選定集計から除外されます", "해당 작품이 없습니다": "該当する作品はありません", "공유 저장소 미설정 — 수정 내용이 나에게만 보입니다": "共有ストレージ未設定 — 変更は自分にだけ表示されます", "저장됨 — 모두에게 반영": "保存済み — 全員に反映", "읽기 실패 — 눌러서 원인 보기": "読み込み失敗 — クリックで原因を表示", "저장 실패 — 눌러서 원인 보기": "保存失敗 — クリックで原因を表示", "공유 저장소 불러오는 중": "共有ストレージ読み込み中", "공유 저장소 연결됨": "共有ストレージ接続済み", "표지·자동입력 API 미연결": "表紙・自動入力API未接続", "링크를 복사했습니다": "リンクをコピーしました", "MD·게임 등 부가사업 확장가치 있음": "MD・ゲームなど付加事業の拡張価値あり", "Mega IP 포트폴리오 20선": "Mega IP ポートフォリオ20選", "숏애니 작품 제작 리스트": "ショートアニメ制作作品リスト", "부가사업 확장가치": "付加事業の拡張価値", "작가 동의를 받으면 체크": "作家の同意を得たらチェック", "작가 동의를 받은 작품": "作家の同意を得た作品", "클릭해 점수 수정": "クリックでスコア修正", "이슈 표시 / 해제": "課題の表示 / 解除", "확장가치 있음 (+3점)": "拡張価値あり (+3点)", "MEGA IP 20선만": "MEGA IP 20選のみ", "MEGA IP 20선": "MEGA IP 20選", "평가 기준 순": "評価基準順", "원석 지수 순": "原石指数順", "GW 조회수 순": "GW閲覧数順", "한국 조회수 순": "韓国閲覧数順", "확장가치 순": "拡張価値順", "회차 많은 순": "話数が多い順", "최신 런칭 순": "ローンチが新しい順", "시트 순위": "シート順位", "확장가치 전체": "拡張価値すべて", "확장가치 없음": "拡張価値なし", "확장가치 체크": "拡張価値あり", "런칭 전체": "ローンチ時期すべて", "작품명 검색": "作品名で検索", "이슈 숨기기": "課題を非表示", "원석만": "原石のみ", "데이터 내보내기": "データ書き出し", "링크 복사": "リンクをコピー", "작품 추가": "作品追加", "작가 동의 완료": "作家同意済み", "작가 동의": "作家同意", "전체 라인업": "全ラインナップ", "변경한 작품": "変更した作品", "이슈 작품": "課題のある作品", "총 적합도": "総合適合度", "제작 4축만": "制作4軸のみ", "제작 4축": "制作4軸", "성적 (GW·한국)": "実績 (GW・韓国)", "성적": "実績", "성적 기준": "実績基準", "10점 만점": "10点満点", "4축 합": "4軸合計", "① ~ ④ 합": "①〜④合計", "총 후보": "候補総数", "평가 기준": "評価基準", "전체 컷": "全体ライン", "남성향 컷": "男性向けライン", "여성향 컷": "女性向けライン", "이슈 표시": "課題あり", "작품 제외": "作品除外", "작품 확보": "作品確保", "작품 강조": "作品を強調", "작품 삭제": "作品を削除", "점 만점": "点満点", "점 이상": "点以上", "점 적용": "点適用", "화 이상": "話以上", "화 미만": "話未満", "년 이후": "年以降", "개 작품": "作品", "전체의": "全体の", "전체 이용가": "全年齢", "세 이용가": "歳以上", "남성향": "男性向け", "여성향": "女性向け", "여·남": "女性・男性", "나란히": "並べて表示", "타겟 미정": "ターゲット未定", "공유 저장소": "共有ストレージ", "설정됨": "設定済み", "미설정": "未設定", "장르 미정": "ジャンル未定", "판타지": "ファンタジー", "로맨스": "ロマンス", "액션": "アクション", "드라마": "ドラマ", "무협/사극": "武侠/時代劇", "스릴러": "スリラー", "스포츠": "スポーツ", "일상": "日常", "감성": "感性", "개그": "ギャグ", "내부제작": "内部制作", "외부제작": "外部制作", "엠스토리허브": "Mストーリーハブ", "회원 승인": "会員承認", "한국·월": "韓国·月", "롱리스트 선정": "ロングリスト選定", "재미도 6축 · 쿼터 · 와일드카드 · 제작 4축 반영": "面白さ6軸 · クォータ · ワイルドカード · 制作4軸反映", "제작 4축 채점 · 전체 후보 · 컷": "制作4軸採点 · 全候補 · 選定ライン", "선정 기준 바꾸기": "選定基準を変更", "선정 기준 닫기": "選定基準を閉じる", "확정 작품명 복사": "確定作品名をコピー", "와일드카드": "ワイルドカード", "롱리스트": "ロングリスト", "별도 관리": "別途管理", "확정": "確定", "제외": "除外", "미채점": "未採点", "LINE망가": "LINEマンガ", "GW 없음": "GWなし", "숏리스트 검토": "ショートリスト検討", "숏리스트 후보 라인업 · 팀 선호 투표": "ショートリスト候補ラインナップ · チームの推し投票", "눌러서 정렬 (내림차순 → 오름차순 → 기본)": "クリックで並べ替え（降順 → 昇順 → 既定）", "후순위": "後順位", "작가 동의 완료 · 제작사 미정": "作家同意済み · 制作会社未定", "제작사 미정": "制作会社未定", "후보군 리스트에서 제작 담당을 내부제작 또는 외부 제작사로 지정하거나, 작가 동의를 체크하면 여기에 들어와요.": "候補リストで制作担当を内部制作または外部制作会社に指定するか、作家同意にチェックするとここに入ります。", "일본 런칭 예정": "日本ローンチ予定", "런칭 예정": "ローンチ予定", "확인 필요": "要確認", "일본 미런칭": "日本未ローンチ", "일본 런칭": "日本ローンチ", "내부제작 제외": "内部制作を除外", "작품 · 장르 · 담당 · 화수": "作品 · ジャンル · 担当 · 話数", "눌러서 점수·정보 보기": "クリックでスコア・情報を表示", "MEGA IP라 빠진 작품": "MEGA IPのため除外された作品", "(MEGA IP를 해제하면 다시 보여요)": "（MEGA IPを解除すると再表示されます）", "샘플 테스트 제작사 — 여러 곳 선택 가능": "サンプルテスト制作会社 — 複数選択可", "제작사 직접 추가": "制作会社を直接追加", "＋ 샘플 테스트": "＋ サンプルテスト", "샘플 테스트 진행": "サンプルテスト進行", "샘플 테스트 제작사 · 상태": "サンプルテスト制作会社 · 状態", "샘플 테스트": "サンプルテスト", "진행 중": "進行中", "선정": "選定", "탈락": "脱落", "편집": "編集", "테스트": "テスト", "곳": "社", "켜면 숏애니 후보 리스트·순위·판권 화면에서 빠져요. 'MEGA IP만 보기'에서 다시 볼 수 있어요": "オンにするとショートアニメ候補リスト・順位・版権画面から外れます。「MEGA IPのみ表示」で再表示できます", "4축 합 + GW + 한국 + MD 확장 + 세계관 확장 (일본 조회수 미포함)": "4軸合計 + GW + 韓国 + MD拡張 + 世界観拡張（日本閲覧数は含まない）", "MEGA IP · 리스트 제외": "MEGA IP · リスト除外", "가산점 — 해당하면 켜주세요": "加点 — 該当すればオンに", "MD · 부가사업 확장": "MD・付加事業の拡張", "굿즈·게임·이모티콘 등 상품화 가능성": "グッズ・ゲーム・スタンプなど商品化の可能性", "세계관 확장": "世界観の拡張", "스핀오프·후속 시즌으로 풀어낼 이야기가 많음": "スピンオフ・続編で展開できる物語が多い", "리스트 제외": "リスト除外", "MEGA IP (롱애니·대형 IP 전용)": "MEGA IP（長編アニメ・大型IP専用）", "제외": "除外", "가산점 전체": "加点すべて", "MD 확장 있음 (+5점)": "MD拡張あり (+5点)", "세계관 확장 있음 (+3점)": "世界観拡張あり (+3点)", "가산점 없음": "加点なし", "MEGA IP만 보기 (리스트 제외작)": "MEGA IPのみ表示（リスト除外作）", "가산점": "加点", "세계관": "世界観", "이슈가 표시된 작품은 자동으로 빠져요.": "課題が付いた作品は自動的に除外されます。", "작품도 보기": "作品も表示", "이슈로 제외된": "課題で除外された", "판권 확인 필요만": "版権確認が必要な作品のみ", "판권 확인": "版権確認", "기계약 시트 대조 결과": "既契約シート照合結果", "이슈로 확정": "課題として確定", "문제없음": "問題なし", "해외 연재": "海外連載", "9개국 연재": "9か国連載", "글로벌": "グローバル", "걸러보는 중": "絞り込み中", "전체 보기": "すべて表示", "진행 단계": "進行段階", "판권·동의 전": "版権・同意前", "제작 중": "制作中", "불가·보류": "不可・保留", "타겟 미정": "ターゲット未定", "글로벌 런칭": "グローバルローンチ", "9개국 완료": "9か国完了", "9개국 런칭 완료": "9か国ローンチ完了", "국가별 런칭": "国別ローンチ", "전체 선택": "すべて選択", "모두 해제": "すべて解除", "닫기": "閉じる", "미런칭": "未ローンチ", "9개국": "9か国", "공개 중": "公開中", "개국": "か国", "런칭": "ローンチ", "후보군 리스트에서 '판권 요청'을 체크하면 여기에 들어와요. 우선순위 → 적합도 순으로 정렬돼요.": "候補リストで「版権リクエスト」にチェックするとここに入ります。優先順位 → 適合度の順に並びます。", "후보군 리스트에서 제작 담당을 내부제작 또는 외부 제작사로 지정하면 여기에 들어와요.": "候補リストで制作担当を内部制作または外部の制作会社に指定するとここに入ります。", "진행 불가·보류": "進行不可・保留", "또는": "または", "만 보는 중": "のみ表示中", "전체 보기": "すべて表示", "판권 유효": "版権有効", "제작 진행": "制作進行", "제작사": "制作会社", "후보군 리스트": "候補リスト", "판권 확보 우선순위": "版権確保の優先順位", "제작 파이프라인": "制作パイプライン", "전체 후보 채점·컷": "全候補の採点・選定ライン", "판권 요청한 작품의 판권·작가 동의 진행": "版権リクエスト作品の版権・作家同意の進行", "내부·외부 제작사가 정해진 작품의 계약·제작 진행": "制作会社が決まった作品の契約・制作の進行", "판권 유효 현황": "版権の有効状況", "NW 보유 권한": "NW保有権限", "계약 완료": "契約完了", "제작 시작": "制作開始", "일본 런칭": "日本ローンチ", "다음 할 일": "次のアクション", "애니 판권 유효": "アニメ版権有効", "별도 협의 필요": "別途協議が必要", "확인 전": "確認前", "확인 중": "確認中", "답변 대기 중": "回答待ち", "1차 동의": "一次同意", "미착수": "未着手", "독점": "独占", "비독점": "非独占", "지분투자": "出資", "비계약": "未契約", "미확인": "未確認", "판권 확인": "版権確認", "판권 협의": "版権協議", "작가 동의 요청": "作家同意の依頼", "작가 답변 대기": "作家の回答待ち", "계약 진행": "契約進行", "계약 조율 중": "契約調整中", "제작 착수": "制作着手", "제작 진행 중": "制作進行中", "진행 불가 · 사유 확인": "進行不可 · 理由確認", "보류 중": "保留中", "비고 입력": "備考を入力", "요청일": "依頼日", "우선순위": "優先順位", "1순위": "1位", "2순위": "2位", "3순위": "3位", "1차 채점 숨기기": "一次採点を非表示", "검토 대기": "レビュー待ち", "1차 채점": "一次採点", "1차": "一次", "채점 대기": "採点待ち", "네이버 정보 일괄 불러오기": "NAVER情報を一括読み込み", "멈추기": "停止", "1차 자동 채점": "一次自動採点", "작품명 복사": "作品名をコピー", "월평균 기준": "月平均基準", "2년 합계 기준": "2年合計基準", "2년 · 월": "2年 · 月", "판권 확보 요청": "版権確保リクエスト", "판권 요청 체크를 해제할까요?": "版権リクエストのチェックを外しますか？", "판권 확보를 요청할 작품이면 체크": "版権確保をリクエストする作品ならチェック", "판권 요청": "版権リクエスト", "작품 요청": "作品リクエスト", "판권": "版権", "요청": "リクエスト", "한국·2년": "韓国·2年", "GW·2년": "GW·2年", "2년 합계": "2年合計", "월평균": "月平均", "GW·월": "GW·月", "월평균 조회수": "月平均閲覧数", "로그아웃": "ログアウト", "직접 입력": "直接入力", "내부제작이 아닌 곳으로 지정된 작품": "内部制作以外に指定された作品", "판권 없음": "版権なし", "원작사 협의 중": "原作元と協議中", "작가 협의 불가": "作家と協議不可", "내부 보류": "社内保留", "기타": "その他", "채점 대기": "採点待ち", "점수 수정됨": "スコア修正済み", "직접 추가": "直接追加", "데이터 없음": "データなし", "데이터 입고 예정": "データ入荷予定", "생성안정성": "生成安定性", "원작재현·각색고도화": "原作再現・脚色高度化", "원작재현·각색": "原作再現・脚色", "원작재현": "原作再現", "서사압축": "物語圧縮", "서사 압축": "物語圧縮", "모션임팩트": "モーションインパクト", "모션 임팩트": "モーションインパクト", "생성": "生成", "안정성": "安定性", "원작": "原作", "재현": "再現", "서사": "物語", "압축": "圧縮", "모션": "動き", "임팩트": "迫力", "제작 담당": "制作担当", "이슈 사유": "課題の理由", "이슈 해제": "課題を解除", "점수 원복": "スコアを元に戻す", "조회수 점수": "閲覧数スコア", "미반영": "未反映", "부가사업": "付加事業", "포함 작품": "に含まれる作品", "코멘트": "コメント", "네이버": "NAVER", "라인망가": "LINEマンガ", "불러오기": "読み込み", "작품명": "作品名", "장르": "ジャンル", "타겟": "ターゲット", "런칭일": "ローンチ日", "화수": "話数", "연령": "年齢区分", "조회수": "閲覧数", "한국": "韓国", "일본": "日本", "순위": "順位", "평균": "平均", "상위": "上位", "적합도": "適合度", "적합": "適合", "제작": "制作", "담당": "担当", "작가": "作家", "동의": "同意", "확장가치": "拡張価値", "확장": "拡張", "회차": "話数", "점수": "スコア", "수정": "修正", "추가": "追加", "검색": "検索", "작품": "作品", "전체": "全体", "변경": "変更", "이슈": "課題", "기준": "基準", "만점": "満点", "미정": "未定", "없음": "なし", "있음": "あり", "저장": "保存", "취소": "キャンセル", "확인": "確認", "각 ": "各", "컷": "ライン", "미포함": "含まない"};
 const JA_KEYS = Object.keys(JA_PH).sort((a,b)=>b.length-a.length);
 const JA_RX = [[/(\d)\s*화/g,"$1話"],[/(\d)점/g,"$1点"],[/(\d)위/g,"$1位"],[/(\d)만/g,"$1万"],[/(\d)억/g,"$1億"],[/(\d)년/g,"$1年"],[/(\d)세/g,"$1歳"],[/(\d)개/g,"$1"]];
 const HANGUL=/[\uac00-\ud7a3]/;
@@ -628,7 +670,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v51 · 2026-11-04";
+const BUILD = "v52 · 2026-11-04";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -643,7 +685,7 @@ let ADD  = [];           // 직접 추가한 작품
 let AGREE= {};           // 작품명 -> 작가 동의 체크 날짜
 let RIGHTS={};
 let PIPE={};             // 작품명 -> 파이프라인 진행 {pr, rs, nw, ag, ct, st, jp, stage, memo}
-let MODE=(()=>{try{return localStorage.getItem("cand_mode")||"list"}catch(e){return "list"}})();   // list · rights · pipe           // 작품명 -> 판권 확보 요청 체크 날짜
+let MODE=(()=>{try{return localStorage.getItem("cand_mode")||"ll"}catch(e){return "ll"}})();   // list · rights · pipe           // 작품명 -> 판권 확보 요청 체크 날짜
 let T = "all", G = new Set(), O = new Set(), Q = "", SORT = "basis", HIDE = false;
 let XF = "", ONLY100 = false, HIDEAUTO = false, ONLYCHK = false, HIDEINT = false;   // 확장가치 필터 · 100화+ 필터
 let BASIS = "fit";
@@ -891,7 +933,7 @@ async function authHdr(){
   return Object.assign({}, SB.hdr, t ? {Authorization:`Bearer ${t}`} : {});
 }
 let LASTPUSH=0, PULLING=false, LASTERR="";
-const APPV=51;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
+const APPV=52;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
 let OUTDATED=false, LOCAL0=null;
 function chip(state,txt){
   const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
@@ -1982,6 +2024,7 @@ function renderMode(){
   document.body.classList.toggle("mpipe",MODE!=="list");
   const pv=document.getElementById("pview"); pv.hidden = MODE==="list";
   if(MODE==="list"){ pv.innerHTML=""; return; }
+  if(MODE==="ll"){ llRender(pv); watchThumbs(); return; }
   const q=(document.getElementById("pq")||{}).value||"";
   const qf=(w)=> qHit(w,q);
   const cnt=(arr,f)=>arr.filter(f).length;
@@ -2201,6 +2244,215 @@ document.addEventListener("click",(e)=>{
   const b=e.target.closest("[data-smp]"); if(b){ e.stopPropagation(); openSP(b.dataset.smp,b); return; }
   if(!SP.hidden && !e.composedPath().includes(SP)) SP.hidden=true;
 });
+/* ═══ 롱리스트 선정 (숏애니 원작 후보 선정 로직) ═══════════════════════════════
+   1차 원작의 관점: ① 컷오프 → ② 재미도 6축(백분위 × 가중치) → ③ 쿼터 → ④ 와일드카드
+   2차 애니화의 관점: 1차 결과를 제작 4축(이 사이트 채점) 반영 비율로 다시 줄 세움
+   데이터: 공유 저장소 '__pool__' (KW·GW·LINE망가, 추출 2026-10-27) · 확정/제외는 PIPE[작품].lc / .lx 로 팀 공유 */
+let POOL=null, LLT="r2", LLQ="", LLOPEN=false, LLCOMP=false;
+const G4=["액션/판타지","로맨스","일상/코미디/드라마","스릴러/미스터리"];
+const G4GUIDE={"액션/판타지":50,"로맨스":25,"일상/코미디/드라마":20,"스릴러/미스터리":5};
+const LLDEF={cut:{peak:3000,ep:20,useP:true,useE:true,R:true,M:true,P:true,A:true,a:false},
+  w:{h:20,w:20,r1:15,r2:15,d:15,g:15,pur:0}, topN:4,
+  q:{n:50,live:80,g4:{"액션/판타지":["",""],"로맨스":["",""],"일상/코미디/드라마":["",""],"스릴러/미스터리":["",""]}},
+  wc:{gw:2,lm:3,itemOut:100,itemIn:100,itemN:5,other:true}, mix:50};
+let LLC=(()=>{ try{ const s=JSON.parse(localStorage.getItem("ll_cfg")||"null"); return s?Object.assign(JSON.parse(JSON.stringify(LLDEF)),s):JSON.parse(JSON.stringify(LLDEF)); }catch(e){ return JSON.parse(JSON.stringify(LLDEF)); } })();
+const llSave=()=>{ try{ localStorage.setItem("ll_cfg",JSON.stringify(LLC)); }catch(e){} };
+async function loadPool(){
+  try{ const r=await fetch(`${SB.url}?id=eq.__pool__&select=data`,{headers:await authHdr()}); const j=await r.json();
+       const d=Array.isArray(j)&&j[0]&&j[0].data; if(!d) return;
+       const obj=(cols,row)=>{ const o={}; cols.forEach((c,i)=>o[c]=row[i]); return o; };
+       POOL={period:d.period, kw:d.kw.map(r=>obj(d.kwc,r)), gw:d.gw.map(r=>obj(d.gwc,r))};
+  }catch(e){ POOL=null; }
+}
+const FL={R:"애니 판권 기계약",M:"Mega IP",P:"숏애니 제작 확정",A:"19금",a:"과거 19금"};
+const llF=(x)=> [...(x.f||"")].filter(c=>LLC.cut[c]).map(c=>FL[c]);
+const tgt=(fem)=> fem==null?"—":fem>=0.6?"여성향":fem<=0.4?"남성향":"공용";
+const mf=(fem)=> fem==null?"":`남 ${Math.round((1-fem)*100)} : 여 ${Math.round(fem*100)}`;
+function pctFn(vals){                       // (순위-1)/(n-1), 같은 값은 평균 순위 — 툴과 같은 방식
+  const a=vals.filter(v=>v!=null).slice().sort((x,y)=>x-y), n=a.length;
+  const lb=(v)=>{ let lo=0,hi=n; while(lo<hi){ const m=(lo+hi)>>1; if(a[m]<v) lo=m+1; else hi=m; } return lo; };
+  const ub=(v)=>{ let lo=0,hi=n; while(lo<hi){ const m=(lo+hi)>>1; if(a[m]<=v) lo=m+1; else hi=m; } return lo; };
+  return (v)=>{ if(v==null||n<2) return 0; const l=lb(v), u=ub(v); const r=(l+u-1)/2; return Math.max(0,Math.min(1,r/(n-1))); };
+}
+function llCompute(){
+  if(!POOL) return null;
+  const C=LLC, N=Math.max(1,Math.min(20,+C.topN||4));
+  const all=POOL.kw.map(x=>{ const t=(x.top||[]).slice(0,N).filter(v=>v!=null);
+    const h=t.length?t.reduce((p,c)=>p+c,0)/t.length:null;
+    return Object.assign({},x,{h, pur:(h&&x.wru)?h/x.wru:null, F:llF(x)}); });
+  const inPool=(x)=> !x.F.length && (!C.cut.useP || (x.peak||0)>=+C.cut.peak) && (!C.cut.useE || (x.ep||0)>=+C.cut.ep);
+  const pool=all.filter(inPool);
+  const AX=[["h","h"],["w","wru"],["r1","r1"],["r2","r2"],["d","dep"],["pur","pur"]];
+  const P={}; AX.forEach(([k,f])=>P[k]=pctFn(pool.map(x=>x[f])));
+  const W=C.w, wsum=Object.values(W).reduce((p,c)=>p+(+c||0),0)||1;
+  const qsum=((+W.r1||0)+(+W.r2||0)+(+W.d||0)+(+W.g||0)+(+W.pur||0))||1;
+  const score=(x)=>{ const p={}; AX.forEach(([k,f])=>p[k]=P[k](x[f])); p.g=x.gro==null?0.5:x.gro;
+    x.p=p; x.s=100*((+W.h||0)*p.h+(+W.w||0)*p.w+(+W.r1||0)*p.r1+(+W.r2||0)*p.r2+(+W.d||0)*p.d+(+W.g||0)*p.g+(+W.pur||0)*p.pur)/wsum;
+    x.q=100*((+W.r1||0)*p.r1+(+W.r2||0)*p.r2+(+W.d||0)*p.d+(+W.g||0)*p.g+(+W.pur||0)*p.pur)/qsum; };
+  all.forEach(score);
+  pool.sort((a,b)=>b.s-a.s); pool.forEach((x,i)=>x.rank=i+1);
+  pool.slice().sort((a,b)=>b.q-a.q).forEach((x,i)=>x.qrank=i+1);
+  const isX=(n)=> !!(PIPE[n]&&PIPE[n].lx);
+  // ③ 쿼터: 점수순으로 채우되 연재 중 비율 · 장르 상한, 그다음 장르 하한
+  const n=Math.max(1,+C.q.n||50), liveMax=Math.round(n*(+C.q.live||0)/100), endMax=n-liveMax;
+  const gmax=(g)=>{ const v=(C.q.g4[g]||[])[1]; return v===""||v==null?Infinity:+v; }, gmin=(g)=>{ const v=(C.q.g4[g]||[])[0]; return v===""||v==null?0:+v; };
+  const LL=[], cnt={live:0,end:0}, gc={}; G4.forEach(g=>gc[g]=0);
+  const ok=(x)=>{ const live=x.seg==="연재 중"; if(live?cnt.live>=liveMax:cnt.end>=endMax) return false; if((gc[x.g4]||0)>=gmax(x.g4)) return false; return true; };
+  const add=(x)=>{ LL.push(x); x.seg==="연재 중"?cnt.live++:cnt.end++; gc[x.g4]=(gc[x.g4]||0)+1; };
+  pool.forEach(x=>{ if(PIPE[x.n]&&PIPE[x.n].lc&&!isX(x.n)) add(x); });   // 확정 작품은 순위와 상관없이 먼저 편입 (툴과 같은 방식)
+  for(const x of pool){ if(LL.length>=n) break; if(isX(x.n)||LL.includes(x)) continue; if(ok(x)) add(x); }
+  for(const x of pool){ if(LL.length>=n) break; if(isX(x.n)||LL.includes(x)) continue; if((gc[x.g4]||0)<gmax(x.g4)) add(x); }   // 연재 비율로 못 채운 자리는 점수순
+  G4.forEach(g=>{ while((gc[g]||0)<gmin(g)){ const cand=pool.find(x=>x.g4===g&&!LL.includes(x)&&!isX(x.n)); if(!cand) break;
+      let ri=-1; for(let i=LL.length-1;i>=0;i--){ const y=LL[i]; if(y.g4!==g && (gc[y.g4]||0)>gmin(y.g4)){ ri=i; break; } } if(ri<0) break;
+      const y=LL.splice(ri,1)[0]; gc[y.g4]--; y.seg==="연재 중"?cnt.live--:cnt.end--; add(cand); } });
+  LL.sort((a,b)=>b.s-a.s); LL.forEach(x=>x.kind="롱리스트");
+  const taken=new Set(LL.map(x=>normT(x.n)));
+  // ④ 항목별 와일드카드: 질 점수(규모 뺀 4축)는 상위권인데 종합 순위가 밀린 작품
+  const item=pool.filter(x=>x.qrank<=+C.wc.itemIn && x.rank>+C.wc.itemOut && !taken.has(normT(x.n)) && !isX(x.n)).sort((a,b)=>b.q-a.q).slice(0,+C.wc.itemN||0);
+  item.forEach(x=>{ x.kind="항목별 와일드카드"; taken.add(normT(x.n)); });
+  // ④ 국가별 와일드카드: KW에 없거나 컷오프를 못 넘었지만 GW·LINE망가 상위권
+  const poolNo=new Set(pool.map(x=>x.no)), kwBy={}; all.forEach(x=>kwBy[x.no]=x);
+  const gwF=(g)=>{ const r=[]; if(LLC.cut.R&&g.rights) r.push("애니 판권 기계약"); if(LLC.cut.M&&g.mega===1) r.push("Mega IP"); if(LLC.cut.A&&/성인|18/.test(g.grade||"")) r.push("19금"); const k=g.kw&&kwBy[g.kw]; if(k) k.F.forEach(v=>r.includes(v)||r.push(v)); return r; };
+  const gwc=POOL.gw.filter(g=>!(g.kw&&poolNo.has(g.kw)) && !gwF(g).length && (C.wc.other||!g.other) && g.s6!=null && !taken.has(normT(g.n||g.loc)) && !isX(g.n||g.loc))
+    .sort((a,b)=>b.s6-a.s6).slice(0,+C.wc.gw||0).map(g=>{ const k=g.kw&&kwBy[g.kw];
+      return {n:g.n||g.loc, loc:g.loc, no:g.kw, g:g.g, g4:k?k.g4:null, seg:k?k.seg:(g.st==="COMPLETED"?"종료":"연재 중"), fem:k?k.fem:null, ep:k?k.ep:null, h:null, s:g.s6, gw:g, kind:"국가별 와일드카드 · GW", mkt:`GW ${g.lang} ${g.lrank}위`, kwst:k?`KW 최고 WPU ${fmt(k.peak)}`:"KW 미연재", wpu:g.wpu}; });
+  gwc.forEach(x=>taken.add(normT(x.n)));
+  const lmc=all.filter(x=>!poolNo.has(x.no) && !x.F.length && x.lmr && !taken.has(normT(x.n)) && !isX(x.n)).sort((a,b)=>a.lmr-b.lmr).slice(0,+C.wc.lm||0);
+  lmc.forEach(x=>{ x.kind="국가별 와일드카드 · LINE망가"; x.mkt=`LINE망가 ${x.lmr}위`; x.kwst=`KW 최고 WPU ${fmt(x.peak)}`; taken.add(normT(x.n)); });
+  const R1=LL.concat(item,gwc,lmc);
+  // 2차: 제작 4축(이 사이트 채점) 반영
+  const wBy={}, wNm={}; W_ALL().forEach(w=>{ if(w.id) wBy[String(w.id)]=w; wNm[normT(w.n)]=w; });
+  R1.forEach((x,i)=>{ x.o1=i+1; const w=(x.no&&wBy[String(x.no)])||wNm[normT(x.n)]; x.dw=w||null;
+    x.s4 = w&&w.a!=null&&!w.auto ? w.a+w.b+w.c+w.e : null; x.s4a = w&&w.a!=null ? w.a+w.b+w.c+w.e : null; x.ax=w&&w.a!=null?[w.a,w.b,w.c,w.e]:null; x.auto4=!!(w&&w.auto);
+    const s1=x.s; x.s2 = (x.s4a!=null && s1!=null) ? (+C.mix/100)*s1 + (1-(+C.mix/100))*(x.s4a/40*100) : null; });
+  const R2=R1.slice().sort((a,b)=> (a.s2==null)-(b.s2==null) || (b.s2??0)-(a.s2??0) || a.o1-b.o1); R2.forEach((x,i)=>x.r2=i+1);
+  const Fl=all.filter(x=>x.F.length && (x.peak||0)>=+C.cut.peak*0.5).sort((a,b)=>b.s-a.s);
+  const conf=R2.filter(x=>PIPE[x.n]&&PIPE[x.n].lc);
+  return {all,pool,LL,item,gwc,lmc,R1,R2,F:Fl,conf,excluded:pool.filter(x=>isX(x.n)&&x.rank<=n+20)};
+}
+const W_ALL=()=> (typeof W!=="undefined"?W:[]);
+/* ── 화면 ── */
+const LLAXN=[["h","높이","Max WPU (상위 N주 평균)"],["w","넓이","평균 WRU"],["r1","열람","열람 리텐션"],["r2","결제","결제 리텐션"],["d","깊이","최근 52회차 진도율"],["g","성장","성장성"]];
+const sixBars=(x)=> x.p ? `<div class="six" title="${esc(LLAXN.map(([k,t])=>`${t} ${Math.round(x.p[k]*100)}`).join(" · "))}">${LLAXN.map(([k,t],i)=>`<i style="--v:${Math.round(x.p[k]*100)}%;--c:${["#2a78d6","#3aa7b8","#1baf7a","#8a5cd1","#eda100","#eb6834"][i]}"><b></b></i>`).join("")}</div>` : `<span class="v-n">—</span>`;
+const kindBadge=(x)=> (!x.kind||x.kind==="롱리스트")?"":`<span class="llk ${x.kind.startsWith("항목")?"it":"cn"}">${x.kind.replace("국가별 와일드카드 · ","")}${x.kind.startsWith("항목")?"":" 와일드카드"}</span>`;
+function llRow(x,cols){
+  const p=PIPE[x.n]||{}, lc=p.lc, lx=p.lx, th=x.no?`<div class="th" data-cid="${x.no}"></div>`:`<div class="th"></div>`;
+  const meta=[x.g, x.seg, tgt(x.fem), x.ep?`${x.ep}화`:""].filter(Boolean).join(" · ");
+  const C={
+    r2:`<td class="rk2"><b>${x.r2}</b>${x.o1!==x.r2?`<small class="${x.o1>x.r2?"up":"dn"}">${x.o1>x.r2?"▲":"▼"}${Math.abs(x.o1-x.r2)}</small>`:""}</td>`,
+    r1:`<td class="rk2"><b>${x.rank??"—"}</b></td>`,
+    o1:`<td class="rk2"><b>${x.o1}</b></td>`,
+    w:`<td><div class="pw">${th}<div class="nm"><a href="${x.no?`https://comic.naver.com/webtoon/list?titleId=${x.no}`:"#"}" target="_blank" rel="noopener" data-noi18n>${esc(x.n)}</a>${kindBadge(x)}${lc?`<span class="llc">확정</span>`:""}${x.F&&x.F.length?x.F.map(f=>`<span class="llf">${f}</span>`).join(""):""}${x.loc&&x.loc!==x.n?`<div class="meta">${esc(x.loc)}</div>`:""}<div class="meta">${esc(meta)}</div></div></div></td>`,
+    g4:`<td class="c">${esc(x.g4||"—")}</td>`,
+    s1:`<td class="c"><b>${x.s!=null?x.s.toFixed(1):"—"}</b>${x.rank?`<small>${x.rank}위</small>`:x.mkt?`<small>${esc(x.mkt)}</small>`:""}</td>`,
+    six:`<td>${sixBars(x)}</td>`,
+    s4:`<td class="c">${x.ax?`<span class="ax4" title="① 생성 ${x.ax[0]} · ② 재현 ${x.ax[1]} · ③ 압축 ${x.ax[2]} · ④ 모션 ${x.ax[3]}${x.auto4?" (1차 자동 채점)":""}">${x.s4a}${x.auto4?"<sup>1차</sup>":""}</span>`:`<span class="v-n" title="작품 제작 리스트에 4축 점수가 없어요">미채점</span>`}</td>`,
+    s2:`<td class="c">${x.s2!=null?`<span class="fit" style="background:${fitVar(x.s2*58/100)}">${x.s2.toFixed(1)}</span>`:"—"}</td>`,
+    wpu:`<td class="num">${fmt(x.h??x.wpu)}<small>${x.wru?`WRU ${fmt(x.wru)}`:x.gw?`${esc(x.gw.lang)}`:""}</small></td>`,
+    kw:`<td class="c">${esc(x.kwst||"")}</td>`,
+    mkt:`<td class="c">${esc(x.mkt||"")}</td>`,
+    q:`<td class="c">${x.q!=null?x.q.toFixed(1):"—"}<small>${x.qrank?`${x.qrank}위`:""}</small></td>`,
+    fr:`<td class="c">${(x.F||[]).join(" · ")}</td>`,
+    rg:`<td class="c">${esc(x.rg||"")}</td>`,
+    cf:`<td class="cfx"><label class="ck"><input type="checkbox" data-llc="${esc(x.n)}"${lc?" checked":""}> 확정</label><input class="pmemo" data-llcr="${esc(x.n)}" value="${esc(typeof lc==="string"?lc:"")}" placeholder="이유"${lc?"":" disabled"}></td>`,
+    ex:`<td class="cfx"><label class="ck"><input type="checkbox" data-llx="${esc(x.n)}"${lx?" checked":""}> 제외</label><input class="pmemo" data-llxr="${esc(x.n)}" value="${esc(typeof lx==="string"?lx:"")}" placeholder="이유"${lx?"":" disabled"}></td>`,
+  };
+  return `<tr class="${lc?"conf ":""}${lx?"exc":""}">${cols.map(c=>C[c]).join("")}</tr>`;
+}
+const LLH={r2:"2차 순위",r1:"1차 순위",o1:"#",w:"작품",g4:"장르 4구간",s1:"1차 점수",six:"재미도 6축",s4:"제작 4축",s2:"2차 점수",wpu:"Max WPU",kw:"KW 상태",mkt:"시장 순위",q:"질 점수",fr:"제외 사유",rg:"판권",cf:"확정",ex:"제외"};
+const llTable=(arr,cols)=> arr.length?`<div class="llwrap"><table class="ptab lltab"><thead><tr>${cols.map(c=>`<th>${LLH[c]}</th>`).join("")}</tr></thead><tbody>${arr.map(x=>llRow(x,cols)).join("")}</tbody></table></div>`:`<div class="pempty">해당 작품이 없어요</div>`;
+function compBars(arr,label){
+  const n=arr.length||1, live=arr.filter(x=>x.seg==="연재 중").length;
+  const g=G4.map(k=>[k,arr.filter(x=>x.g4===k).length]);
+  const m=arr.filter(x=>tgt(x.fem)==="남성향").length, f=arr.filter(x=>tgt(x.fem)==="여성향").length;
+  const row=(t,c,guide)=>`<div class="cbr"><span>${t}</span><b>${c}</b><s>${Math.round(c/n*100)}%${guide!=null?` · 가이드 ${guide}%`:""}</s><div class="cbt"><i style="width:${Math.round(c/n*100)}%"></i>${guide!=null?`<em style="left:${guide}%"></em>`:""}</div></div>`;
+  return `<div class="pfc"><div class="pft">${label} · 연재 상태</div>${row("연재 중",live,LLC.q.live)}${row("종료",arr.length-live,100-LLC.q.live)}</div>
+    <div class="pfc"><div class="pft">장르 4구간 (점선 = 가이드)</div>${g.map(([k,c])=>row(k,c,G4GUIDE[k])).join("")}</div>
+    <div class="pfc"><div class="pft">성향 (최근 52주 실제 독자 기준)</div>${row("남성향",m)}${row("여성향",f)}${row("공용",arr.length-m-f)}</div>`;
+}
+function llCfgHTML(){
+  const C=LLC, w=C.w, num=(path,v,wd=64)=>`<input class="llin" type="number" data-cfg="${path}" value="${v===""?"":v}" style="width:${wd}px" placeholder="—">`;
+  const chk=(path,v,t)=>`<label class="ck"><input type="checkbox" data-cfg="${path}"${v?" checked":""}> ${t}</label>`;
+  const sl=(k,t,d)=>`<div class="slr"><span title="${d}">${t}</span><input type="range" min="0" max="40" step="1" data-cfg="w.${k}" value="${w[k]}"><b>${w[k]}</b></div>`;
+  return `<div class="llcfg">
+    <div class="pfc"><div class="pft">① 컷오프 — 처음부터 빼는 작품</div>
+      ${chk("cut.R",C.cut.R,"애니 판권 기계약")} ${chk("cut.M",C.cut.M,"Mega IP")} ${chk("cut.P",C.cut.P,"숏애니 제작 확정")} ${chk("cut.A",C.cut.A,"19금")} ${chk("cut.a",C.cut.a,"과거 19금(현재 15세)")}
+      <div class="lrow">${chk("cut.useP",C.cut.useP,"재미 규모")} 최고 1주 WPU ${num("cut.peak",C.cut.peak,80)} 명 이상</div>
+      <div class="lrow">${chk("cut.useE",C.cut.useE,"분량")} 총 ${num("cut.ep",C.cut.ep)} 화 이상</div></div>
+    <div class="pfc"><div class="pft">② 재미도 6축 가중치 (백분위 × 가중치)</div>
+      ${sl("h","높이","Max WPU 상위 N주 평균")}${sl("w","넓이","평균 WRU")}${sl("r1","지속·열람","열람 리텐션")}${sl("r2","지속·결제","결제 리텐션")}${sl("d","깊이","최근 52회차 진도율")}${sl("g","성장성","최근 8분기 WPU 추세")}${sl("pur","PUR","WPU ÷ WRU")}
+      <div class="lrow">높이 = 주간 WPU 상위 ${num("topN",C.topN,52)} 주 평균</div></div>
+    <div class="pfc"><div class="pft">③ 쿼터</div>
+      <div class="lrow">롱리스트 ${num("q.n",C.q.n)} 개 · 연재 중 ${num("q.live",C.q.live)} %</div>
+      ${G4.map(g=>`<div class="lrow"><span class="gl">${g}</span> ${num(`q.g4.${g}.0`,C.q.g4[g][0],52)} 개 이상 ~ ${num(`q.g4.${g}.1`,C.q.g4[g][1],52)} 개 이하</div>`).join("")}</div>
+    <div class="pfc"><div class="pft">④ 와일드카드 · 2차</div>
+      <div class="lrow">국가별 · GW ${num("wc.gw",C.wc.gw,52)} 개 · LINE망가 ${num("wc.lm",C.wc.lm,52)} 개</div>
+      <div class="lrow">${chk("wc.other",C.wc.other,"타 플랫폼 판권 작품 포함")}</div>
+      <div class="lrow">항목별 · 종합 ${num("wc.itemOut",C.wc.itemOut,60)} 위 밖 · 질 점수 ${num("wc.itemIn",C.wc.itemIn,60)} 위 이내 · ${num("wc.itemN",C.wc.itemN,52)} 개</div>
+      <div class="lrow"><b>2차</b> 원작 점수 ${num("mix",C.mix,52)} % : 제작 4축 ${100-(+C.mix||0)} %</div>
+      <div class="lrow"><button type="button" class="btn sm" data-llact="reset">기본값으로 되돌리기</button></div></div>
+  </div>`;
+}
+function llRender(pv){
+  if(!POOL){ pv.innerHTML=`<div class="pempty">롱리스트 데이터를 불러오지 못했어요. 관리자에게 '롱리스트 선정 데이터 저장' SQL 실행을 요청해 주세요.</div>`; return; }
+  const R=llCompute(); window.__LL=R;
+  const q=LLQ.replace(/\s/g,"").toLowerCase(), qf=(x)=>!q||String(x.n).replace(/\s/g,"").toLowerCase().includes(q)||String(x.loc||"").toLowerCase().includes(q);
+  const C=LLC, wcN=R.item.length+R.gwc.length+R.lmc.length;
+  const tabs=[["r2",`2차 결과 · 애니화 적합도 ${R.R2.length}`],["r1",`1차 롱리스트 ${R.LL.length}`],["wc",`와일드카드 ${wcN}`],["f",`별도 관리 ${R.F.length}`],["cf",`확정 ${R.conf.length}`]];
+  let body="";
+  if(LLT==="r2") body=`<div class="hint">1차 결과(롱리스트 + 와일드카드)를 원작 점수 ${C.mix}% + 제작 4축 ${100-C.mix}%로 다시 줄 세웠어요. 4축은 후보군 리스트의 채점이며, 미채점 작품은 1차 순서대로 맨 아래에 있어요.</div>${llTable(R.R2.filter(qf),["r2","w","g4","s1","six","s4","s2","wpu","cf","ex"])}`;
+  if(LLT==="r1") body=`<div class="hint">컷오프를 통과한 ${R.pool.length.toLocaleString()}개 중 재미도 점수 순으로 쿼터를 맞춰 ${C.q.n}개를 골랐어요. '확정'한 작품은 순위와 상관없이 먼저 들어가고, '제외'를 체크하면 빠진 자리에 다음 순위 작품이 올라와요.</div>${llTable(R.LL.filter(qf),["r1","w","g4","s1","six","wpu","s4","cf","ex"])}${R.excluded.length?`<div class="psec">제외한 작품 · ${R.excluded.length}</div>${llTable(R.excluded.filter(qf),["r1","w","g4","s1","six","wpu","ex"])}`:""}`;
+  if(LLT==="wc") body=`<div class="hint">국가별: KW에 없거나 컷오프를 못 넘었지만 GW(언어별 6축 점수)·LINE망가(순위)에서 상위권인 작품 · 항목별: 규모(높이·넓이)를 뺀 질 점수는 ${C.wc.itemIn}위 안인데 종합 순위가 ${C.wc.itemOut}위 밖인 작품</div>
+    <div class="psec">국가별 와일드카드 · ${R.gwc.length+R.lmc.length}</div>${llTable(R.gwc.concat(R.lmc).filter(qf),["o1","w","mkt","kw","wpu","s4","cf","ex"])}
+    <div class="psec">항목별 와일드카드 · ${R.item.length}</div>${llTable(R.item.filter(qf),["r1","w","g4","s1","q","six","wpu","cf","ex"])}`;
+  if(LLT==="f") body=`<div class="hint">1차 검토 대상에서 뺀 작품이에요 (컷오프 설정 기준). 점수는 롱리스트와 같은 기준의 참고값이에요.</div>${llTable(R.F.filter(qf).slice(0,300),["w","fr","rg","g4","s1","six","wpu"])}`;
+  if(LLT==="cf") body=`<div class="pf">${compBars(R.conf,"확정 작품")}</div>${llTable(R.conf.filter(qf),["r2","w","g4","s1","s4","s2","cf"])}`;
+  const res=`<div class="llsum">
+      <span>대상 <b>${R.all.length.toLocaleString()}</b></span><span>컷오프 통과 <b>${R.pool.length.toLocaleString()}</b></span><span>별도 관리 <b>${R.F.length}</b></span>
+      <span>롱리스트 <b>${R.LL.length}</b> + 와일드카드 <b>${wcN}</b></span><span>확정 <b>${R.conf.length}</b></span></div>
+    <div class="pf">${compBars(R.LL,"롱리스트")}</div>
+    <div class="lltabs">${tabs.map(([k,t])=>`<button type="button" data-llt="${k}" aria-pressed="${LLT===k}">${t}</button>`).join("")}<span class="spacer"></span><input type="search" id="llq" placeholder="작품명 검색" value="${esc(LLQ)}"></div>
+    ${body}`;
+  let cfg=document.getElementById("llcfgbox"), out=document.getElementById("llres");
+  if(!cfg||!out){
+    pv.innerHTML=`<div class="phead"><h2>롱리스트 선정</h2><span class="hint" style="margin:0">${esc(POOL.period)}</span><span class="spacer"></span>
+      <button type="button" class="btn sm" data-llact="cfg">${LLOPEN?"선정 기준 닫기":"선정 기준 바꾸기"}</button><button type="button" class="btn sm" data-llact="copy">확정 작품명 복사</button></div>
+      <div class="llsummary" id="llline"></div><div id="llcfgbox"${LLOPEN?"":" hidden"}></div><div id="llres"></div>`;
+    cfg=document.getElementById("llcfgbox"); out=document.getElementById("llres"); cfg.innerHTML=llCfgHTML();
+  }
+  const w=C.w;
+  document.getElementById("llline").innerHTML=`<span>컷오프 WPU ${fmt(+C.cut.peak)}+ · ${C.cut.ep}화+</span><span>가중치 높이 ${w.h} · 넓이 ${w.w} · 열람 ${w.r1} · 결제 ${w.r2} · 깊이 ${w.d} · 성장 ${w.g}${+w.pur?` · PUR ${w.pur}`:""}</span><span>롱리스트 ${C.q.n} (연재 ${C.q.live}%)</span><span>와일드카드 GW ${C.wc.gw} · LM ${C.wc.lm} · 항목 ${C.wc.itemN}</span><span>2차 원작 ${C.mix} : 제작 ${100-C.mix}</span>`;
+  const had=document.activeElement&&document.activeElement.id==="llq";
+  out.innerHTML=res;
+  if(had){ const el=document.getElementById("llq"); el.focus(); el.setSelectionRange(el.value.length,el.value.length); }
+}
+let LLTM=null, LLCOMPOSE=false;
+const llRedraw=()=>{ clearTimeout(LLTM); LLTM=setTimeout(()=>{ renderMode(); },120); };
+function setPath(o,path,v){ const k=path.split("."); let t=o; for(let i=0;i<k.length-1;i++){ t=t[k[i]]; } t[k[k.length-1]]=v; }
+document.addEventListener("input",(e)=>{
+  const t=e.target; if(MODE!=="ll") return;
+  if(t.id==="llq"){ if(LLCOMPOSE||e.isComposing) return; LLQ=t.value; llRedraw(); return; }
+  if(t.dataset.cfg){ const v=t.type==="checkbox"?t.checked:(t.value===""?"":+t.value); setPath(LLC,t.dataset.cfg,v); llSave();
+    if(t.type==="range"){ const b=t.parentElement.querySelector("b"); if(b) b.textContent=t.value; } llRedraw(); return; }
+  if(t.dataset.llcr!==undefined){ const p=PIPE[t.dataset.llcr]||(PIPE[t.dataset.llcr]={}); p.lc=t.value.trim()||true; save(); return; }
+  if(t.dataset.llxr!==undefined){ const p=PIPE[t.dataset.llxr]||(PIPE[t.dataset.llxr]={}); p.lx=t.value.trim()||true; save(); return; }
+});
+document.addEventListener("compositionstart",(e)=>{ if(e.target.id==="llq") LLCOMPOSE=true; });
+document.addEventListener("compositionend",(e)=>{ if(e.target.id==="llq"){ LLCOMPOSE=false; LLQ=e.target.value; llRedraw(); } });
+document.addEventListener("change",(e)=>{
+  const t=e.target; if(MODE!=="ll") return;
+  if(t.dataset.cfg && t.type==="checkbox"){ setPath(LLC,t.dataset.cfg,t.checked); llSave(); llRedraw(); return; }
+  if(t.dataset.llc!==undefined){ const n=t.dataset.llc, p=PIPE[n]||(PIPE[n]={}); if(t.checked){ p.lc=true; delete p.lx; } else delete p.lc; render(); return; }
+  if(t.dataset.llx!==undefined){ const n=t.dataset.llx, p=PIPE[n]||(PIPE[n]={}); if(t.checked){ p.lx=true; delete p.lc; } else delete p.lx; render(); return; }
+});
+document.addEventListener("click",(e)=>{
+  if(MODE!=="ll") return;
+  const tb=e.target.closest("[data-llt]"); if(tb){ LLT=tb.dataset.llt; renderMode(); return; }
+  const a=e.target.closest("[data-llact]"); if(!a) return;
+  if(a.dataset.llact==="cfg"){ LLOPEN=!LLOPEN; const c=document.getElementById("llcfgbox"); if(c) c.hidden=!LLOPEN; a.textContent=LLOPEN?"선정 기준 닫기":"선정 기준 바꾸기"; }
+  if(a.dataset.llact==="reset"){ LLC=JSON.parse(JSON.stringify(LLDEF)); llSave(); const c=document.getElementById("llcfgbox"); if(c) c.innerHTML=llCfgHTML(); renderMode(); }
+  if(a.dataset.llact==="copy"){ const R=window.__LL; if(!R) return; const t=R.conf.map(x=>x.n).join("\n"); navigator.clipboard&&navigator.clipboard.writeText(t); a.textContent=`복사됨 (${R.conf.length})`; setTimeout(()=>a.textContent="확정 작품명 복사",1500); }
+});
 /* ── 언어 토글 ── */
 document.querySelectorAll("#segL button").forEach(b=>{
   b.setAttribute("aria-pressed",String(b.dataset.l===LANG));
@@ -2292,6 +2544,7 @@ async function startApp(){
   $g("usersBtn").hidden=!ME.is_admin;
   await loadInfo();
   await loadMetrics();
+  await loadPool();
   load(); LOCAL0=JSON.parse(JSON.stringify(payload())); cleanOwn(); seedLaunch(); render(); jaNode(document.body);
   chip("ok","공유 저장소 불러오는 중"); sbPull(true); setInterval(()=>sbPull(false),15000);
 }
