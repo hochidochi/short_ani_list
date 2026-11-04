@@ -532,6 +532,34 @@ body.mpipe .bar,body.mpipe #kpis,body.mpipe #cols{display:none}
 .e2s circle.on{fill:var(--ink)} .e2s circle.off{fill:var(--surface-1);stroke:var(--ink);stroke-width:1.5} .e2s .pl{font-size:9.5px;fill:var(--ink-2)}
 .e2y{position:absolute;left:2px;top:50%;transform:rotate(-90deg) translateX(50%);transform-origin:left top;font-size:10px;color:var(--muted)}
 .llnote p{font-size:11.5px;color:var(--ink-2);line-height:1.7;margin:6px 0 0}
+
+/* ── v54: 상단 탭 숨김 · 롱리스트 색감 (판권 확보 화면 톤) ── */
+#segM{display:none!important}
+.llhero{background:linear-gradient(135deg,color-mix(in srgb,#2a78d6 7%,var(--surface-1)),color-mix(in srgb,#1baf7a 6%,var(--surface-1)));border-color:color-mix(in srgb,#2a78d6 18%,var(--ring))}
+.llnav a{background:var(--surface-1)} .llnav a b{color:#2a78d6}
+.llsec{border-color:var(--grid)}
+.llh .tag{background:color-mix(in srgb,#2a78d6 14%,transparent);color:#1f5fae;border:1px solid color-mix(in srgb,#2a78d6 30%,transparent)}
+.llA .lgrp{border-top-color:color-mix(in srgb,#2a78d6 45%,transparent)}
+.lsh{background:color-mix(in srgb,#2a78d6 5%,var(--surface-1))}
+.lres b{color:#1f5fae}
+.lat .st{background:color-mix(in srgb,#eda100 6%,var(--surface-1))}
+.lltab thead th{background:var(--plane)!important;color:var(--muted)!important;font-weight:600!important;border-bottom:1px solid var(--axis)}
+.lltab thead th small{opacity:1;color:var(--muted)}
+.llwrap.tall{border-color:var(--grid)}
+.lltab tbody tr:hover td{background:color-mix(in srgb,#2a78d6 4%,var(--surface-1))}
+.lltab tr.conf td{background:color-mix(in srgb,#eda100 12%,var(--surface-1))!important}
+.lltab tr.wcr td{background:color-mix(in srgb,#3aa7b8 7%,var(--surface-1))}
+.lltab tr.picked td{background:color-mix(in srgb,#2a78d6 6%,var(--surface-1))}
+.lp{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;color:color-mix(in srgb,var(--pc) 80%,#1c1f26);background:color-mix(in srgb,var(--pc) 13%,transparent);border:1px solid color-mix(in srgb,var(--pc) 30%,transparent)}
+.lp.ok{--pc:#1baf7a} .lp.mu{--pc:#8a93a3}
+td .lp+small{margin-top:2px}
+.fit.sm{display:inline-grid;place-items:center;min-width:44px;height:26px;border-radius:7px;color:#fff;font-weight:800;font-size:12.5px}
+.llk.cn{color:#0b6a8a} .llf{background:color-mix(in srgb,#d03b6b 12%,transparent);color:#a3264f;border:1px solid color-mix(in srgb,#d03b6b 30%,transparent)}
+.llc{background:color-mix(in srgb,#eda100 25%,transparent);color:#7a5200;border:1px solid color-mix(in srgb,#eda100 55%,transparent)} .llc.ink{background:color-mix(in srgb,#2a78d6 14%,transparent);color:#1f5fae;border-color:color-mix(in srgb,#2a78d6 35%,transparent)}
+.llpf .pfl button{cursor:default} .llpf .pfl button:hover{background:transparent;border-color:transparent}
+.e2s circle.on{fill:#2a78d6} .e2s circle.off{stroke:#2a78d6}
+.slr input{accent-color:#2a78d6}
+.ed4{border-bottom:1px dashed currentColor}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head><body>
@@ -735,7 +763,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "v53 · 2026-11-04";
+const BUILD = "v54 · 2026-11-04";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -750,7 +778,7 @@ let ADD  = [];           // 직접 추가한 작품
 let AGREE= {};           // 작품명 -> 작가 동의 체크 날짜
 let RIGHTS={};
 let PIPE={};             // 작품명 -> 파이프라인 진행 {pr, rs, nw, ag, ct, st, jp, stage, memo}
-let MODE=(()=>{try{return localStorage.getItem("cand_mode")||"ll"}catch(e){return "ll"}})();   // list · rights · pipe           // 작품명 -> 판권 확보 요청 체크 날짜
+let MODE="ll";   // 롱리스트 선정 화면만 사용 (기존 후보군·판권·파이프라인 탭은 숨김)   // list · rights · pipe           // 작품명 -> 판권 확보 요청 체크 날짜
 let T = "all", G = new Set(), O = new Set(), Q = "", SORT = "basis", HIDE = false;
 let XF = "", ONLY100 = false, HIDEAUTO = false, ONLYCHK = false, HIDEINT = false;   // 확장가치 필터 · 100화+ 필터
 let BASIS = "fit";
@@ -998,7 +1026,7 @@ async function authHdr(){
   return Object.assign({}, SB.hdr, t ? {Authorization:`Bearer ${t}`} : {});
 }
 let LASTPUSH=0, PULLING=false, LASTERR="";
-const APPV=53;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
+const APPV=54;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
 let OUTDATED=false, LOCAL0=null;
 function chip(state,txt){
   const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
@@ -2401,7 +2429,7 @@ function llCompute(){
   const wBy={}, wNm={}; (typeof W!=="undefined"&&Array.isArray(W)?W:[]).forEach(w=>{ if(w.id) wBy[String(w.id)]=w; wNm[normT(w.n)]=w; });
   const scored=(typeof W!=="undefined"&&Array.isArray(W)?W:[]).filter(w=>w.a!=null&&!w.auto).length;
   R1.forEach((x,i)=>{ x.o1=i+1; const w=(x.no&&wBy[String(x.no)])||wNm[normT(x.n)];
-    x.ax=w&&w.a!=null?[w.a,w.b,w.c,w.e]:null; x.s4=x.ax?x.ax.reduce((p,c)=>p+c,0):null; x.auto4=!!(w&&w.auto);
+    x.dwn=w?w.n:null; x.ax=w&&w.a!=null?[w.a,w.b,w.c,w.e]:null; x.s4=x.ax?x.ax.reduce((p,c)=>p+c,0):null; x.auto4=!!(w&&w.auto);
     x.s2=(x.s4!=null&&x.s!=null)?(+C.mix/100)*x.s+(1-(+C.mix/100))*(x.s4/40*100):null; });
   const R2=R1.slice().sort((a,b)=>(a.s2==null)-(b.s2==null)||(b.s2??0)-(a.s2??0)||a.o1-b.o1); R2.forEach((x,i)=>x.r2=i+1);
   const Fs=all.filter(x=>x.F.length && (x.F.includes("숏애니 제작 확정") || cutOK(x))).sort((a,b)=>b.s-a.s);
@@ -2412,8 +2440,18 @@ function llCompute(){
     epPct:Math.round(100*POOL.kw.filter(y=>(y.ep||0)<+C.cut.ep).length/POOL.kw.length), scored, scoredIn:R1.filter(x=>x.s4!=null).length};
   return {all,pool,LL,item,gwc,lmc,R1,R2,F:Fs,conf,G:Gc,H:Hc,stat,excluded:pool.filter(x=>isX(x.n)&&x.rank<=n+30)};
 }
+
+/* ── 색 배지 (판권 확보 화면과 같은 톤 · 연한 바탕) ── */
+const GCLR={"판타지":"#2a78d6","액션":"#1baf7a","무협/사극":"#eda100","순정":"#eb6834","로맨스":"#eb6834","스릴러":"#8a5cd1","드라마":"#d03b6b","일상":"#3aa7b8","개그":"#7a8b2f","감성":"#b5651d","스포츠":"#3aa7b8"};
+const G4CLR={"액션/판타지":"#2a78d6","로맨스":"#eb6834","일상/코미디/드라마":"#1baf7a","스릴러/미스터리":"#8a5cd1"};
+const pill=(t,c)=> t?`<span class="lp" style="--pc:${c||"#7a8493"}">${esc(t)}</span>`:"—";
+const gPill=(g)=>pill(g,GCLR[g]), g4Pill=(g)=>pill(g,G4CLR[g]);
+const segPill=(v)=> v?`<span class="lp ${v==="연재 중"?"ok":"mu"}">${esc(v)}</span>`:"—";
+const sexPill=(fem)=>{ const t=tgt(fem); return fem==null?"—":`<span class="lp" style="--pc:${t==="남성향"?"#2a78d6":t==="여성향"?"#eb6834":"#1baf7a"}">${t}</span><small>${mfs(fem)}</small>`; };
+const scoreB=(v)=> v==null?`<span class="v-n">—</span>`:`<span class="fit sm" style="background:${fitVar(Math.max(0,Math.min(1,(v-55)/42))*58)}">${v.toFixed(1)}</span>`;   // 55~97점 구간을 색 진하기로
 /* ── 공통 조각 ── */
-const llCell=(v,rank,k)=>`<div class="axc" title="${k} 백분위 ${v} · 풀 내 ${rank}위"><div class="axb"><i style="width:${v}%"></i></div><b>${v}</b><small>${rank}위</small></div>`;
+const AXCLR={"높이":"#2a78d6","h":"#2a78d6","넓이":"#3aa7b8","w":"#3aa7b8","지속·열람":"#1baf7a","r1":"#1baf7a","지속·결제":"#8a5cd1","r2":"#8a5cd1","깊이":"#eda100","d":"#eda100","성장성":"#eb6834","g":"#eb6834"};
+const llCell=(v,rank,k)=>`<div class="axc" title="${k} 백분위 ${v} · 풀 내 ${rank}위"><div class="axb"><i style="width:${v}%;background:${AXCLR[k]||"var(--ink-2)"}"></i></div><b>${v}</b><small>${rank}위</small></div>`;
 const cfgNum=(path,v,w=60)=>`<input class="llin" type="number" data-cfg="${path}" value="${v===""||v==null?"":v}" style="width:${w}px" placeholder="-">`;
 const cfgChk=(path,v,t)=>`<label class="ck"><input type="checkbox" data-cfg="${path}"${v?" checked":""}> ${t}</label>`;
 const getP=(path)=>path.split(".").reduce((o,k)=>o==null?undefined:o[k],LLC);
@@ -2492,11 +2530,11 @@ function secB(){
 function shell(pv){
   const L=LF;
   pv.innerHTML=`<div class="llhero"><h2>숏애니 원작 후보 선정 로직 · 롱리스트</h2><p>KW 정식 연재작 전체(2021-01 이후 열람 기록 ${TOTAL_KW.toLocaleString()}개 작품) 대상 · GW 정식 연재작 전체 및 LM 정식 연재작 일부 함께 고려 · <span class="mut">${esc(POOL.period)}</span></p>
-     <div class="llnav">${[["A","선정 로직"],["B","변수 조정"],["C","롱리스트 구성"],["D","1차 결과"],["D2","2차 결과"],["E","확정 작품"],["E2","장르 분포"],["F","별도 관리"],["G","국가별 와일드카드"],["H","항목별 와일드카드"]].map(([k,t])=>`<a href="#ll${k}"><b>${k.replace("2","-2")}</b> ${t}</a>`).join("")}<span class="spacer"></span><button type="button" class="btn sm" data-llact="copy">확정 리스트 복사</button></div></div>
+     <div class="llnav">${[["A","선정 로직"],["B","변수 조정"],["C","롱리스트 구성"],["D","1차 결과"],["D2","2차 결과"],["E","확정 작품"],["E2","장르 분포"],["F","별도 관리"],["G","국가별 와일드카드"],["H","항목별 와일드카드"]].map(([k,t])=>`<a href="#ll${k}"><b>${k.replace("2","-2")}</b> ${t}</a>`).join("")}<span class="spacer"></span><a class="btn sm" href="shortlist.html">숏리스트 검토 ↗</a><button type="button" class="btn sm" data-llact="copy">확정 리스트 복사</button></div></div>
     ${secA()}${secB()}
     ${SEC("C","C","롱리스트 구성",`· 롱리스트 ${LV("llN")}개`,`<div class="llctl">${llSel("c","",[["ll","와일드카드 제외 (롱리스트만)"],["all","와일드카드 포함"]],L.c).replace('data-lf="c."','data-lf="c"')}</div>`)}
     ${SEC("D","D","1차 결과 · 롱리스트",`직전 반영 대비 ${LV("diff")}`,`<div class="llctl"><button type="button" class="btn sm" data-llact="dreset">필터 초기화</button> ${srch("d",L.d.q)} ${llSel("d","cf",[["","확정 전체"],["y","확정만"],["n","미확정"]],L.d.cf)} ${llSel("d","ex",[["","제외 포함"],["n","제외 숨기기"]],L.d.ex)} ${llSel("d","g4",[["","4구간 전체"],...G4],L.d.g4)} ${llSel("d","seg",[["","구분 전체"],"연재 중","종료"],L.d.seg)} ${llSel("d","sex",[["","성향 전체"],"남성향","여성향","공용"],L.d.sex)} <span class="mut">확정 ${LV("confN")}개 · 제외 ${LV("excN")}개 · 확정·제외는 팀 전체에 공유돼요</span></div>`)}
-    ${SEC("D2","D-2","2차 결과 · 애니화 적합도",`1차 결과(롱리스트 + 와일드카드)의 순서만 V-agent 제작 4축 점수 합 순으로 재배열 (컷오프 없음 · 미채점은 1차 순서대로 맨 아래)`,`<div class="llctl">채점 ${llSel("d2","sc",[["","전체"],["y","채점"],["n","미채점"]],L.d2.sc)} 1차 구분 ${llSel("d2","k1",[["","전체"],"롱리스트","항목별 와일드카드","국가별 와일드카드 · GW","국가별 와일드카드 · LM"],L.d2.k1)} ${srch("d2",L.d2.q)} <span class="mut">표시 ${LV("d2N")}개 · 채점 ${LV("scIn")} · 미채점 ${LV("unIn")}</span></div>`)}
+    ${SEC("D2","D-2","2차 결과 · 애니화 적합도",`1차 결과(롱리스트 + 와일드카드)의 순서만 V-agent 제작 4축 점수 합 순으로 재배열 (컷오프 없음 · 미채점은 1차 순서대로 맨 아래) · 4축 합 숫자를 누르면 점수를 입력·수정할 수 있어요`,`<div class="llctl">채점 ${llSel("d2","sc",[["","전체"],["y","채점"],["n","미채점"]],L.d2.sc)} 1차 구분 ${llSel("d2","k1",[["","전체"],"롱리스트","항목별 와일드카드","국가별 와일드카드 · GW","국가별 와일드카드 · LM"],L.d2.k1)} ${srch("d2",L.d2.q)} <span class="mut">표시 ${LV("d2N")}개 · 채점 ${LV("scIn")} · 미채점 ${LV("unIn")}</span></div>`)}
     ${SEC("E","E","확정 작품 구성",`· 확정 ${LV("confN")}개`)}
     ${SEC("E2","E-2","장르 4구간별 롱리스트 분포","롱리스트 작품만 표시 · 축은 컷오프 통과 작품 내 백분위",`<div class="llctl">가로축 ${llSel("e2","x",[["h","높이"],["w","넓이"],["r1","지속·열람"],["r2","지속·결제"],["d","깊이"],["g","성장성"]],L.e2.x)} 세로축 ${llSel("e2","y",[["h","높이"],["w","넓이"],["r1","지속·열람"],["r2","지속·결제"],["d","깊이"],["g","성장성"]],L.e2.y)} 축 범위 ${llSel("e2","rng",[["zoom","롱리스트 범위로 확대"],["full","0~100 전체"]],L.e2.rng)} <span class="mut">● 연재 중 · ○ 종료 · 점 크기 = 재미 점수</span></div>`)}
     ${SEC("F","F","별도 관리 작품","1차 검토 대상에서 뺀 작품 (애니 판권 기계약 · 숏애니 제작 확정 · Mega IP · 19금) · 점수는 롱리스트와 같은 기준의 참고값 · 제작 확정 외에는 재미 규모·분량 컷오프 통과 작품만 표시",`<div class="llctl">구분 ${llSel("f","k",[["","전체"],"애니 판권 기계약","Mega IP","숏애니 제작 확정","19금","과거 19금"],L.f.k)} ${srch("f",L.f.q)} <span class="mut">${LV("fInfo")}</span></div>`)}
@@ -2525,29 +2563,29 @@ function llRender(pv){
   G4.forEach(g=>{ const c=R.LL.filter(x=>x.g4===g).length; vals["g4c:"+g]=`${c}개 (${Math.round(c/(R.LL.length||1)*100)}%)`; G4SUB[g].forEach(s=>{ const k=R.LL.filter(x=>x.g===s).length; vals["sc:"+s]=`${k}개 (${Math.round(k/(R.LL.length||1)*100)}%)`; }); });
   /* C */ const cArr=L.c==="all"?R.R1.filter(x=>x.g4||x.seg):R.LL;
   vals.fInfo=`표시 ${R.F.filter(x=>(!L.f.k||x.F.includes(L.f.k))&&qOK(x,L.f.q)).length}개 / 전체 ${R.F.length}개 · ${Object.values(FL).map(f=>`${f} ${R.F.filter(x=>x.F.includes(f)).length}`).join(" · ")}`;
-  const bar=(t,c,n,guide,light)=>`<div class="cbr"><span>${t}</span><b>${c}개 · ${Math.round(c/(n||1)*100)}%</b><s>${guide!=null?`가이드 ${guide}%`:""}${light!=null?` · 롱리스트 ${light}%`:""}</s><div class="cbt">${light!=null?`<u style="width:${light}%"></u>`:""}<i style="width:${Math.round(c/(n||1)*100)}%"></i>${guide!=null?`<em style="left:${guide}%"></em>`:""}</div></div>`;
-  const comp=(arr,cmp)=>{ const n=arr.length, live=arr.filter(x=>x.seg==="연재 중").length, pc=(a,f)=>a.length?Math.round(a.filter(f).length/a.length*100):0;
-    const avg=n?arr.reduce((p,x)=>p+(x.fem??0.5),0)/n:0;
-    return `<div class="pf llpf"><div class="pfc"><div class="pft">연재 상태</div>${bar("연재 중",live,n,C.q.live,cmp?pc(cmp,x=>x.seg==="연재 중"):null)}${bar("종료",n-live,n,null,cmp?pc(cmp,x=>x.seg!=="연재 중"):null)}</div>
-      <div class="pfc"><div class="pft">장르 4구간 (점선 = 가이드 50 · 25 · 20 · 5%)</div>${G4.map(g=>bar(g,arr.filter(x=>x.g4===g).length,n,G4GUIDE[g],cmp?pc(cmp,x=>x.g4===g):null)).join("")}</div>
-      <div class="pfc"><div class="pft">성향 (작품별 실제 독자 비율의 평균)</div>${bar("남성향",arr.filter(x=>tgt(x.fem)==="남성향").length,n,null,cmp?pc(cmp,x=>tgt(x.fem)==="남성향"):null)}${bar("여성향",arr.filter(x=>tgt(x.fem)==="여성향").length,n,null,cmp?pc(cmp,x=>tgt(x.fem)==="여성향"):null)}${bar("공용",arr.filter(x=>tgt(x.fem)==="공용").length,n,null,cmp?pc(cmp,x=>tgt(x.fem)==="공용"):null)}
-        <div class="mut">평균 독자 비율 남 ${Math.round((1-avg)*100)} : 여 ${Math.round(avg*100)}</div></div></div>`; };
+  const stack=(title,items,n,note="")=>`<div class="pfc"><div class="pft">${title}</div><div class="pfbar">${items.filter(i=>i[1]).map(([t,c,col])=>`<span style="flex:${c};background:${col}" title="${esc(t)} ${c}개 (${Math.round(c/(n||1)*100)}%)"></span>`).join("")}</div>
+      <div class="pfl">${items.map(([t,c,col,extra])=>`<button type="button" tabindex="-1"><i style="background:${col}"></i>${esc(t)} <b>${c}</b><s>${Math.round(c/(n||1)*100)}%${extra?` · ${extra}`:""}</s></button>`).join("")}</div>${note?`<div class="mut" style="margin-top:6px">${note}</div>`:""}</div>`;
+  const comp=(arr,cmp)=>{ const n=arr.length, pc=(f)=>cmp&&cmp.length?`롱리스트 ${Math.round(cmp.filter(f).length/cmp.length*100)}%`:"";
+    const live=arr.filter(x=>x.seg==="연재 중").length, avg=n?arr.reduce((p,x)=>p+(x.fem??0.5),0)/n:0;
+    return `<div class="pf llpf">${stack("연재 상태",[["연재 중",live,"#1baf7a",`목표 ${C.q.live}%${cmp?" · "+pc(x=>x.seg==="연재 중"):""}`],["종료",n-live,"#b8bfca",cmp?pc(x=>x.seg!=="연재 중"):""]],n)}
+      ${stack("장르 4구간 (가이드 50 · 25 · 20 · 5%)",G4.map(g=>[g,arr.filter(x=>x.g4===g).length,G4CLR[g],`가이드 ${G4GUIDE[g]}%${cmp?" · "+pc(x=>x.g4===g):""}`]),n)}
+      ${stack("성향 (최근 52주 실제 독자)",[["남성향",arr.filter(x=>tgt(x.fem)==="남성향").length,"#2a78d6",cmp?pc(x=>tgt(x.fem)==="남성향"):""],["여성향",arr.filter(x=>tgt(x.fem)==="여성향").length,"#eb6834",cmp?pc(x=>tgt(x.fem)==="여성향"):""],["공용",arr.filter(x=>tgt(x.fem)==="공용").length,"#1baf7a",cmp?pc(x=>tgt(x.fem)==="공용"):""]],n,`평균 독자 비율 남 ${Math.round((1-avg)*100)} : 여 ${Math.round(avg*100)}`)}</div>`; };
   document.getElementById("llCb").innerHTML=comp(cArr);
   /* D */ const dF=(x)=>qOK(x,L.d.q)&&(!L.d.g4||x.g4===L.d.g4)&&(!L.d.seg||x.seg===L.d.seg)&&(!L.d.sex||tgt(x.fem)===L.d.sex)&&(!L.d.cf||(L.d.cf==="y")===!!(PIPE[x.n]&&PIPE[x.n].lc));
   const dRows=[]; const exS=new Set(R.excluded.map(x=>x.n)); const LLset=new Set(R.LL);
   const maxR=Math.max(0,...R.LL.map(x=>x.rank||0),...R.excluded.map(x=>x.rank||0));
   for(const x of R.pool){ if(x.rank>maxR) break; const excl=exS.has(x.n); if(!LLset.has(x)&&!excl) continue; if(excl&&L.d.ex==="n") continue; if(!dF(x)) continue;
     const [cf,ex]=cfx(x);
-    dRows.push(`<tr class="${excl?"exc":PIPE[x.n]&&PIPE[x.n].lc?"conf":""}"><td class="c"><b>${excl?"-":x.pos}</b></td><td class="c"><b>${x.s.toFixed(1)}</b><small>${x.rank}위</small></td><td>${nameCell(x)}</td>${cf}${ex}<td class="c">${esc(x.g)}</td><td class="c">${esc(x.g4)}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${srcTxt(x)}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${esc(x.seg)}</td><td class="c">${mfs(x.fem)}<small>${tgt(x.fem)}</small></td><td class="num">${x.ep??"—"}</td><td class="num">${fmt(x.h)}</td><td class="num">${fmt(x.wru)}</td>${["h","w","r1","r2","d","g"].map(k=>`<td>${llCell(Math.round(x.p[k]*100),x.ar[k],LLAX.find(a=>a[0]===k)[1])}</td>`).join("")}</tr>`); }
+    dRows.push(`<tr class="${excl?"exc":PIPE[x.n]&&PIPE[x.n].lc?"conf":""}"><td class="c"><b>${excl?"-":x.pos}</b></td><td class="c">${scoreB(x.s)}<small>${x.rank}위</small></td><td>${nameCell(x)}</td>${cf}${ex}<td class="c">${gPill(x.g)}</td><td class="c">${g4Pill(x.g4)}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${srcTxt(x)}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${segPill(x.seg)}</td><td class="c">${sexPill(x.fem)}</td><td class="num">${x.ep??"—"}</td><td class="num">${fmt(x.h)}</td><td class="num">${fmt(x.wru)}</td>${["h","w","r1","r2","d","g"].map(k=>`<td>${llCell(Math.round(x.p[k]*100),x.ar[k],LLAX.find(a=>a[0]===k)[1])}</td>`).join("")}</tr>`); }
   R.item.concat(R.gwc,R.lmc).filter(dF).forEach(x=>{ const [cf,ex]=cfx(x);
-    dRows.push(`<tr class="wcr"><td class="c">+</td><td class="c"><b>${x.s!=null?x.s.toFixed(1):"—"}</b><small>${x.rank?x.rank+"위":esc(x.mk==="GW"?`GW ${x.lang} ${x.lrank}위`:x.lmr?`LM ${x.lmr}위`:"")}</small></td><td>${nameCell(x,kindTag(x))}</td>${cf}${ex}<td class="c">${esc(x.g||"")}</td><td class="c">${esc(x.g4||"—")}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${x.src?srcTxt(x):"—"}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${esc(x.seg||"")}</td><td class="c">${mfs(x.fem)}<small>${tgt(x.fem)}</small></td><td class="num">${x.ep??"—"}</td><td class="num">${fmt(x.h??x.wpu)}</td><td class="num">${fmt(x.wru)}</td>${["h","w","r1","r2","d","g"].map(k=>`<td>${x.p&&x.ar?llCell(Math.round(x.p[k]*100),x.ar[k],k):x.p?`<div class="axc"><div class="axb"><i style="width:${Math.round(x.p[k]*100)}%"></i></div><b>${Math.round(x.p[k]*100)}</b></div>`:"—"}</td>`).join("")}</tr>`); });
+    dRows.push(`<tr class="wcr"><td class="c">+</td><td class="c"><b>${x.s!=null?x.s.toFixed(1):"—"}</b><small>${x.rank?x.rank+"위":esc(x.mk==="GW"?`GW ${x.lang} ${x.lrank}위`:x.lmr?`LM ${x.lmr}위`:"")}</small></td><td>${nameCell(x,kindTag(x))}</td>${cf}${ex}<td class="c">${gPill(x.g)}</td><td class="c">${g4Pill(x.g4)}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${x.src?srcTxt(x):"—"}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${segPill(x.seg)}</td><td class="c">${sexPill(x.fem)}</td><td class="num">${x.ep??"—"}</td><td class="num">${fmt(x.h??x.wpu)}</td><td class="num">${fmt(x.wru)}</td>${["h","w","r1","r2","d","g"].map(k=>`<td>${x.p&&x.ar?llCell(Math.round(x.p[k]*100),x.ar[k],k):x.p?`<div class="axc"><div class="axb"><i style="width:${Math.round(x.p[k]*100)}%"></i></div><b>${Math.round(x.p[k]*100)}</b></div>`:"—"}</td>`).join("")}</tr>`); });
   document.getElementById("llDb").innerHTML=`<div class="mut" style="margin:0 0 6px">'확정'한 작품은 순위와 상관없이 먼저 들어가고, '제외'를 체크하면 빠진 수만큼 다음 순위 작품이 올라와요. 와일드카드 편입 작품은 맨 아래에 다른 색으로 표시돼요.</div>`+
     llTbl(["순위","점수","작품명","확정 작품","제외 작품","장르","4구간","BM · 현재 상태","소싱 경로","CP","구분","남:여 · 성향","회차","최고 WPU<small>(4주 평균)</small>","평균 WRU","높이","넓이","지속·열람","지속·결제","깊이","성장성"],dRows,"tall");
   /* D-2 */ const d2=R.R2.filter(x=>qOK(x,L.d2.q)&&(!L.d2.sc||(L.d2.sc==="y")===(x.s4!=null))&&(!L.d2.k1||x.kind===L.d2.k1)); vals.d2N=d2.length;
   document.getElementById("llD2b").innerHTML=llTbl(["2차 순위","작품명","1차 구분 · 순위","순위 변화","1차 점수","① 생성 안정성","② 원작 재현","③ 서사 압축","④ 모션 임팩트","4축 합","2차 점수","장르","BM · 현재 상태","소싱 경로","CP","최고 WPU<small>(4주 평균)</small>"],
-    d2.map(x=>{ const ch=x.o1-x.r2; return `<tr class="${PIPE[x.n]&&PIPE[x.n].lc?"conf":""}"><td class="c"><b>${x.r2}</b></td><td>${nameCell(x,kindTag(x))}</td><td class="c">${x.kind==="롱리스트"?`롱리스트 ${x.pos}위`:esc(x.kind.replace("국가별 와일드카드 · ","국가별 · ").replace("항목별 와일드카드","항목별"))}</td><td class="c ${ch>0?"up":ch<0?"dn":""}">${x.s4==null?"—":ch>0?`▲ ${ch}`:ch<0?`▼ ${-ch}`:"–"}</td><td class="num">${x.s!=null?x.s.toFixed(1):"—"}</td>${(x.ax||[null,null,null,null]).map(v=>`<td class="num">${v??"—"}</td>`).join("")}<td class="num"><b>${x.s4??"—"}</b>${x.auto4?"<small>1차 자동</small>":""}</td><td class="num"><b>${x.s2!=null?x.s2.toFixed(1):"미채점"}</b></td><td class="c">${esc(x.g||"")}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${x.src?srcTxt(x):"—"}</td><td class="c">${esc(x.cp||"—")}</td><td class="num">${fmt(x.h??x.wpu)}</td></tr>`; }),"tall");
-  /* E */ document.getElementById("llEb").innerHTML=comp(R.conf,R.LL)+`<div class="mut" style="margin:4px 0 8px">진한 막대 = 확정 작품 · 연한 막대 = 롱리스트 ${R.LL.length}개 (비교용)</div>`+
-    llTbl(["#","작품명","구분","장르","4구간","성향 (남:여)","연재 상태","종합 점수 · 순위","확정 이유"],R.conf.map((x,i)=>`<tr class="conf"><td class="c">${i+1}</td><td>${nameCell(x)}</td><td class="c">${x.kind==="롱리스트"?"롱리스트":esc(x.kind)}</td><td class="c">${esc(x.g||"")}</td><td class="c">${esc(x.g4||"")}</td><td class="c">${tgt(x.fem)} (${mfs(x.fem).replace("남 ","").replace(" : 여 "," : ")})</td><td class="c">${esc(x.seg||"")}</td><td class="c">${x.s!=null?x.s.toFixed(1):"—"} · ${x.rank??"—"}위</td><td><b>${esc(typeof PIPE[x.n].lc==="string"?PIPE[x.n].lc:"-")}</b></td></tr>`));
+    d2.map(x=>{ const ch=x.o1-x.r2; return `<tr class="${PIPE[x.n]&&PIPE[x.n].lc?"conf":""}"><td class="c"><b>${x.r2}</b></td><td>${nameCell(x,kindTag(x))}</td><td class="c">${x.kind==="롱리스트"?`롱리스트 ${x.pos}위`:esc(x.kind.replace("국가별 와일드카드 · ","국가별 · ").replace("항목별 와일드카드","항목별"))}</td><td class="c ${ch>0?"up":ch<0?"dn":""}">${x.s4==null?"—":ch>0?`▲ ${ch}`:ch<0?`▼ ${-ch}`:"–"}</td><td class="c">${scoreB(x.s)}</td>${(x.ax||[null,null,null,null]).map(v=>`<td class="num">${v??"—"}</td>`).join("")}<td class="num"${x.dwn?` data-edit="${esc(x.dwn)}" style="cursor:pointer" title="눌러서 제작 4축 점수 입력·수정"`:""}><b class="ed4">${x.s4??(x.dwn?"입력":"—")}</b>${x.auto4?"<small>1차 자동</small>":""}</td><td class="c">${x.s2!=null?scoreB(x.s2):`<span class="lp mu">미채점</span>`}</td><td class="c">${gPill(x.g)}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${x.src?srcTxt(x):"—"}</td><td class="c">${esc(x.cp||"—")}</td><td class="num">${fmt(x.h??x.wpu)}</td></tr>`; }),"tall");
+  /* E */ document.getElementById("llEb").innerHTML=comp(R.conf,R.LL)+`<div class="mut" style="margin:4px 0 8px">막대 = 확정 작품 구성 · 범례의 "롱리스트 %" = 롱리스트 ${R.LL.length}개 비율 (비교용)</div>`+
+    llTbl(["#","작품명","구분","장르","4구간","성향 (남:여)","연재 상태","종합 점수 · 순위","확정 이유"],R.conf.map((x,i)=>`<tr class="conf"><td class="c">${i+1}</td><td>${nameCell(x)}</td><td class="c">${x.kind==="롱리스트"?"롱리스트":esc(x.kind)}</td><td class="c">${gPill(x.g)}</td><td class="c">${g4Pill(x.g4)}</td><td class="c">${sexPill(x.fem)}</td><td class="c">${segPill(x.seg)}</td><td class="c">${scoreB(x.s)}<small>${x.rank??"—"}위</small></td><td><b>${esc(typeof PIPE[x.n].lc==="string"?PIPE[x.n].lc:"-")}</b></td></tr>`));
   /* E-2 */ { const ax=(x,k)=>Math.round(x.p[k]*100), arr=R.LL, X=L.e2.x, Y=L.e2.y, zoom=L.e2.rng==="zoom";
     const xs=arr.map(x=>ax(x,X)), ys=arr.map(x=>ax(x,Y)); const fl=(v)=>Math.max(0,Math.floor(v/5)*5), xmin=zoom?Math.min(fl(Math.min(...xs,100)),75):0, ymin=zoom?Math.min(fl(Math.min(...ys,100)),50):0;
     const nm={h:"높이",w:"넓이",r1:"지속·열람",r2:"지속·결제",d:"깊이",g:"성장성"};
@@ -2562,15 +2600,15 @@ function llRender(pv){
       </svg><div class="e2y">${nm[Y]} 백분위 ↑</div></div>`; };
     document.getElementById("llE2b").innerHTML=`<div class="e2g">${G4.map(panel).join("")}</div>`; }
   /* F */ document.getElementById("llFb").innerHTML=llTbl(["구분","순위","점수","작품명","장르","4구간","BM · 현재 상태","소싱 경로","CP","구분","남:여 · 성향","회차","최고 WPU<small>(4주 평균)</small>","평균 WRU","높이"],
-    R.F.filter(x=>(!L.f.k||x.F.includes(L.f.k))&&qOK(x,L.f.q)).map(x=>`<tr><td class="c"><b>${x.F.join("<br>")}</b></td><td class="c">참고 ${x.ref}</td><td class="num"><b>${x.s.toFixed(1)}</b></td><td>${nameCell(x,x.F.map(f=>`<span class="llf">${f==="애니 판권 기계약"?"판권 기계약":f==="숏애니 제작 확정"?"확정":f}</span>`).join(""))}</td><td class="c">${esc(x.g)}</td><td class="c">${esc(x.g4||"")}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${srcTxt(x)}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${esc(x.seg)}</td><td class="c">${mfs(x.fem)}<small>${tgt(x.fem)}</small></td><td class="num">${x.ep??"—"}</td><td class="num">${fmt(x.h)}</td><td class="num">${fmt(x.wru)}</td><td>${llCell(Math.round(x.p.h*100),"-","높이").replace("<small>-위</small>","")}</td></tr>`),"tall");
+    R.F.filter(x=>(!L.f.k||x.F.includes(L.f.k))&&qOK(x,L.f.q)).map(x=>`<tr><td class="c"><b>${x.F.join("<br>")}</b></td><td class="c">참고 ${x.ref}</td><td class="c">${scoreB(x.s)}</td><td>${nameCell(x,x.F.map(f=>`<span class="llf">${f==="애니 판권 기계약"?"판권 기계약":f==="숏애니 제작 확정"?"확정":f}</span>`).join(""))}</td><td class="c">${gPill(x.g)}</td><td class="c">${g4Pill(x.g4)}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${srcTxt(x)}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${segPill(x.seg)}</td><td class="c">${sexPill(x.fem)}</td><td class="num">${x.ep??"—"}</td><td class="num">${fmt(x.h)}</td><td class="num">${fmt(x.wru)}</td><td>${llCell(Math.round(x.p.h*100),"-","높이").replace("<small>-위</small>","")}</td></tr>`),"tall");
   /* G */ const gArr=R.G.filter(x=>(!L.g.m||x.mk===L.g.m)&&(!L.g.lang||x.lang===L.g.lang)&&(!L.g.kw||(L.g.kw==="none")===(x.kwst==="KW 미연재"))&&(!L.g.orig||x.orig===L.g.orig)&&qOK(x,L.g.q)).sort((a,b)=>(a.mk>b.mk?1:a.mk<b.mk?-1:0)||a.mrank-b.mrank);
   vals.gInfo=`행 ${gArr.length}개 (GW ${R.G.filter(x=>x.mk==="GW").length} · LM ${R.G.filter(x=>x.mk==="LM").length}) · KW 미연재 ${R.G.filter(x=>x.kwst==="KW 미연재").length} · KW 성과 미미 ${R.G.filter(x=>x.kwst!=="KW 미연재").length}`;
   document.getElementById("llGb").innerHTML=llTbl(["#","작품명","시장 (플랫폼)","원작","KW 상태","대표 언어","언어 내 순위<small>GW 6축 점수</small>","Max WPU<small>GW = 전 언어 합</small>","Avg WRU","시장 내 순위"],
-    gArr.slice(0,400).map((x,i)=>`<tr class="${x.picked?"picked":""}"><td class="c">${i+1}</td><td>${nameCell(x,x.picked?`<span class="llc ink">롱리스트 편입</span>`:"")}</td><td class="c"><b>${x.mk}</b></td><td class="c">${esc(x.orig||"-")}</td><td class="c">${esc(x.kwst)}</td><td class="c">${esc(x.lang||"")}</td><td class="c">${x.mk==="GW"?`<b>${x.lrank}위</b><small>6축 점수 ${x.s6}</small>`:"—"}</td><td class="num"><b>${fmt(x.wpu)}</b></td><td class="num">${fmt(x.wru)}</td><td class="c"><b>${x.mrank}위</b><small>${x.mk==="GW"?`6축 점수 ${x.s6}`:`LM 전체 ${x.lmr}위`}</small></td></tr>`),"tall");
+    gArr.slice(0,400).map((x,i)=>`<tr class="${x.picked?"picked":""}"><td class="c">${i+1}</td><td>${nameCell(x,x.picked?`<span class="llc ink">롱리스트 편입</span>`:"")}</td><td class="c">${pill(x.mk,x.mk==="GW"?"#3aa7b8":"#1baf7a")}</td><td class="c">${esc(x.orig||"-")}</td><td class="c">${esc(x.kwst)}</td><td class="c">${esc(x.lang||"")}</td><td class="c">${x.mk==="GW"?`<b>${x.lrank}위</b><small>6축 점수 ${x.s6}</small>`:"—"}</td><td class="num"><b>${fmt(x.wpu)}</b></td><td class="num">${fmt(x.wru)}</td><td class="c"><b>${x.mrank}위</b><small>${x.mk==="GW"?`6축 점수 ${x.s6}`:`LM 전체 ${x.lmr}위`}</small></td></tr>`),"tall");
   /* H */ const nmA={r1:"지속·열람",r2:"지속·결제",d:"깊이",g:"성장성"}; const hArr=R.H.filter(x=>(!L.h.ax||x.best[0]===L.h.ax)&&(!L.h.seg||x.seg===L.h.seg)&&qOK(x,L.h.q));
   vals.hInfo=`${R.H.length}개 · 가장 높은 질 척도별 ${Object.entries(nmA).map(([k,t])=>`${t} ${R.H.filter(x=>x.best[0]===k).length}`).join(" · ")}`;
   document.getElementById("llHb").innerHTML=llTbl(["#","작품명","장르","BM · 현재 상태","소싱 경로","CP","구분","남:여","종합 점수 · 순위","질 점수 · 순위","종합 대비 밀린 순위","가장 높은 질 척도","높이","넓이","지속·열람","지속·결제","깊이","성장성"],
-    hArr.map((x,i)=>`<tr class="${R.item.includes(x)?"picked":""}"><td class="c">${i+1}</td><td>${nameCell(x,R.item.includes(x)?`<span class="llc ink">롱리스트 편입</span>`:"")}</td><td class="c">${esc(x.g)}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${srcTxt(x)}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${esc(x.seg)}</td><td class="c">${x.fem!=null?`${Math.round((1-x.fem)*100)} : ${Math.round(x.fem*100)}`:"—"}</td><td class="c">${x.s.toFixed(1)} · ${x.rank}위</td><td class="c"><b>${x.q.toFixed(1)} · ${x.qrank}위</b></td><td class="c">${x.push}위</td><td class="c">${nmA[x.best[0]]} ${x.best[1]}위</td>${["h","w","r1","r2","d","g"].map(k=>`<td class="${x.best[0]===k?"hl":""}">${llCell(Math.round(x.p[k]*100),x.ar[k],k)}</td>`).join("")}</tr>`),"tall");
+    hArr.map((x,i)=>`<tr class="${R.item.includes(x)?"picked":""}"><td class="c">${i+1}</td><td>${nameCell(x,R.item.includes(x)?`<span class="llc ink">롱리스트 편입</span>`:"")}</td><td class="c">${gPill(x.g)}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${srcTxt(x)}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${segPill(x.seg)}</td><td class="c">${x.fem!=null?`${Math.round((1-x.fem)*100)} : ${Math.round(x.fem*100)}`:"—"}</td><td class="c">${scoreB(x.s)}<small>${x.rank}위</small></td><td class="c">${scoreB(x.q)}<small>${x.qrank}위</small></td><td class="c">${x.push}위</td><td class="c">${nmA[x.best[0]]} ${x.best[1]}위</td>${["h","w","r1","r2","d","g"].map(k=>`<td class="${x.best[0]===k?"hl":""}">${llCell(Math.round(x.p[k]*100),x.ar[k],k)}</td>`).join("")}</tr>`),"tall");
   document.querySelectorAll("#pview [data-v]").forEach(el=>{ const k=el.dataset.v; if(vals[k]!==undefined) el.textContent=vals[k]; });
 }
 /* ── 입력 처리 (입력칸은 다시 그리지 않고 같은 항목 칸끼리만 맞춤) ── */
