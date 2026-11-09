@@ -569,6 +569,18 @@ td .lp+small{margin-top:2px}
 .llttl h1{margin:0;font-size:22px;letter-spacing:-.01em}
 .llttl .ver{font-size:11px}
 #addBtn{display:none!important}   /* 작품 추가 버튼 숨김 (롱리스트 화면만 사용) */
+
+.lks{border-color:color-mix(in srgb,#2a78d6 30%,var(--grid));background:color-mix(in srgb,#2a78d6 3%,var(--surface-1))}
+.lkhead{display:flex;gap:12px;align-items:center;margin:4px 0 10px} .lkhead .th.lg{width:54px;height:54px;border-radius:10px}
+.lkn{font-size:17px;font-weight:800;margin-bottom:2px} .lkhead .lp{margin-top:6px}
+.lp.no{--pc:#d03b6b}
+.lkkpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.lkk{background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;padding:9px 12px} .lkk span{display:block;font-size:11px;color:var(--muted)}
+.lkk b{display:block;font-size:19px;margin:2px 0} .lkk small{font-size:10.5px;color:var(--muted)}
+.lkk.ok b{color:#14805c} .lkk.no b{color:#b3264f}
+.lkt{width:100%;border-collapse:collapse;font-size:12px;background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;overflow:hidden;margin-bottom:6px}
+.lkt th{background:var(--plane);color:var(--muted);font-weight:600;font-size:11px;padding:7px 8px;text-align:left} .lkt td{padding:7px 8px;border-top:1px solid var(--grid)} .lkt td.num{text-align:right;white-space:nowrap}
+.lkt .axc{grid-template-columns:120px 26px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head><body>
@@ -773,7 +785,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "11.09-A";
+const BUILD = "11.09-B";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -1036,7 +1048,7 @@ async function authHdr(){
   return Object.assign({}, SB.hdr, t ? {Authorization:`Bearer ${t}`} : {});
 }
 let LASTPUSH=0, PULLING=false, LASTERR="";
-const APPV=57;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
+const APPV=58;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
 let OUTDATED=false, LOCAL0=null;
 function chip(state,txt){
   const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
@@ -2540,7 +2552,11 @@ function secB(){
 function shell(pv){
   const L=LF;
   pv.innerHTML=`<div class="llhero"><div class="llttl"><h1>숏애니 원작 후보 선정 로직 · 롱리스트</h1><span class="ver" id="llver"></span></div><p>KW 정식 연재작 전체(2021-01 이후 열람 기록 ${TOTAL_KW.toLocaleString()}개 작품) 대상 · GW 정식 연재작 전체 및 LM 정식 연재작 일부 함께 고려 · <span class="mut">${esc(POOL.period)}</span></p>
-     <div class="llnav">${[["A","선정 로직"],["B","변수 조정"],["C","롱리스트 구성"],["D","1차 결과"],["D2","2차 결과"],["E","확정 작품"],["E2","장르 분포"],["F","별도 관리"],["G","국가별 와일드카드"],["H","항목별 와일드카드"]].map(([k,t])=>`<a href="#ll${k}"><b>${k.replace("2","-2")}</b> ${t}</a>`).join("")}<span class="spacer"></span><a class="btn sm" href="shortlist.html">숏리스트 검토 ↗</a><button type="button" class="btn sm" data-llact="copy">확정 리스트 복사</button></div></div>
+     <div class="llnav">${[["S","작품 지표 찾기"],["A","선정 로직"],["B","변수 조정"],["C","롱리스트 구성"],["D","1차 결과"],["D2","2차 결과"],["E","확정 작품"],["E2","장르 분포"],["F","별도 관리"],["G","국가별 와일드카드"],["H","항목별 와일드카드"]].map(([k,t])=>`<a href="#ll${k}"><b>${k==="S"?"🔍":k.replace("2","-2")}</b> ${t}</a>`).join("")}<span class="spacer"></span><a class="btn sm" href="shortlist.html">숏리스트 검토 ↗</a><button type="button" class="btn sm" data-llact="copy">확정 리스트 복사</button></div></div>
+    <section class="llsec lks" id="llS"><div class="llh"><span class="tag">검색</span><h3>작품 지표 찾기</h3><span class="dsc">작품명을 검색하면 지표 수준과 후보군 안 순위를 보여줘요</span></div>
+      <div class="llctl"><input type="search" id="llSq" class="llsrch" list="llNames" placeholder="작품명 입력 (예: 나노마신)" style="min-width:320px"><button type="button" class="btn sm prim" data-llsearch>찾기</button>
+      <datalist id="llNames">${POOL.kw.map(x=>`<option value="${esc(x.n)}">`).join("")}${POOL.gw.filter(g=>!g.kw&&g.n).map(g=>`<option value="${esc(g.n)}">`).join("")}</datalist></div>
+      <div class="llbody" id="llSb"></div></section>
     ${secA()}${secB()}
     ${SEC("C","C","롱리스트 구성",`· 롱리스트 ${LV("llN")}개`,`<div class="llctl">${llSel("c","",[["ll","와일드카드 제외 (롱리스트만)"],["all","와일드카드 포함"]],L.c).replace('data-lf="c."','data-lf="c"')}</div>`)}
     ${SEC("D","D","1차 결과 · 롱리스트",`직전 반영 대비 ${LV("diff")}`,`<div class="llctl"><button type="button" class="btn sm" data-llact="dreset">필터 초기화</button> ${srch("d",L.d.q)} ${llSel("d","cf",[["","확정 전체"],["y","확정만"],["n","미확정"]],L.d.cf)} ${llSel("d","ex",[["","제외 포함"],["n","제외 숨기기"]],L.d.ex)} ${llSel("d","g4",[["","4구간 전체"],...G4],L.d.g4)} ${llSel("d","seg",[["","구분 전체"],"연재 중","종료"],L.d.seg)} ${llSel("d","sex",[["","성향 전체"],"남성향","여성향","공용"],L.d.sex)} <span class="mut">확정 ${LV("confN")}개 · 제외 ${LV("excN")}개 · 확정·제외는 팀 전체에 공유돼요</span></div>`)}
@@ -2552,6 +2568,58 @@ function shell(pv){
     ${SEC("H","H","와일드카드 2) 항목별 와일드카드","규모(높이·넓이)를 뺀 질 점수는 상위권인데 종합 순위는 밀린 작품 · 질 점수 순위 순",`<div class="llctl">가장 높은 질 척도 ${llSel("h","ax",[["","전체"],["r1","지속·열람"],["r2","지속·결제"],["d","깊이"],["g","성장성"]],L.h.ax)} 구분 ${llSel("h","seg",[["","전체"],"연재 중","종료"],L.h.seg)} ${srch("h",L.h.q)} <span class="mut">${LV("hInfo")}</span></div>`)}
     <section class="llsec llnote"><b>지표 정의</b><p><b>높이</b> 2021-01-04 주 이후 주간 WPU 상위 N주(기본 4주) 평균 · <b>넓이</b> 정상 주(휴재 주·휴재 전후 주·완결 주·완결 전 주 제외) 평균 주간 열람 유저 · <b>지속·열람/결제</b> 정상 주 중앙값(결제는 결제자 100명 이상 주) · <b>깊이</b> 최근 52회차 기준 독자별 진도율 평균 · <b>성장성</b> 분기 평균 WPU 최근 8분기 추세(연 30% 상승 = 만점) × R² · <b>백분위</b> 컷오프 통과 풀 안에서 (순위−1)/(n−1) · <b>종합 점수</b> 백분위 × 가중치 합 ÷ 가중치 총합 × 100 · <b>남:여</b> 최근 52주 성별 확인 독자 기준 실제 비율 · <b>GW 순위</b> 작품 × 언어 9,547개를 KW와 같은 6축·가중치로 채점 · <b>LM 순위</b> 2026-04-27 주 ~ 10-19 주 상위 4주 평균 구매자 수 기준 전체 31,068개 중 · <b>제작 4축</b> 이 사이트 후보군 리스트의 V-agent 채점(① 생성 안정성 · ② 원작 재현 · ③ 서사 압축 · ④ 모션 임팩트).</p></section>`;
 }
+/* ── 작품 지표 찾기: 작품명을 검색하면 6축 지표 수준과 후보군 안 순위를 보여줌 ── */
+let LLS="";
+function llFind(q){
+  const R=LLR; if(!R||!q) return null; const k=normT(q);
+  let x=R.all.find(y=>normT(y.n)===k) || R.all.find(y=>normT(y.n).includes(k));
+  const g=POOL.gw.find(y=>normT(y.n||"")===k||normT(y.loc||"")===k) || (!x && POOL.gw.find(y=>normT(y.n||"").includes(k)||normT(y.loc||"").toLowerCase().includes(k)));
+  if(!x && g && g.kw) x=R.all.find(y=>y.no===g.kw);
+  return {x, g: g || (x && POOL.gw.find(y=>y.kw===x.no)) || null};
+}
+function llLookupHTML(){
+  if(!LLS) return `<div class="mut">작품명을 입력하면 데이터 전달 기준(재미도 6축 · 컷오프 · GW · LINE망가 · 제작 4축)으로 지표 수준과 후보군 안 순위를 보여줘요.</div>`;
+  const R=LLR, f=llFind(LLS); if(!f||(!f.x&&!f.g)) return `<div class="pempty">'${esc(LLS)}' 작품을 데이터에서 찾지 못했어요. (최고 1주 WPU 300 이상 KW 작품 · GW 작품만 들어 있어요)</div>`;
+  const x=f.x, g=f.g, C=LLC, n=R.pool.length;
+  const inLL=x&&R.LL.includes(x), wc=x&&(R.item.includes(x)||R.lmc.includes(x))?x.kind:(g&&R.gwc.find(y=>normT(y.n)===normT(g.n||g.loc))?"국가별 와일드카드 · GW":null);
+  let status="", tone="mu";
+  if(x){
+    if(x.F.length){ status=`별도 관리 (F 표) · ${x.F.join(" · ")}`; tone="no"; }
+    else if(!x.rank){ const why=[]; if(C.cut.useP&&(x.peak||0)<+C.cut.peak) why.push(`최고 1주 WPU ${fmt(x.peak)} < ${fmt(+C.cut.peak)}`); if(C.cut.useE&&(x.ep||0)<+C.cut.ep) why.push(`총 ${x.ep}화 < ${C.cut.ep}화`); status=`컷오프 미통과 · ${why.join(" · ")}`; tone="no"; }
+    else if(inLL){ status=`롱리스트 ${x.pos}위 (종합 ${x.rank}위 / ${n.toLocaleString()})`; tone="ok"; }
+    else status=`롱리스트 밖 · 종합 ${x.rank}위 / ${n.toLocaleString()}`;
+    if(wc){ status+=` · ${wc} 편입`; tone="ok"; }
+  } else { status=wc?`${wc} 편입`:"KW 미연재 (GW 작품)"; tone=wc?"ok":"mu"; }
+  const cut=R.LL.length?R.LL[R.LL.length-1].s:null;
+  const axRank=(k)=> x.rank? x.ar[k] : 1+R.pool.filter(y=>y.p[k]>x.p[k]).length;
+  const o=x?(POOL.kw.find(y=>y.no===x.no)||x):null;   // 원본 값 (x.r2는 2차 순위로 쓰여서 원본에서 읽음)
+  const raw={h:x&&fmt(x.h),w:x&&fmt(x.wru),r1:o&&o.r1!=null?Math.round(o.r1*100)+"%":"—",r2:o&&o.r2!=null?Math.round(o.r2*100)+"%":"—",d:x&&x.dep!=null?Math.round(x.dep*100)+"%":"—",g:x&&x.gro!=null?Math.round(x.gro*100)+"점":"—",pur:x&&x.pur!=null?Math.round(x.pur*100)+"%":"—"};
+  const lvl=(v)=> v>=90?["최상위","ok"]:v>=70?["상위","ok"]:v>=40?["중간","mu"]:["하위","no"];
+  const gIn=x&&x.g4?R.pool.filter(y=>y.g4===x.g4):[], gRank=x&&x.rank?1+gIn.filter(y=>y.s>x.s).length:null;
+  const dw=(typeof W!=="undefined"&&Array.isArray(W))?((x&&W.find(w=>String(w.id)===String(x.no)))||W.find(w=>normT(w.n)===normT((x||g).n||""))):null;
+  const s4=dw&&dw.a!=null?dw.a+dw.b+dw.c+dw.e:null;
+  const kpi=(t,v,sub,cls="")=>`<div class="lkk ${cls}"><span>${t}</span><b>${v}</b><small>${sub||""}</small></div>`;
+  return `<div class="lkhead">${x&&x.no?`<div class="th lg" data-cid="${x.no}"></div>`:""}<div><div class="lkn">${esc((x||g).n||g.loc)}</div>
+      <div class="meta">${[x&&x.g, x&&x.g4, x&&x.seg, x&&tgt(x.fem)!=="—"?`${tgt(x.fem)} (${mfs(x.fem)})`:"", x&&x.ep?`${x.ep}화`:"", x&&x.cp].filter(Boolean).map(esc).join(" · ")}</div>
+      <span class="lp ${tone}">${esc(status)}</span></div></div>
+    <div class="lkkpi">
+      ${x?kpi("종합 점수 (재미도 6축)",x.s.toFixed(1),x.rank?`풀 ${x.rank}위 / ${n.toLocaleString()} · 상위 ${Math.max(1,Math.round(x.rank/n*100))}%`:`참고 순위 ${x.ref}위 (풀 밖)`):""}
+      ${x?kpi("롱리스트 컷 대비",cut!=null?(x.s-cut>=0?"+":"")+(x.s-cut).toFixed(1):"—",cut!=null?`롱리스트 ${R.LL.length}위 점수 ${cut.toFixed(1)}`:"",cut!=null&&x.s>=cut?"ok":"no"):""}
+      ${x?kpi("질 점수 (규모 제외)",x.q.toFixed(1),x.qrank?`풀 ${x.qrank}위`:""):""}
+      ${gRank?kpi(`${x.g4} 안에서`,`${gRank}위`,`${gIn.length}개 중`):""}
+      ${g?kpi("GW (해외)",g.s6!=null?`${g.lang} ${g.lrank}위`:"—",`6축 점수 ${g.s6??"—"} · Max WPU ${fmt(g.wpu)}`):kpi("GW (해외)","미서비스","")}
+      ${kpi("LINE망가 (일본)",(x&&x.lmr)||(g&&g.lmr)?`${(x&&x.lmr)||g.lmr}위`:"—",(x&&x.lmw)||(g&&g.lmw)?`Max WPU ${fmt((x&&x.lmw)||g.lmw)} · 31,068개 중`:"데이터 없음")}
+      ${kpi("제작 4축 (V-agent)",s4!=null?`${s4} / 40`:"미채점",dw&&dw.ax?"":s4!=null?`① ${dw.a} · ② ${dw.b} · ③ ${dw.c} · ④ ${dw.e}${dw.auto?" (1차 자동)":""}`:"",s4==null?"":"")}
+    </div>
+    ${x?`<table class="lkt"><thead><tr><th>재미도 축</th><th>원값</th><th>백분위</th><th>풀 내 순위</th><th>수준</th><th>가중치</th></tr></thead><tbody>
+      ${LLAX.filter(([k])=>k!=="pur"||(+C.w.pur)).map(([k,t])=>{ const v=Math.round(x.p[k]*100), r=axRank(k), [lt,lc]=lvl(v);
+        return `<tr><td><b>${t}</b></td><td class="num">${raw[k]}</td><td><div class="axc"><div class="axb"><i style="width:${v}%;background:${AXCLR[k]||"var(--ink-2)"}"></i></div><b>${v}</b></div></td><td class="num">${r}위 / ${n.toLocaleString()}</td><td><span class="lp ${lc}">${lt}</span></td><td class="num">${C.w[k]}%</td></tr>`; }).join("")}
+    </tbody></table><div class="mut">백분위는 컷오프 통과 ${n.toLocaleString()}개 안에서의 위치예요 (100 = 1위). 풀 밖 작품도 같은 분포에 넣어 계산한 참고값이에요.</div>`:""}`;
+}
+function llLookupRender(){ const el=document.getElementById("llSb"); if(el){ el.innerHTML=llLookupHTML(); if(typeof watchThumbs==="function") watchThumbs(); } }
+document.addEventListener("keydown",(e)=>{ if(e.target.id==="llSq"&&e.key==="Enter"){ LLS=e.target.value.trim(); llLookupRender(); } });
+document.addEventListener("change",(e)=>{ if(e.target.id==="llSq"){ LLS=e.target.value.trim(); llLookupRender(); } });
+document.addEventListener("click",(e)=>{ const b=e.target.closest("[data-llsearch]"); if(b){ const i=document.getElementById("llSq"); LLS=(i&&i.value||"").trim(); llLookupRender(); } });
 /* ── 결과 칸 채우기 ── */
 let LLPREV=null;
 function llRender(pv){
@@ -2621,6 +2689,7 @@ function llRender(pv){
   document.getElementById("llHb").innerHTML=llTbl(["#","작품명","장르","BM · 현재 상태","소싱 경로","CP","구분","남:여","종합 점수 · 순위","질 점수 · 순위","종합 대비 밀린 순위","가장 높은 질 척도","높이","넓이","지속·열람","지속·결제","깊이","성장성"],
     hArr.map((x,i)=>`<tr class="${R.item.includes(x)?"picked":""}"><td class="c">${i+1}</td><td>${nameCell(x,R.item.includes(x)?`<span class="llc ink">롱리스트 편입</span>`:"")}</td><td class="c">${gPill(x.g)}</td><td class="c">${esc(x.bm||"")}<small>${esc(x.st||"")}</small></td><td class="c">${srcTxt(x)}</td><td class="c">${esc(x.cp||"—")}</td><td class="c">${segPill(x.seg)}</td><td class="c">${x.fem!=null?`${Math.round((1-x.fem)*100)} : ${Math.round(x.fem*100)}`:"—"}</td><td class="c">${scoreB(x.s)}<small>${x.rank}위</small></td><td class="c">${scoreB(x.q)}<small>${x.qrank}위</small></td><td class="c">${x.push}위</td><td class="c">${nmA[x.best[0]]} ${x.best[1]}위</td>${["h","w","r1","r2","d","g"].map(k=>`<td class="${x.best[0]===k?"hl":""}">${llCell(Math.round(x.p[k]*100),x.ar[k],k)}</td>`).join("")}</tr>`),"tall");
   document.querySelectorAll("#pview [data-v]").forEach(el=>{ const k=el.dataset.v; if(vals[k]!==undefined) el.textContent=vals[k]; });
+  llLookupRender();
 }
 /* ── 입력 처리 (입력칸은 다시 그리지 않고 같은 항목 칸끼리만 맞춤) ── */
 let LLTM=null, LLCOMPOSE=false;
