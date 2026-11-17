@@ -588,7 +588,7 @@ td .lp+small{margin-top:2px}
 .jpr{position:absolute;left:0;top:calc(100% + 4px);z-index:30;width:min(760px,100%);max-height:420px;overflow:auto;background:var(--surface-1);border:1px solid var(--ring);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.14);padding:6px}
 .jpi{display:grid;grid-template-columns:1.1fr 1.4fr auto auto auto;gap:8px;align-items:center;padding:7px 8px;border-radius:8px}
 .jpi:hover{background:var(--plane)}
-.jpk{font-weight:700;font-size:13px} .jpk small{display:block;font-weight:400;font-size:10.5px;color:var(--muted)}
+.jpk{font-weight:700;font-size:13px} .jpk a{color:var(--ink);text-decoration:none;border-bottom:1px dashed var(--axis)} .jpk a:hover{color:#1f5fae} .jpk small{display:block;font-weight:400;font-size:10.5px;color:var(--muted)}
 .jpj{font-size:13.5px;font-weight:600;color:var(--ink)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -794,7 +794,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "11.11-A";
+const BUILD = "11.17-A";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -1057,7 +1057,7 @@ async function authHdr(){
   return Object.assign({}, SB.hdr, t ? {Authorization:`Bearer ${t}`} : {});
 }
 let LASTPUSH=0, PULLING=false, LASTERR="";
-const APPV=59;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
+const APPV=60;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
 let OUTDATED=false, LOCAL0=null;
 function chip(state,txt){
   const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
@@ -2564,7 +2564,7 @@ function shell(pv){
      <div class="jpbox"><span class="jpl">한글명 → 일본명</span><input type="search" id="jpq" class="llsrch" placeholder="작품 한글명 입력 (예: 나노마신)" autocomplete="off"><span class="mut">글로벌 9개 언어 작품마스터 · LINE망가 공식 목록 기준</span><div class="jpr" id="jpr" hidden></div></div>
      <div class="llnav">${[["S","작품 지표 찾기"],["A","선정 로직"],["B","변수 조정"],["C","롱리스트 구성"],["D","1차 결과"],["D2","2차 결과"],["E","확정 작품"],["E2","장르 분포"],["F","별도 관리"],["G","국가별 와일드카드"],["H","항목별 와일드카드"]].map(([k,t])=>`<a href="#ll${k}"><b>${k==="S"?"🔍":k.replace("2","-2")}</b> ${t}</a>`).join("")}<span class="spacer"></span><a class="btn sm" href="shortlist.html">숏리스트 검토 ↗</a><button type="button" class="btn sm" data-llact="copy">확정 리스트 복사</button></div></div>
     <section class="llsec lks" id="llS"><div class="llh"><span class="tag">검색</span><h3>작품 지표 찾기</h3><span class="dsc">작품명을 검색하면 지표 수준과 후보군 안 순위를 보여줘요</span></div>
-      <div class="llctl"><input type="search" id="llSq" class="llsrch" list="llNames" placeholder="작품명 입력 (예: 나노마신)" style="min-width:320px"><button type="button" class="btn sm prim" data-llsearch>찾기</button>
+      <div class="llctl"><input type="search" id="llSq" class="llsrch" list="llNames" placeholder="작품명 입력 — 입력하면 바로 찾아요 (예: 나노마신)" style="min-width:320px"><button type="button" class="btn sm prim" data-llsearch>찾기</button>
       <datalist id="llNames">${POOL.kw.map(x=>`<option value="${esc(x.n)}">`).join("")}${POOL.gw.filter(g=>!g.kw&&g.n).map(g=>`<option value="${esc(g.n)}">`).join("")}</datalist></div>
       <div class="llbody" id="llSb"></div></section>
     ${secA()}${secB()}
@@ -2629,6 +2629,10 @@ function llLookupHTML(){
 }
 function llLookupRender(){ const el=document.getElementById("llSb"); if(el){ el.innerHTML=llLookupHTML(); if(typeof watchThumbs==="function") watchThumbs(); } }
 document.addEventListener("keydown",(e)=>{ if(e.target.id==="llSq"&&e.key==="Enter"){ LLS=e.target.value.trim(); llLookupRender(); } });
+let LLSC=false, LLST=null;
+document.addEventListener("compositionstart",(e)=>{ if(e.target.id==="llSq") LLSC=true; });
+document.addEventListener("compositionend",(e)=>{ if(e.target.id==="llSq"){ LLSC=false; clearTimeout(LLST); LLST=setTimeout(()=>{ LLS=e.target.value.trim(); llLookupRender(); },250); } });
+document.addEventListener("input",(e)=>{ if(e.target.id==="llSq"&&!LLSC&&!e.isComposing){ clearTimeout(LLST); LLST=setTimeout(()=>{ LLS=e.target.value.trim(); llLookupRender(); },250); } });
 document.addEventListener("change",(e)=>{ if(e.target.id==="llSq"){ LLS=e.target.value.trim(); llLookupRender(); } });
 document.addEventListener("click",(e)=>{ const b=e.target.closest("[data-llsearch]"); if(b){ const i=document.getElementById("llSq"); LLS=(i&&i.value||"").trim(); llLookupRender(); } });
 
@@ -2655,7 +2659,7 @@ function jpRender(){
   const el=document.getElementById("jpr"); if(!el) return;
   if(!JPQ.trim()){ el.innerHTML=""; el.hidden=true; return; }
   const L=jpSearch(JPQ); el.hidden=false;
-  el.innerHTML = L.length ? L.map(x=>`<div class="jpi"><div class="jpk">${esc(x.kr)}${x.en?`<small>${esc(x.en)}</small>`:""}</div>
+  el.innerHTML = L.length ? L.map(x=>`<div class="jpi"><div class="jpk"><a href="#llS" data-jplook="${esc(x.kr)}" title="이 작품 지표 보기">${esc(x.kr)}</a>${x.en?`<small>${esc(x.en)}</small>`:""}</div>
       <div class="jpj" data-noi18n>${esc(x.jp)}</div>
       <span class="lp ${x.ok?"ok":"mu"}">${x.ok?"LINE망가 공식":x.src==="GW"?"GW 데이터":x.src==="대시보드"?"대시보드 표기":"공식 목록 미확인"}</span>
       <button type="button" class="btn sm" data-jpcopy="${esc(x.jp)}">복사</button>${x.url?`<a class="btn sm" href="${esc(x.url)}" target="_blank" rel="noopener">LINE망가 ↗</a>`:""}</div>`).join("")
@@ -2664,6 +2668,9 @@ function jpRender(){
 document.addEventListener("input",(e)=>{ if(e.target.id==="jpq"){ if(JPCOMP||e.isComposing) return; JPQ=e.target.value; jpRender(); } });
 document.addEventListener("compositionstart",(e)=>{ if(e.target.id==="jpq") JPCOMP=true; });
 document.addEventListener("compositionend",(e)=>{ if(e.target.id==="jpq"){ JPCOMP=false; JPQ=e.target.value; jpRender(); } });
+document.addEventListener("click",(e)=>{ const l=e.target.closest("[data-jplook]"); if(!l) return; e.preventDefault();
+  const i=document.getElementById("llSq"); if(i) i.value=l.dataset.jplook; LLS=l.dataset.jplook; llLookupRender();
+  const r=document.getElementById("jpr"); if(r) r.hidden=true; document.getElementById("llS").scrollIntoView({behavior:"smooth",block:"start"}); });
 document.addEventListener("click",(e)=>{ const r=document.getElementById("jpr"); if(r&&!r.hidden&&!e.target.closest(".jpbox")) r.hidden=true; });
 document.addEventListener("focusin",(e)=>{ if(e.target.id==="jpq"&&JPQ.trim()) jpRender(); });
 document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ const r=document.getElementById("jpr"); if(r) r.hidden=true; } });
