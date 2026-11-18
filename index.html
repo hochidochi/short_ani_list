@@ -590,6 +590,12 @@ td .lp+small{margin-top:2px}
 .jpi:hover{background:var(--plane)}
 .jpk{font-weight:700;font-size:13px} .jpk a{color:var(--ink);text-decoration:none;border-bottom:1px dashed var(--axis)} .jpk a:hover{color:#1f5fae} .jpk small{display:block;font-weight:400;font-size:10.5px;color:var(--muted)}
 .jpj{font-size:13.5px;font-weight:600;color:var(--ink)}
+
+.lkcut{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px;padding:8px 10px;border:1px dashed var(--axis);border-radius:10px;background:var(--surface-1)}
+.lkc{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--grid)} .lkc b{margin-right:2px}
+.lkc.ok{background:color-mix(in srgb,#1baf7a 12%,transparent);border-color:color-mix(in srgb,#1baf7a 40%,transparent);color:#14805c}
+.lkc.no{background:color-mix(in srgb,#d03b6b 10%,transparent);border-color:color-mix(in srgb,#d03b6b 35%,transparent);color:#a3264f}
+.lkc.mu{color:var(--muted)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head><body>
@@ -794,7 +800,7 @@ const OWNERS = ["미정","내부제작","엠스토리허브"];
 const OWN_GROUPS = ["미정","내부제작","외부제작"];   // 필터 탭 — 내부제작·미정이 아니면 모두 외부제작
 /* 옛 이름 정리 — 인하우스는 내부제작으로, 스튜디오N은 진행하지 않으므로 미정으로 */
 const normOwn = (o)=> o==="인하우스" ? "내부제작" : o==="스튜디오N" ? "" : (o||"");
-const BUILD = "11.17-A";
+const BUILD = "11.17-B";
 const ownerOf = (w)=> normOwn(OWN[w.n]) || normOwn(w.own) || "미정";
 const ownGroup = (w)=>{ const o=ownerOf(w); return o==="미정"||o==="내부제작" ? o : "외부제작"; };
 function cleanOwn(){ Object.keys(OWN).forEach(k=>{ const v=normOwn(OWN[k]); if(v) OWN[k]=v; else delete OWN[k]; }); }
@@ -1057,7 +1063,7 @@ async function authHdr(){
   return Object.assign({}, SB.hdr, t ? {Authorization:`Bearer ${t}`} : {});
 }
 let LASTPUSH=0, PULLING=false, LASTERR="";
-const APPV=60;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
+const APPV=61;            // 저장 데이터에 함께 남기는 화면 버전 — 더 새 버전이 저장한 데이터면 이 화면은 저장하지 않음
 let OUTDATED=false, LOCAL0=null;
 function chip(state,txt){
   const c=document.getElementById("syncChip"); c.hidden=false; c.dataset.s=state; c.textContent=txt;
@@ -2381,7 +2387,7 @@ const TOTAL_KW=5154, TOTAL_PAY=3956;     // 툴 기준: KW 정식 연재작 5,15
 const LLDEF={cut:{peak:3000,ep:20,useP:true,useE:true,R:true,M:true,P:true,A:true,a:false},
   w:{h:20,w:20,r1:15,r2:15,d:15,g:15,pur:0}, topN:4,
   q:{n:50,live:80,g4:{}, sub:{}, sex:""},
-  wc:{gw:2,lm:3,itemOut:100,itemIn:100,itemN:5,other:true}, mix:50};
+  wc:{gw:2,lm:3,itemOut:100,itemIn:100,itemN:5,other:true}, mix:50, rankCut:200};
 const clone=(o)=>JSON.parse(JSON.stringify(o));
 let LLC=(()=>{ try{ const s=JSON.parse(localStorage.getItem("ll_cfg2")||"null"); const d=clone(LLDEF); if(s){ Object.keys(d).forEach(k=>{ if(s[k]!=null) d[k]= typeof d[k]==="object"&&!Array.isArray(d[k]) ? Object.assign(d[k],s[k]) : s[k]; }); } return d; }catch(e){ return clone(LLDEF); } })();
 const llSave=()=>{ try{ localStorage.setItem("ll_cfg2",JSON.stringify(LLC)); }catch(e){} };
@@ -2539,8 +2545,8 @@ function secA(){
 }
 /* ── B 변수 조정 (A와 같은 값을 공유) ── */
 function secB(){
-  const C=LLC, w=C.w, sl=(k,t,d)=>`<div class="slr"><span>${t}<small>${d}</small></span><input type="range" min="0" max="40" step="1" data-cfg="w.${k}" value="${w[k]}"><b data-v="wv:${k}">${w[k]}</b></div>`;
-  return `<section class="llsec" id="llB"><div class="llh"><span class="tag">B</span><h3>변수 조정</h3><span class="dsc">값을 바꾸면 바로 다시 계산돼요 (A 표와 연동) · 설정은 이 브라우저에 저장</span><span class="spacer"></span><button type="button" class="btn sm" data-llact="reset">기본값으로 초기화</button><a class="btn sm" href="#llA">↑ A 선정 로직으로</a></div>
+  const C=LLC, w=C.w, sl=(k,t,d)=>`<div class="slr"><span>${t}<small>${d}</small></span><input type="range" min="0" max="100" step="1" data-cfg="w.${k}" value="${w[k]}"><b data-v="wv:${k}">${w[k]}</b></div>`;
+  return `<section class="llsec" id="llB"><div class="llh"><span class="tag">B</span><h3>변수 조정</h3><span class="dsc">값을 바꾸면 바로 다시 계산돼요 (A 표와 연동) · 설정은 이 브라우저에 저장</span><span class="spacer"></span><button type="button" class="btn sm prim" data-llact="wpu100" title="지난번 유기님·다운님 선정 때 쓴 기준: 재미의 고점(WPU)만 100%">WPU 100% (지난 선정 기준)</button><button type="button" class="btn sm" data-llact="even">6축 고르게 (기본 가중치)</button><button type="button" class="btn sm" data-llact="reset">기본값으로 초기화</button><a class="btn sm" href="#llA">↑ A 선정 로직으로</a></div>
   <div class="llB">
    <div class="pfc"><div class="pft">① 컷오프</div>
     <div class="lrow">${cfgChk("cut.useP",C.cut.useP,"최소한의 재미 규모 적용")}</div><div class="lrow">└ KW 최고 WPU (명 이상) ${cfgNum("cut.peak",C.cut.peak,80)} <span class="mut">상위 ${LV("peakPct")}%</span></div>
@@ -2613,6 +2619,12 @@ function llLookupHTML(){
       <div class="meta">${[x&&x.g, x&&x.g4, x&&x.seg, x&&tgt(x.fem)!=="—"?`${tgt(x.fem)} (${mfs(x.fem)})`:"", x&&x.ep?`${x.ep}화`:"", x&&x.cp].filter(Boolean).map(esc).join(" · ")}</div>
       ${(()=>{ const j=jpSearch((x||g).n||"")[0]; return j&&normT(j.kr)===normT((x||g).n||"")?`<div class="meta" data-noi18n>일본명 <b>${esc(j.jp)}</b>${j.ok?" · LINE망가 공식":""}</div>`:(g&&g.jp?`<div class="meta" data-noi18n>일본명 <b>${esc(g.jp)}</b></div>`:""); })()}
       <span class="lp ${tone}">${esc(status)}</span></div></div>
+    ${(()=>{ const cutN=+C.rankCut||200, kr=x?(x.rank||x.ref):null, lr=(x&&x.lmr)||(g&&g.lmr)||null, wOnly=(+C.w.h>0)&&LLAX.every(([k])=>k==="h"||!(+C.w[k]));
+      const chip=(t,ok,sub)=>`<span class="lkc ${ok==null?"mu":ok?"ok":"no"}"><b>${t}</b> ${sub}</span>`;
+      return `<div class="lkcut"><span class="mut">순위 컷 ${cfgNum("rankCut",cutN,60)} 위 안 · 지금 가중치: ${wOnly?"WPU 100% (지난 선정 기준)":"6축 혼합"}</span>
+        ${chip("KW",kr?kr<=cutN:null,kr?`${kr}위${x&&!x.rank?" (풀 밖 참고)":""} · ${kr<=cutN?"통과":"미달"}`:"순위 없음")}
+        ${chip("LINE망가",lr?lr<=cutN:null,lr?`${lr}위 · ${lr<=cutN?"통과":"미달"}`:"데이터 없음")}
+        ${wOnly?"":`<button type="button" class="btn sm" data-llact="wpu100">WPU 100%로 보기</button>`}</div>`; })()}
     <div class="lkkpi">
       ${x?kpi("종합 점수 (재미도 6축)",x.s.toFixed(1),x.rank?`풀 ${x.rank}위 / ${n.toLocaleString()} · 상위 ${Math.max(1,Math.round(x.rank/n*100))}%`:`참고 순위 ${x.ref}위 (풀 밖)`):""}
       ${x?kpi("롱리스트 컷 대비",cut!=null?(x.s-cut>=0?"+":"")+(x.s-cut).toFixed(1):"—",cut!=null?`롱리스트 ${R.LL.length}위 점수 ${cut.toFixed(1)}`:"",cut!=null&&x.s>=cut?"ok":"no"):""}
@@ -2771,6 +2783,7 @@ document.addEventListener("click",(e)=>{
   if(MODE!=="ll") return;
   const a=e.target.closest("[data-llact]"); if(!a) return;
   if(a.dataset.llact==="reset"){ LLC=clone(LLDEF); llSave(); const pv=document.getElementById("pview"); pv.innerHTML=""; renderMode(); }
+  if(a.dataset.llact==="wpu100"||a.dataset.llact==="even"){ LLC.w = a.dataset.llact==="wpu100" ? {h:100,w:0,r1:0,r2:0,d:0,g:0,pur:0} : clone(LLDEF.w); llSave(); const pv=document.getElementById("pview"); const y=scrollY; pv.innerHTML=""; renderMode(); requestAnimationFrame(()=>scrollTo(0,y)); return; }
   if(a.dataset.llact==="dreset"){ LF.d={q:"",g:"",g4:"",seg:"",sex:"",cf:"",ex:""}; const pv=document.getElementById("pview"); pv.innerHTML=""; renderMode(); }
   if(a.dataset.llact==="copy"){ const R=LLR; if(!R) return; const t=R.conf.map(x=>`${x.n}\t${typeof PIPE[x.n].lc==="string"?PIPE[x.n].lc:""}`).join("\n"); navigator.clipboard&&navigator.clipboard.writeText(t); a.textContent=`복사됨 (${R.conf.length})`; setTimeout(()=>a.textContent="확정 리스트 복사",1500); }
 });
